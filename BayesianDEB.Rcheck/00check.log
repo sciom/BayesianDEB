@@ -75,4 +75,9 @@ Package has a VignetteBuilder field but no prebuilt vignette index.
 * checking for unstated dependencies in vignettes ... OK
 * checking package vignettes ... OK
 * checking re-building of vignette outputs ... OK
-* checking PDF version of manual ...
+* checking PDF version of manual ... OK
+* checking HTML version of manual ... OK
+* checking for non-standard things in the check directory ... OK
+* checking for detritus in the temp directory ... OK
+* DONE
+Status: 1 NOTE
