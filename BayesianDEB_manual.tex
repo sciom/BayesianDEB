@@ -1,0 +1,1031 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=25mm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb,bm}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage[colorlinks=true,linkcolor=blue!70!black,citecolor=blue!70!black,urlcolor=blue!70!black]{hyperref}
+\usepackage{natbib}
+\bibliographystyle{plainnat}
+
+% Code style
+\definecolor{codebg}{RGB}{248,248,248}
+\definecolor{codeframe}{RGB}{200,200,200}
+\definecolor{codecomment}{RGB}{0,120,0}
+\definecolor{codekeyword}{RGB}{0,0,160}
+\definecolor{codestring}{RGB}{160,20,20}
+
+\lstdefinestyle{Rstyle}{%
+  language=R,
+  backgroundcolor=\color{codebg},
+  frame=single,
+  rulecolor=\color{codeframe},
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{codekeyword}\bfseries,
+  commentstyle=\color{codecomment}\itshape,
+  stringstyle=\color{codestring},
+  breaklines=true,
+  showstringspaces=false,
+  tabsize=2,
+  numbers=none,
+  morekeywords={bdeb_data,bdeb_model,bdeb_fit,bdeb_diagnose,bdeb_ppc,
+    bdeb_summary,bdeb_derived,bdeb_predict,bdeb_tox,bdeb_ec50,
+    prior_lognormal,prior_normal,prior_beta,prior_halfnormal,
+    prior_halfcauchy,prior_exponential,prior_default,
+    obs_normal,obs_lognormal,obs_student_t,obs_poisson,obs_negbinom,
+    arrhenius,deb_fluxes,repro_to_intervals,plot_dose_response,
+    library,data,head,plot,summary}
+}
+\lstset{style=Rstyle}
+
+\lstdefinestyle{Stanstyle}{%
+  backgroundcolor=\color{codebg},
+  frame=single,
+  rulecolor=\color{codeframe},
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{codekeyword}\bfseries,
+  commentstyle=\color{codecomment}\itshape,
+  breaklines=true,
+  showstringspaces=false,
+  tabsize=2,
+  numbers=none,
+  morekeywords={functions,data,parameters,transformed,model,generated,
+    quantities,real,int,vector,array,lower,upper,ode_bdf,normal,
+    lognormal,beta,neg_binomial_2,poisson,fmax,pow,exp,log}
+}
+
+% Custom commands
+\newcommand{\pkg}[1]{\textbf{#1}}
+\newcommand{\fn}[1]{\texttt{#1()}}
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\R}{\textsf{R}}
+\newcommand{\Stan}{\textsf{Stan}}
+\newcommand{\BDEB}{\textit{Bayesian DEB}}
+
+\emergencystretch=2em
+
+% ============================================================
+\title{\pkg{BayesianDEB}: Bayesian Dynamic Energy Budget Modelling in \R\\[1ex]
+       \large Package Manual and Tutorial (Version 0.1.0)}
+\author{Branimir K.\ Hackenberger}
+\date{April 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\pkg{BayesianDEB} is an \R{} package that provides a complete Bayesian
+framework for Dynamic Energy Budget (DEB) modelling.  It wraps pre-written
+\Stan{} models with a declarative \R{} interface for data preparation,
+prior specification, MCMC fitting via \pkg{cmdstanr}, convergence
+diagnostics, posterior predictive checks, derived quantity estimation, and
+publication-quality visualisation.  Four model types are included:
+individual-level growth, growth with reproduction, hierarchical
+multi-individual analysis with partial pooling, and DEBtox
+(toxicokinetic-toxicodynamic) models for ecotoxicology.  This document
+provides a comprehensive reference for all exported functions, bundled Stan
+models, example datasets, and a step-by-step tutorial covering the full
+\BDEB{} workflow.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+% ============================================================
+\section{Introduction}
+\label{sec:introduction}
+
+Dynamic Energy Budget (DEB) theory \citep{Kooijman2010} provides a
+mechanistic, thermodynamically consistent description of how organisms
+acquire and utilise energy for maintenance, growth, development, and
+reproduction.  Classical DEB calibration relies on deterministic
+optimisation---finding a single best-fit parameter vector---which yields no
+formal uncertainty quantification and cannot naturally accommodate prior
+biological knowledge or hierarchical data structures.
+
+\pkg{BayesianDEB} addresses these limitations by embedding the DEB
+differential equation system within a Bayesian state-space framework.
+Parameters are treated as random variables with prior distributions; the
+likelihood is constructed from observation models linking latent DEB states
+to measured quantities; and the posterior is explored via Hamiltonian Monte
+Carlo (HMC) using \Stan{} \citep{Carpenter2017}.
+
+The package workflow follows the iterative Bayesian modelling cycle
+advocated by \citet{Gelman2020}:
+\begin{enumerate}[nosep]
+  \item Prepare and validate data.
+  \item Specify the DEB process model, priors, and observation model.
+  \item Fit the model via MCMC.
+  \item Diagnose convergence.
+  \item Perform posterior predictive checks.
+  \item Compute derived quantities and predictions.
+  \item Revise the model as needed.
+\end{enumerate}
+
+% ============================================================
+\section{Installation}
+\label{sec:installation}
+
+\pkg{BayesianDEB} requires \pkg{cmdstanr} and a working CmdStan
+installation for model fitting.  Data preparation, prior specification,
+and utility functions work without \Stan{}.
+
+\begin{lstlisting}
+# 1. Install cmdstanr from Stan r-universe
+install.packages("cmdstanr",
+  repos = c("https://stan-dev.r-universe.dev",
+            getOption("repos")))
+
+# 2. Install CmdStan (one-time, ~2 min)
+cmdstanr::install_cmdstan()
+
+# 3. Install BayesianDEB
+install.packages("BayesianDEB")
+# or from source:
+# remotes::install_github("bhackenberger/BayesianDEB")
+
+# 4. Load
+library(BayesianDEB)
+\end{lstlisting}
+
+% ============================================================
+\section{DEB Theory Recap}
+\label{sec:deb-recap}
+
+The standard DEB model tracks four state variables over time:
+\begin{itemize}[nosep]
+  \item $E$ --- reserve energy (J),
+  \item $V$ --- structural volume (cm$^3$), with structural length $L = V^{1/3}$,
+  \item $E_H$ --- maturity (J),
+  \item $E_R$ --- reproduction buffer (J).
+\end{itemize}
+
+Energy flows are governed by the $\kappa$-rule: a fraction $\kappa$ of
+mobilised reserve goes to somatic maintenance and growth; the remainder
+goes to maturity maintenance and reproduction.  The key fluxes are:
+\begin{align}
+  \dot{p}_A &= f\,\{p_{Am}\}\,L^2  &&\text{(assimilation)}, \label{eq:pA}\\
+  \dot{p}_C &= \frac{E\,v\,L}{E + [E_G]\,V}  &&\text{(mobilisation)}, \label{eq:pC}\\
+  \dot{p}_M &= [p_M]\,V  &&\text{(somatic maintenance)}, \label{eq:pM}\\
+  \frac{\mathrm{d}E}{\mathrm{d}t} &= \dot{p}_A - \dot{p}_C,  \label{eq:dE}\\
+  \frac{\mathrm{d}V}{\mathrm{d}t} &= \frac{\kappa\,\dot{p}_C - \dot{p}_M}{[E_G]},  \label{eq:dV}\\
+  \frac{\mathrm{d}E_R}{\mathrm{d}t} &= (1-\kappa)\,\dot{p}_C - \dot{p}_J.  \label{eq:dR}
+\end{align}
+
+Table~\ref{tab:params} lists the standard DEB parameters used throughout
+this package.
+
+\begin{table}[htbp]
+\centering
+\caption{Standard DEB parameters in \pkg{BayesianDEB}.}
+\label{tab:params}
+\begin{tabular}{llll}
+\toprule
+\textbf{Symbol} & \textbf{R name} & \textbf{Units} & \textbf{Description} \\
+\midrule
+$\{p_{Am}\}$ & \code{p\_Am} & J\,d$^{-1}$\,cm$^{-2}$ & Max.\ surface-area-specific assimilation \\
+$[p_M]$      & \code{p\_M}  & J\,d$^{-1}$\,cm$^{-3}$ & Volume-specific somatic maintenance \\
+$\kappa$     & \code{kappa} & -- & Allocation fraction to soma \\
+$v$          & \code{v}     & cm\,d$^{-1}$ & Energy conductance \\
+$[E_G]$      & \code{E\_G}  & J\,cm$^{-3}$ & Specific cost of structure \\
+$k_J$        & \code{k\_J}  & d$^{-1}$ & Maturity maintenance rate \\
+$E_H^p$      & \code{E\_Hp} & J & Maturity at puberty \\
+$f$          & \code{f\_food} & -- & Scaled functional response (0--1) \\
+$E_0$        & \code{E0}    & J\,cm$^{-3}$ & Initial reserve density \\
+$L_0$        & \code{L0}    & cm & Initial structural length \\
+$\sigma_L$   & \code{sigma\_L} & cm & Observation error SD (length) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ============================================================
+\section{Package Architecture}
+\label{sec:architecture}
+
+\pkg{BayesianDEB} consists of three layers:
+
+\begin{description}[style=nextline]
+  \item[Stan models] Pre-written \code{.stan} files in \code{inst/stan/}
+    implementing the DEB ODE system and Bayesian inference.  Users never
+    need to edit Stan code directly.
+  \item[R interface] Exported functions for data preparation, model
+    specification, fitting, diagnostics, and visualisation.  All functions
+    use S3 classes (\code{bdeb\_data}, \code{bdeb\_model}, \code{bdeb\_fit}).
+  \item[Prior system] A family of \code{prior\_*()} constructor functions
+    that encode distribution choices as lightweight objects passed to
+    \fn{bdeb\_model}.
+\end{description}
+
+\subsection{Bundled Stan Models}
+
+\begin{table}[htbp]
+\centering
+\caption{Stan models bundled with \pkg{BayesianDEB}.}
+\label{tab:stan-models}
+\begin{tabular}{lccl}
+\toprule
+\textbf{Stan file} & \textbf{States} & \textbf{R type} & \textbf{Use case} \\
+\midrule
+\code{bdeb\_individual\_growth} & $E, V$ & \code{"individual"} & Single organism growth \\
+\code{bdeb\_growth\_repro} & $E, V, R$ & \code{"growth\_repro"} & Growth + reproduction \\
+\code{bdeb\_hierarchical\_growth} & $E, V$ + RE & \code{"hierarchical"} & Multi-individual, partial pooling \\
+\code{bdeb\_debtox} & $E, V, R, D_w$ & \code{"debtox"} & Ecotoxicology (TKTD) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+All Stan models use the BDF (backward differentiation formula) stiff ODE
+solver (\code{ode\_bdf}) with tolerances $10^{-6}$ and maximum 10\,000
+steps, appropriate for the time-scale separation typical of DEB reserve
+and structural dynamics.
+
+% ============================================================
+\section{Complete Function Reference}
+\label{sec:functions}
+
+% ---- 5.1 Data preparation ----
+\subsection{Data Preparation}
+
+\subsubsection{\fn{bdeb\_data} --- Prepare Data for BDEB Models}
+
+\begin{lstlisting}
+bdeb_data(growth = NULL, reproduction = NULL, survival = NULL,
+          concentration = NULL, f_food = 1.0)
+\end{lstlisting}
+
+Converts long-format data frames into the structured format required by
+the Stan models.  Validates column names, sorts by individual and time,
+and constructs the internal \code{bdeb\_data} S3 object.
+
+\paragraph{Arguments.}
+\begin{description}[nosep,leftmargin=3cm,style=nextline]
+  \item[\code{growth}] Data frame with columns \code{id}, \code{time}, \code{length}.
+  \item[\code{reproduction}] Data frame with columns \code{id}, \code{t\_start}, \code{t\_end}, \code{count}.
+  \item[\code{survival}] Data frame with columns \code{id}, \code{time}, \code{event} (1~=~death, 0~=~censored).
+  \item[\code{concentration}] Named numeric vector or data frame mapping IDs to external toxicant concentrations (for DEBtox).
+  \item[\code{f\_food}] Scaled functional response, $f \in [0,1]$.  Default 1 (ad libitum).
+\end{description}
+
+\paragraph{Returns.} A \code{bdeb\_data} object (list with class \code{"bdeb\_data"}).
+
+\paragraph{Example.}
+\begin{lstlisting}
+df <- data.frame(
+  id = rep(1, 10),
+  time = seq(0, 45, by = 5),
+  length = c(0.10, 0.15, 0.22, 0.30, 0.38,
+             0.44, 0.49, 0.52, 0.54, 0.55)
+)
+dat <- bdeb_data(growth = df)
+dat
+\end{lstlisting}
+
+\subsubsection{\fn{repro\_to\_intervals} --- Convert Cumulative Reproduction to Intervals}
+
+\begin{lstlisting}
+repro_to_intervals(df)
+\end{lstlisting}
+
+Converts a data frame of cumulative offspring counts to interval counts
+suitable for the \code{reproduction} argument of \fn{bdeb\_data}.
+
+\paragraph{Arguments.}
+\begin{description}[nosep,leftmargin=3cm]
+  \item[\code{df}] Data frame with columns \code{id}, \code{time}, \code{cumulative}.
+\end{description}
+
+\paragraph{Returns.} Data frame with columns \code{id}, \code{t\_start}, \code{t\_end}, \code{count}.
+
+\paragraph{Example.}
+\begin{lstlisting}
+cumul <- data.frame(
+  id = rep(1, 5),
+  time = c(0, 7, 14, 21, 28),
+  cumulative = c(0, 10, 30, 60, 100)
+)
+intervals <- repro_to_intervals(cumul)
+intervals
+#   id t_start t_end count
+# 1  1       0     7    10
+# 2  1       7    14    20
+# 3  1      14    21    30
+# 4  1      21    28    40
+\end{lstlisting}
+
+% ---- 5.2 Priors ----
+\subsection{Prior Specification}
+\label{sec:priors}
+
+Prior distributions are specified via lightweight constructor functions
+that return \code{bdeb\_prior} objects.  These are passed as a named list
+to \fn{bdeb\_model}; any unspecified priors are filled from
+\fn{prior\_default}.
+
+\subsubsection{Prior Constructors}
+
+\begin{longtable}{lll}
+\toprule
+\textbf{Function} & \textbf{Distribution} & \textbf{Arguments} \\
+\midrule
+\endhead
+\fn{prior\_lognormal} & $\text{LogNormal}(\mu, \sigma)$ & \code{mu = 0, sigma = 1} \\
+\fn{prior\_normal} & $\mathcal{N}(\mu, \sigma)$ & \code{mu = 0, sigma = 1} \\
+\fn{prior\_beta} & $\text{Beta}(a, b)$ & \code{a = 2, b = 2} \\
+\fn{prior\_halfnormal} & $\text{HalfNormal}(\sigma)$ & \code{sigma = 1} \\
+\fn{prior\_halfcauchy} & $\text{HalfCauchy}(\sigma)$ & \code{sigma = 1} \\
+\fn{prior\_exponential} & $\text{Exponential}(\lambda)$ & \code{rate = 1} \\
+\bottomrule
+\end{longtable}
+
+All return a \code{bdeb\_prior} object (list with elements \code{family}
+and the hyperparameters).
+
+\paragraph{Usage recommendations.}
+\begin{itemize}[nosep]
+  \item Positive rate parameters ($\{p_{Am}\}$, $[p_M]$, $v$, $[E_G]$): \fn{prior\_lognormal}.
+  \item Allocation fraction ($\kappa$): \fn{prior\_beta}.
+  \item Observation error SD ($\sigma_L$): \fn{prior\_halfnormal}.
+  \item Hierarchical variance components: \fn{prior\_exponential}.
+\end{itemize}
+
+\subsubsection{\fn{prior\_default} --- Weakly Informative Defaults}
+
+\begin{lstlisting}
+prior_default(type = c("individual", "growth_repro",
+                        "hierarchical", "debtox"))
+\end{lstlisting}
+
+Returns a complete named list of weakly informative priors appropriate for
+the specified model type.  Table~\ref{tab:default-priors} shows the
+defaults for the \code{"individual"} type.
+
+\begin{table}[htbp]
+\centering
+\caption{Default priors for individual growth model.}
+\label{tab:default-priors}
+\begin{tabular}{lll}
+\toprule
+\textbf{Parameter} & \textbf{Prior} & \textbf{Rationale} \\
+\midrule
+\code{p\_Am}    & $\text{LogNormal}(1.0,\; 1.0)$   & Covers range $\sim$0.4--20 \\
+\code{p\_M}     & $\text{LogNormal}(-1.0,\; 1.0)$  & Covers range $\sim$0.04--2 \\
+\code{kappa}    & $\text{Beta}(2,\; 2)$             & Favours interior values \\
+\code{v}        & $\text{LogNormal}(-1.5,\; 1.0)$   & Covers range $\sim$0.02--1 \\
+\code{E\_G}     & $\text{LogNormal}(6.0,\; 1.0)$    & Covers $\sim$100--3000 \\
+\code{E0}       & $\text{LogNormal}(0.0,\; 1.0)$    & \\
+\code{L0}       & $\text{LogNormal}(-2.0,\; 1.0)$   & Initial length $\sim$0.01--0.5 \\
+\code{sigma\_L} & $\text{HalfNormal}(0.1)$          & Measurement error SD \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Additional priors are included for specific types:
+\begin{itemize}[nosep]
+  \item \code{"growth\_repro"} adds: \code{k\_J}, \code{E\_Hp}, \code{k\_R}, \code{phi\_R}.
+  \item \code{"hierarchical"} adds: \code{mu\_log\_p\_Am} (Normal), \code{sigma\_log\_p\_Am} (Exponential).
+  \item \code{"debtox"} adds: \code{k\_d}, \code{z\_w}, \code{b\_w}.
+\end{itemize}
+
+% ---- 5.3 Model specification ----
+\subsection{Model Specification}
+
+\subsubsection{\fn{bdeb\_model} --- Specify a BDEB Model}
+
+\begin{lstlisting}
+bdeb_model(data, type = c("individual", "growth_repro",
+                           "hierarchical", "debtox"),
+           priors = list(), observation = list(),
+           temperature = NULL)
+\end{lstlisting}
+
+Creates a model specification combining data, DEB model type, observation
+model, and prior distributions.  Does not fit the model.
+
+\paragraph{Arguments.}
+\begin{description}[nosep,leftmargin=3.5cm,style=nextline]
+  \item[\code{data}] A \code{bdeb\_data} object.
+  \item[\code{type}] Model type (see Table~\ref{tab:stan-models}).
+  \item[\code{priors}] Named list of \code{bdeb\_prior} objects.  Missing entries filled from \fn{prior\_default}.
+  \item[\code{observation}] Named list: \code{growth = obs\_normal()}, \code{reproduction = obs\_negbinom()}, etc.
+  \item[\code{temperature}] Optional list with \code{T}, \code{T\_ref}, \code{T\_A} for Arrhenius correction.
+\end{description}
+
+\paragraph{Returns.} A \code{bdeb\_model} object.
+
+\subsubsection{Observation Model Constructors}
+
+\begin{longtable}{lll}
+\toprule
+\textbf{Function} & \textbf{Distribution} & \textbf{Default for} \\
+\midrule
+\fn{obs\_normal}    & $\mathcal{N}(\hat{L}, \sigma_L)$ & Growth (continuous) \\
+\fn{obs\_lognormal} & $\text{LogNormal}(\log\hat{L}, \sigma)$ & Multiplicative error \\
+\fn{obs\_student\_t} & $t_\nu(\hat{L}, \sigma_L)$ & Outlier-robust \\
+\fn{obs\_poisson}   & $\text{Poisson}(\Delta R)$ & Count data \\
+\fn{obs\_negbinom}  & $\text{NegBin}(\Delta R, \phi)$ & Reproduction (default) \\
+\bottomrule
+\end{longtable}
+
+% ---- 5.4 Fitting ----
+\subsection{Model Fitting}
+
+\subsubsection{\fn{bdeb\_fit} --- Fit a BDEB Model}
+
+\begin{lstlisting}
+bdeb_fit(model, chains = 4, iter_warmup = 1000,
+         iter_sampling = 1000, adapt_delta = 0.8,
+         max_treedepth = 10, seed = NULL,
+         parallel_chains = NULL, refresh = 200, ...)
+\end{lstlisting}
+
+Compiles the Stan model and runs MCMC sampling via \pkg{cmdstanr}.
+
+\paragraph{Key arguments.}
+\begin{description}[nosep,leftmargin=3.5cm]
+  \item[\code{model}] A \code{bdeb\_model} object.
+  \item[\code{adapt\_delta}] Target acceptance probability.  Increase toward 1.0 if divergences occur.
+  \item[\code{max\_treedepth}] Maximum NUTS tree depth.  Increase if treedepth is saturated.
+  \item[\code{seed}] Integer seed for reproducibility.
+\end{description}
+
+\paragraph{Returns.} A \code{bdeb\_fit} object containing the raw
+\code{CmdStanMCMC} result (\code{fit\$fit}), the model specification
+(\code{fit\$model}), and sampling metadata.
+
+% ---- 5.5 Diagnostics ----
+\subsection{Diagnostics and Posterior Analysis}
+
+\subsubsection{\fn{bdeb\_diagnose} --- MCMC Convergence Diagnostics}
+
+\begin{lstlisting}
+bdeb_diagnose(fit, pars = NULL)
+\end{lstlisting}
+
+Reports: divergent transitions, treedepth saturation, E-BFMI, $\hat{R}$,
+bulk and tail ESS for each parameter.  Flags problematic values
+automatically.
+
+\paragraph{Returns.} Invisibly, a list with \code{n\_divergent},
+\code{n\_max\_treedepth}, \code{ebfmi}, and \code{summary} (a
+\code{posterior::draws\_summary} data frame).
+
+\subsubsection{\fn{bdeb\_summary} --- Posterior Summary Table}
+
+\begin{lstlisting}
+bdeb_summary(fit, pars = NULL, prob = 0.90)
+\end{lstlisting}
+
+Returns a tidy summary of posterior draws: mean, SD, median, credible
+interval bounds, $\hat{R}$, and ESS.
+
+\paragraph{Arguments.}
+\begin{description}[nosep,leftmargin=2.5cm]
+  \item[\code{pars}] Character vector of parameter names.  Default: all.
+  \item[\code{prob}] Credible interval width.  Default 0.90 (5th--95th percentiles).
+\end{description}
+
+\subsubsection{\fn{bdeb\_derived} --- Derived Biological Quantities}
+
+\begin{lstlisting}
+bdeb_derived(fit, quantities = c("L_inf", "k_M",
+             "growth_rate"), f = 1.0)
+\end{lstlisting}
+
+Computes derived quantities from posterior draws, propagating uncertainty:
+\begin{itemize}[nosep]
+  \item \code{"L\_inf"}: ultimate structural length, $L_\infty = f\,\kappa\,\{p_{Am}\} / [p_M]$.
+  \item \code{"k\_M"}: somatic maintenance rate constant, $k_M = [p_M] / [E_G]$.
+  \item \code{"growth\_rate"}: von Bertalanffy rate, $\dot{k} = \frac{v}{3}\,\frac{[p_M]}{\kappa\,[E_G]}$.
+\end{itemize}
+
+\paragraph{Returns.} A \code{posterior::draws\_df} with one column per
+requested quantity and one row per posterior draw.
+
+\subsubsection{\fn{bdeb\_ppc} --- Posterior Predictive Checks}
+
+\begin{lstlisting}
+bdeb_ppc(fit, type = c("growth", "reproduction", "all"))
+\end{lstlisting}
+
+Extracts replicated observations from the \code{generated quantities}
+block of the Stan model.
+
+\paragraph{Returns.} A \code{bdeb\_ppc} object with matrices of
+replicated data (\code{L\_rep}, \code{R\_rep}) and the corresponding
+observed data.
+
+\subsubsection{\fn{bdeb\_predict} --- Posterior Predictions}
+
+\begin{lstlisting}
+bdeb_predict(fit, newdata = NULL, n_draws = 200)
+\end{lstlisting}
+
+Extracts posterior predicted trajectories.  Can also be called as
+\code{predict(fit)}.
+
+% ---- 5.6 Plotting ----
+\subsection{Plotting}
+
+\subsubsection{\code{plot(fit, type = ...)} --- Plot a BDEB Fit}
+
+\begin{lstlisting}
+plot(fit, type = c("trace", "posterior", "pairs",
+                    "trajectory"),
+     pars = NULL, n_draws = 100)
+\end{lstlisting}
+
+Available plot types:
+\begin{description}[nosep,leftmargin=3cm]
+  \item[\code{"trace"}] MCMC trace plots for convergence assessment.
+  \item[\code{"posterior"}] Overlaid marginal posterior density curves.
+  \item[\code{"pairs"}] Bivariate scatter plots showing posterior correlations.
+  \item[\code{"trajectory"}] Posterior predicted growth curves overlaid on observed data.
+\end{description}
+
+All return \code{ggplot2} objects.
+
+\subsubsection{\code{plot(ppc)} --- Plot Posterior Predictive Checks}
+
+\begin{lstlisting}
+ppc <- bdeb_ppc(fit)
+plot(ppc, n_draws = 50)
+\end{lstlisting}
+
+Overlays replicated trajectories (grey) on observed data points (red).
+
+% ---- 5.7 DEBtox ----
+\subsection{DEBtox (Ecotoxicology)}
+
+\subsubsection{\fn{bdeb\_tox} --- DEBtox Model Specification}
+
+\begin{lstlisting}
+bdeb_tox(data, stress = c("assimilation", "maintenance",
+         "growth_cost"), priors = list(), ...)
+\end{lstlisting}
+
+Convenience wrapper for \fn{bdeb\_model} with \code{type = "debtox"}.
+Currently implements stress on assimilation (reduces $\dot{p}_A$ by a
+factor $\max(1 - s, 0)$ where $s = b_w \max(D_w, 0)$).
+
+The internal damage $D_w$ follows:
+\begin{equation}
+\frac{\mathrm{d}D_w}{\mathrm{d}t} = k_d\bigl(\max(C_w - z_w, 0) - D_w\bigr),
+\end{equation}
+where $k_d$ is the damage recovery rate, $z_w$ is the no-effect
+concentration (NEC), and $C_w$ is external concentration.
+
+\subsubsection{\fn{bdeb\_ec50} --- Extract EC50 and NEC}
+
+\begin{lstlisting}
+bdeb_ec50(fit, prob = 0.90)
+\end{lstlisting}
+
+Extracts the posterior distribution of the $\text{EC}_{50}$ computed
+analytically in Stan as:
+\begin{equation}
+\text{EC}_{50} = z_w + \frac{0.5}{b_w}.
+\end{equation}
+
+\paragraph{Returns.} A list with \code{draws} (posterior vector),
+\code{summary} (data frame with mean, median, SD, credible interval), and
+\code{NEC} (summary of the no-effect concentration).
+
+\subsubsection{\fn{plot\_dose\_response} --- Dose-Response Curve}
+
+\begin{lstlisting}
+plot_dose_response(fit, endpoint = "growth", n_draws = 100)
+\end{lstlisting}
+
+Plots the stress function $\max(1 - b_w\max(C - z_w, 0),\; 0)$ over a
+continuous concentration range with posterior uncertainty bands, overlaying
+observed endpoint values.
+
+% ---- 5.8 Utilities ----
+\subsection{Utility Functions}
+
+\subsubsection{\fn{arrhenius} --- Temperature Correction}
+
+\begin{lstlisting}
+arrhenius(T, T_ref = 293.15, T_A = 8000)
+\end{lstlisting}
+
+Returns the Arrhenius correction factor:
+\begin{equation}
+c_T = \exp\!\left(\frac{T_A}{T_{\text{ref}}} - \frac{T_A}{T}\right).
+\end{equation}
+
+\paragraph{Example.}
+\begin{lstlisting}
+# At reference temperature: factor = 1
+arrhenius(293.15)
+# [1] 1
+
+# At 25C (5 degrees warmer): factor > 1
+arrhenius(298.15)
+# [1] 1.741
+\end{lstlisting}
+
+\subsubsection{\fn{deb\_fluxes} --- Compute DEB Energy Fluxes}
+
+\begin{lstlisting}
+deb_fluxes(E, V, f, p_Am, p_M, kappa, v, E_G,
+           k_J = 0, E_Hp = 0)
+\end{lstlisting}
+
+Given current state $(E, V)$ and parameters, returns a named list of all
+standard DEB fluxes: \code{p\_A}, \code{p\_C}, \code{p\_M}, \code{p\_G},
+\code{p\_J}, \code{p\_R}, plus structural length \code{L} and scaled
+reserve density~\code{e}.
+
+\paragraph{Example.}
+\begin{lstlisting}
+fl <- deb_fluxes(E = 10, V = 0.5, f = 1.0,
+                 p_Am = 5, p_M = 0.5, kappa = 0.75,
+                 v = 0.2, E_G = 400)
+fl$p_A   # assimilation flux
+fl$L     # structural length = V^(1/3)
+\end{lstlisting}
+
+
+% ============================================================
+\section{Bundled Datasets}
+\label{sec:datasets}
+
+\subsection{\code{eisenia\_growth}}
+
+Simulated growth data for 21 individuals of the earthworm \textit{Eisenia
+fetida} measured weekly over 12 weeks (days 0, 7, 14, \ldots, 84).
+
+\begin{description}[nosep,leftmargin=3cm]
+  \item[Rows] 273 (21 individuals $\times$ 13 time points).
+  \item[Columns] \code{id} (integer 1--21), \code{time} (days), \code{length} (cm).
+  \item[True parameters] $\{p_{Am}\} = 5.0$, $[p_M] = 0.5$, $\kappa = 0.75$, $v = 0.2$, $[E_G] = 400$; individual variation in $\{p_{Am}\}$ (CV $\approx$ 10\%) and $L_0$ (CV $\approx$ 5\%); $\sigma_L = 0.015$\,cm.
+\end{description}
+
+\subsection{\code{folsomia\_repro}}
+
+Simulated reproduction data for the springtail \textit{Folsomia candida}
+exposed to 5 cadmium concentrations (0, 10, 50, 100, 500\,mg/kg) with
+6 replicates per concentration.  Standard 28-day test.
+
+\begin{description}[nosep,leftmargin=3cm]
+  \item[Rows] 30 (5 concentrations $\times$ 6 replicates).
+  \item[Columns] \code{id}, \code{concentration}, \code{t\_start}, \code{t\_end}, \code{count}.
+  \item[True parameters] NEC = 30\,mg/kg, $b_w = 0.005$, base offspring = 120.
+\end{description}
+
+\subsection{\code{debtox\_growth}}
+
+Simulated growth under toxicant exposure: 4 concentration groups (0, 20,
+80, 200), 10 individuals each, weekly measurements over 6 weeks.
+
+\begin{description}[nosep,leftmargin=3cm]
+  \item[Rows] 280 (40 individuals $\times$ 7 time points).
+  \item[Columns] \code{id}, \code{concentration}, \code{time}, \code{length}.
+  \item[True parameters] NEC = 15, $b_w = 0.003$, stress on assimilation.
+\end{description}
+
+
+% ============================================================
+\section{Tutorial: Complete Workflow}
+\label{sec:tutorial}
+
+This section walks through all four model types using the bundled
+datasets.
+
+\subsection{Tutorial 1: Individual Growth}
+\label{sec:tut-individual}
+
+\begin{lstlisting}
+library(BayesianDEB)
+data(eisenia_growth)
+
+# --- Step 1: Prepare data (single individual) ---
+df1 <- eisenia_growth[eisenia_growth$id == 1, ]
+dat <- bdeb_data(growth = df1, f_food = 1.0)
+dat
+
+# --- Step 2: Specify model ---
+mod <- bdeb_model(dat, type = "individual",
+  priors = list(
+    p_Am    = prior_lognormal(mu = 1.5, sigma = 0.5),
+    p_M     = prior_lognormal(mu = -1.0, sigma = 0.5),
+    kappa   = prior_beta(a = 3, b = 2),
+    sigma_L = prior_halfnormal(sigma = 0.05)
+  ))
+mod  # prints specification including all priors
+
+# --- Step 3: Fit via MCMC ---
+fit <- bdeb_fit(mod, chains = 4, iter_sampling = 2000,
+                adapt_delta = 0.9, seed = 42)
+fit  # prints quick diagnostic summary
+
+# --- Step 4: Convergence diagnostics ---
+bdeb_diagnose(fit)
+# Check:
+#   - No divergent transitions
+#   - All R-hat < 1.01
+#   - Bulk ESS > 400 for all parameters
+
+# Trace plots
+plot(fit, type = "trace")
+
+# Posterior correlations
+plot(fit, type = "pairs",
+     pars = c("p_Am", "p_M", "kappa"))
+
+# --- Step 5: Posterior summary ---
+bdeb_summary(fit, prob = 0.95)
+
+# --- Step 6: Derived quantities ---
+bdeb_derived(fit, quantities = c("L_inf", "growth_rate"))
+
+# --- Step 7: Posterior predictive check ---
+ppc <- bdeb_ppc(fit, type = "growth")
+plot(ppc, n_draws = 100)
+
+# --- Step 8: Trajectory plot ---
+plot(fit, type = "trajectory", n_draws = 200)
+\end{lstlisting}
+
+\subsection{Tutorial 2: Hierarchical Multi-Individual}
+\label{sec:tut-hierarchical}
+
+\begin{lstlisting}
+data(eisenia_growth)
+
+# All 21 individuals
+dat_all <- bdeb_data(growth = eisenia_growth, f_food = 1.0)
+dat_all
+# => 21 individuals, 273 observations
+
+# Hierarchical model: individual variation in p_Am
+# Non-centred parameterisation (automatic in the Stan model)
+mod_h <- bdeb_model(dat_all, type = "hierarchical",
+  priors = list(
+    mu_log_p_Am    = prior_normal(mu = 1.5, sigma = 0.5),
+    sigma_log_p_Am = prior_exponential(rate = 2),
+    kappa          = prior_beta(a = 3, b = 2)
+  ))
+
+fit_h <- bdeb_fit(mod_h, chains = 4, iter_sampling = 2000,
+                  adapt_delta = 0.95, seed = 123)
+
+# Population-level summary
+bdeb_summary(fit_h,
+  pars = c("mu_log_p_Am", "sigma_log_p_Am",
+           "p_M", "kappa", "v", "E_G"))
+
+# Individual assimilation rates
+bdeb_summary(fit_h,
+  pars = paste0("p_Am_ind[", 1:5, "]"))
+
+# Prediction for a new individual
+bdeb_summary(fit_h, pars = "p_Am_new")
+
+# Trace plots for hierarchical parameters
+plot(fit_h, type = "trace",
+  pars = c("mu_log_p_Am", "sigma_log_p_Am"))
+\end{lstlisting}
+
+\subsection{Tutorial 3: Growth + Reproduction}
+\label{sec:tut-growth-repro}
+
+\begin{lstlisting}
+# Simulated growth + reproduction data
+growth_df <- data.frame(
+  id = 1, time = seq(0, 56, by = 7),
+  length = c(0.10, 0.18, 0.28, 0.37, 0.44,
+             0.49, 0.52, 0.54, 0.55)
+)
+
+repro_df <- data.frame(
+  id = 1,
+  t_start = c(28, 35, 42, 49),
+  t_end   = c(35, 42, 49, 56),
+  count   = c(5, 12, 18, 15)
+)
+
+dat_gr <- bdeb_data(growth = growth_df,
+                    reproduction = repro_df,
+                    f_food = 1.0)
+
+mod_gr <- bdeb_model(dat_gr, type = "growth_repro",
+  priors = list(
+    kappa = prior_beta(a = 3, b = 2),
+    k_R   = prior_lognormal(mu = -2, sigma = 1)
+  ))
+
+fit_gr <- bdeb_fit(mod_gr, chains = 4,
+                   adapt_delta = 0.95, seed = 99)
+
+bdeb_diagnose(fit_gr)
+bdeb_summary(fit_gr)
+
+# Growth PPC
+plot(bdeb_ppc(fit_gr, type = "growth"))
+\end{lstlisting}
+
+\subsection{Tutorial 4: DEBtox Ecotoxicology}
+\label{sec:tut-debtox}
+
+\begin{lstlisting}
+data(debtox_growth)
+
+# Concentration mapping: group means
+conc_map <- c(0, 20, 80, 200)
+names(conc_map) <- unique(debtox_growth$concentration)
+
+dat_tox <- bdeb_data(
+  growth = debtox_growth,
+  concentration = conc_map,
+  f_food = 1.0
+)
+
+# DEBtox model: stress on assimilation
+mod_tox <- bdeb_tox(dat_tox, stress = "assimilation",
+  priors = list(
+    z_w = prior_lognormal(mu = 2.5, sigma = 1.0),
+    b_w = prior_lognormal(mu = -5.0, sigma = 2.0)
+  ))
+
+fit_tox <- bdeb_fit(mod_tox, chains = 4,
+                    adapt_delta = 0.95, seed = 77)
+
+# Diagnostics
+bdeb_diagnose(fit_tox)
+
+# EC50 and NEC with 95% credible intervals
+bdeb_ec50(fit_tox, prob = 0.95)
+# Output:
+#   parameter  mean median    sd lower upper
+#       EC50  ...   ...    ...   ...   ...
+#        NEC  ...   ...    ...   ...   ...
+
+# Dose-response plot with posterior uncertainty
+plot_dose_response(fit_tox, n_draws = 200)
+
+# Parameter summary
+bdeb_summary(fit_tox,
+  pars = c("p_Am", "p_M", "kappa", "k_d", "z_w", "b_w"))
+\end{lstlisting}
+
+
+% ============================================================
+\section{Stan Model Details}
+\label{sec:stan-details}
+
+This section describes the internal structure of the bundled Stan models
+for users who wish to understand or extend them.
+
+\subsection{DEB ODE Right-Hand Side}
+
+All models share the same ODE function implementing Equations
+\eqref{eq:pA}--\eqref{eq:dV}.  The function signature is:
+
+\begin{lstlisting}[style=Stanstyle]
+vector deb_growth_ode(real t, vector x,
+  array[] real theta, array[] real env)
+\end{lstlisting}
+
+where \code{x = [E, V]'}, \code{theta = \{p\_Am, p\_M, kappa, v, E\_G\}},
+and \code{env = \{f\}}.
+
+A stabilisation term \code{1e-12} is added to the denominator of the
+mobilisation flux to prevent division by zero:
+\begin{equation}
+\dot{p}_C = \frac{E\,v\,L}{E + [E_G]\,V + 10^{-12}}.
+\end{equation}
+
+\subsection{Prior Hyperparameters as Data}
+
+Prior hyperparameters are passed from \R{} as Stan \code{data} variables
+(e.g., \code{prior\_p\_Am\_mu}, \code{prior\_p\_Am\_sd}).  This allows
+users to change priors without recompiling the Stan model.
+
+\subsection{Hierarchical Non-Centred Parameterisation}
+
+The hierarchical model uses the standard non-centred parameterisation to
+avoid funnel geometries:
+\begin{align}
+  z_j &\sim \mathcal{N}(0, 1), \quad j = 1,\ldots,N, \\
+  \log\{p_{Am}\}_j &= \mu_{\log p_{Am}} + \sigma_{\log p_{Am}} \cdot z_j.
+\end{align}
+
+This separates the population-level parameters ($\mu$, $\sigma$) from
+individual-level deviations, greatly improving HMC sampling efficiency.
+
+\subsection{DEBtox: Damage Dynamics}
+
+The 4-state DEBtox model adds a scaled internal damage variable $D_w$:
+\begin{equation}
+\frac{\mathrm{d}D_w}{\mathrm{d}t} = k_d\bigl(\max(C_w - z_w,\, 0) - D_w\bigr).
+\end{equation}
+
+At steady state, $D_w = \max(C_w - z_w, 0)$, so the stress factor is
+$s = b_w \cdot D_w$.  The $\text{EC}_{50}$ is computed analytically in
+\code{generated quantities} as $z_w + 0.5/b_w$.
+
+
+% ============================================================
+\section{Practical Advice}
+\label{sec:advice}
+
+\subsection{Choosing \texttt{adapt\_delta}}
+
+Start with \code{adapt\_delta = 0.8} (default).  If \fn{bdeb\_diagnose}
+reports divergent transitions, increase to 0.9, 0.95, or even 0.99.
+Higher values slow sampling but improve geometric fidelity.
+
+\subsection{When to Use Hierarchical Models}
+
+Use \code{type = "hierarchical"} when:
+\begin{itemize}[nosep]
+  \item More than 3--4 individuals are available.
+  \item You want to estimate population-level distributions.
+  \item Some individuals have sparse data (partial pooling helps).
+  \item You need predictions for new, unobserved individuals.
+\end{itemize}
+
+\subsection{Prior Sensitivity}
+
+Always compare results under at least two plausible prior specifications.
+Parameters that remain prior-dominated (posterior $\approx$ prior) are
+weakly identified and should be reported as such.
+
+\subsection{Computational Tips}
+
+\begin{itemize}[nosep]
+  \item Stan model compilation is slow the first time ($\sim$30\,s) but
+    cached for subsequent fits.
+  \item Use \code{parallel\_chains = 4} to run chains in parallel.
+  \item For large hierarchical models, start with a subset of individuals
+    to debug parameterisation, then scale up.
+  \item If ODE solver fails, check initial conditions (\code{E0}, \code{L0})
+    and ensure they are biologically reasonable.
+\end{itemize}
+
+
+% ============================================================
+\section{Comparison with Existing Tools}
+\label{sec:comparison}
+
+\begin{table}[htbp]
+\centering
+\caption{Comparison of \pkg{BayesianDEB} with existing DEB calibration tools.}
+\label{tab:comparison}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Feature} & \textbf{AmP/DEBtool} & \textbf{deBInfer} & \textbf{Custom Stan} & \textbf{BayesianDEB} \\
+\midrule
+Bayesian inference      & --          & Yes & Yes & Yes \\
+Pre-built DEB models    & Yes         & --  & --  & Yes \\
+Hierarchical models     & --          & --  & Manual & Built-in \\
+DEBtox (TKTD)           & Partial     & --  & Manual & Built-in \\
+Prior specification API & --          & Basic & Manual & Rich \\
+Diagnostics             & Minimal     & Basic & Manual & Automated \\
+PPC                     & --          & --  & Manual & Built-in \\
+\R{} package            & MATLAB+\R{} & Yes & --  & Yes \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+% ============================================================
+\section*{Acknowledgements}
+
+This package is based on the theoretical framework developed in the
+\textit{Bayesian DEB (BDEB)} monograph.  The Stan Development Team
+provided the computational infrastructure that makes modern Bayesian
+DEB modelling practical.
+
+% ============================================================
+\begin{thebibliography}{9}
+
+\bibitem[Carpenter et~al.(2017)]{Carpenter2017}
+Carpenter, B., Gelman, A., Hoffman, M.D., et~al. (2017).
+\newblock Stan: A probabilistic programming language.
+\newblock \textit{Journal of Statistical Software}, 76(1), 1--32.
+
+\bibitem[Gelman et~al.(2020)]{Gelman2020}
+Gelman, A., Vehtari, A., Simpson, D., et~al. (2020).
+\newblock Bayesian workflow.
+\newblock \textit{arXiv preprint arXiv:2011.01808}.
+
+\bibitem[Kooijman(2010)]{Kooijman2010}
+Kooijman, S.A.L.M. (2010).
+\newblock \textit{Dynamic Energy Budget Theory for Metabolic Organisation}.
+\newblock Cambridge University Press, 3rd edition.
+
+\end{thebibliography}
+
+\end{document}

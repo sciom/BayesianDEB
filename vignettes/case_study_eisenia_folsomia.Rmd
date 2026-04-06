@@ -1,0 +1,617 @@
+---
+title: "Case Study: Eisenia fetida Growth and Folsomia candida Reproduction"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Case Study: Eisenia fetida Growth and Folsomia candida Reproduction}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5,
+  eval = FALSE
+)
+```
+
+## Overview
+
+This vignette walks through a complete **BayesianDEB** workflow using the
+two bundled datasets that represent typical ecotoxicological test
+organisms:
+
+1. **Eisenia fetida** (earthworm) — 21 individuals measured weekly over
+   12 weeks.  We fit an individual model, a hierarchical model with
+   partial pooling, and compute derived quantities.
+
+2. **Folsomia candida** (springtail) — reproduction test with
+   5 cadmium concentrations.  We fit a DEBtox model, estimate EC50/NEC,
+   and produce a dose-response curve.
+
+Both analyses follow the standard BDEB workflow:
+
+> data → model → fit → diagnose → interpret
+
+## Prerequisites
+
+```{r prerequisites}
+library(BayesianDEB)
+library(ggplot2)
+
+# Verify that cmdstanr and CmdStan are available
+check_cmdstanr()
+```
+
+
+# Part 1: Eisenia fetida Growth
+
+## 1.1 Explore the data
+
+The `eisenia_growth` dataset contains simulated weekly length
+measurements for 21 *Eisenia fetida* individuals over 84 days.
+
+```{r eisenia-explore}
+data(eisenia_growth)
+
+str(eisenia_growth)
+# 273 obs. of 3 variables: id, time, length
+
+# How many individuals? How many time points?
+length(unique(eisenia_growth$id))   # 21
+length(unique(eisenia_growth$time)) # 13 (days 0, 7, ..., 84)
+
+# Quick visual
+ggplot(eisenia_growth, aes(time, length, group = id)) +
+  geom_line(alpha = 0.3) +
+  geom_point(size = 0.8, alpha = 0.4) +
+  theme_bw(base_size = 12) +
+  labs(x = "Time (days)", y = "Structural length (cm)",
+       title = "Eisenia fetida: 21 individuals, 12 weeks")
+```
+
+Key observations:
+
+- All individuals start at approximately 0.1 cm.
+- Growth follows the expected DEB sigmoidal pattern.
+- There is visible individual variation, especially in growth rate.
+
+## 1.2 Individual model (single organism)
+
+We start with a single individual to validate the model before scaling
+up to the hierarchical version.
+
+### Prepare data
+
+```{r ind-data}
+# Pick individual #5
+df1 <- eisenia_growth[eisenia_growth$id == 5, ]
+
+dat1 <- bdeb_data(growth = df1, f_food = 1.0)
+dat1
+```
+
+### Specify model with informative priors
+
+We use biological knowledge to set priors.  For *E. fetida* under
+standard lab conditions:
+
+- $\{p_{Am}\}$ (assimilation rate): values around 3–8 J/d/cm² are
+  typical → `prior_lognormal(mu = 1.5, sigma = 0.5)` centres the
+  prior around $e^{1.5} \approx 4.5$.
+- $\kappa$: earthworms invest a large fraction in soma →
+  `prior_beta(a = 3, b = 2)` favours values around 0.6.
+- $\sigma_L$: measurement precision is ~0.02 cm →
+  `prior_halfnormal(sigma = 0.05)`.
+
+```{r ind-model}
+mod1 <- bdeb_model(dat1, type = "individual",
+  priors = list(
+    p_Am    = prior_lognormal(mu = 1.5, sigma = 0.5),
+    p_M     = prior_lognormal(mu = -1.0, sigma = 0.5),
+    kappa   = prior_beta(a = 3, b = 2),
+    v       = prior_lognormal(mu = -1.5, sigma = 0.5),
+    E_G     = prior_lognormal(mu = 6.0, sigma = 0.5),
+    sigma_L = prior_halfnormal(sigma = 0.05)
+  ))
+mod1
+```
+
+### Fit
+
+```{r ind-fit}
+fit1 <- bdeb_fit(mod1,
+  chains         = 4,
+  iter_warmup    = 1000,
+  iter_sampling  = 2000,
+  adapt_delta    = 0.9,
+  seed           = 42
+)
+fit1
+```
+
+### Diagnose convergence
+
+```{r ind-diag}
+diag1 <- bdeb_diagnose(fit1)
+
+# Visual checks
+plot(fit1, type = "trace")
+plot(fit1, type = "trace", pars = c("p_Am", "kappa", "sigma_L"))
+```
+
+What to look for:
+
+- **Zero divergences** — if present, increase `adapt_delta`.
+- **All $\hat{R} < 1.01$** — chains have mixed.
+- **Bulk ESS > 400** — enough effective samples.
+
+### Posterior summary
+
+```{r ind-summary}
+bdeb_summary(fit1, prob = 0.90)
+
+# Focus on key DEB parameters
+bdeb_summary(fit1,
+  pars = c("p_Am", "p_M", "kappa", "v", "E_G", "sigma_L"),
+  prob = 0.95)
+```
+
+### Posterior correlations
+
+```{r ind-pairs}
+plot(fit1, type = "pairs",
+     pars = c("p_Am", "p_M", "kappa", "E_G"))
+```
+
+Strong correlations between $\{p_{Am}\}$ and $[p_M]$ are expected: both
+control the ultimate size.
+
+### Posterior predictive check
+
+```{r ind-ppc}
+ppc1 <- bdeb_ppc(fit1, type = "growth")
+ppc1
+plot(ppc1, n_draws = 200)
+```
+
+If the observed data (red points) fall within the cloud of replicated
+trajectories (grey lines), the model fits well.
+
+### Trajectory plot
+
+```{r ind-traj}
+plot(fit1, type = "trajectory", n_draws = 200)
+```
+
+### Derived quantities
+
+```{r ind-derived}
+der1 <- bdeb_derived(fit1,
+  quantities = c("L_inf", "k_M", "growth_rate"),
+  f = 1.0)
+
+posterior::summarise_draws(der1,
+  "mean", "sd",
+  "q5"  = ~quantile(.x, 0.05),
+  "q95" = ~quantile(.x, 0.95))
+```
+
+- **L_inf**: ultimate structural length under ad libitum feeding.
+- **k_M**: somatic maintenance rate constant ($[p_M]/[E_G]$).
+- **growth_rate**: von Bertalanffy growth rate.
+
+### Predictions under reduced food
+
+```{r ind-derived-food}
+# What if food drops to 70%?
+der1_f07 <- bdeb_derived(fit1, quantities = "L_inf", f = 0.7)
+
+posterior::summarise_draws(der1_f07, "mean", "sd",
+  "q5" = ~quantile(.x, 0.05), "q95" = ~quantile(.x, 0.95))
+```
+
+
+## 1.3 Hierarchical model (all 21 individuals)
+
+The hierarchical model estimates population-level distributions for
+$\{p_{Am}\}$ while sharing $[p_M]$, $\kappa$, $v$, $[E_G]$ across
+individuals.  This is the preferred approach when you have multiple
+organisms.
+
+### Prepare data
+
+```{r hier-data}
+dat_all <- bdeb_data(growth = eisenia_growth, f_food = 1.0)
+dat_all
+# 21 individuals, 273 observations
+```
+
+### Specify model
+
+```{r hier-model}
+mod_h <- bdeb_model(dat_all, type = "hierarchical",
+  priors = list(
+    mu_log_p_Am    = prior_normal(mu = 1.5, sigma = 0.5),
+    sigma_log_p_Am = prior_exponential(rate = 2),
+    p_M            = prior_lognormal(mu = -1.0, sigma = 0.5),
+    kappa          = prior_beta(a = 3, b = 2),
+    v              = prior_lognormal(mu = -1.5, sigma = 0.5),
+    E_G            = prior_lognormal(mu = 6.0, sigma = 0.5),
+    sigma_L        = prior_halfnormal(sigma = 0.05)
+  ))
+mod_h
+```
+
+### Fit
+
+Hierarchical models need higher `adapt_delta` because the
+population-level and individual-level parameters can create challenging
+geometry for the sampler.
+
+```{r hier-fit}
+fit_h <- bdeb_fit(mod_h,
+  chains         = 4,
+  iter_warmup    = 1000,
+  iter_sampling  = 2000,
+  adapt_delta    = 0.95,
+  max_treedepth  = 12,
+  seed           = 123
+)
+```
+
+### Diagnose
+
+```{r hier-diag}
+bdeb_diagnose(fit_h)
+
+# Population-level trace
+plot(fit_h, type = "trace",
+  pars = c("mu_log_p_Am", "sigma_log_p_Am"))
+
+# Posterior densities
+plot(fit_h, type = "posterior",
+  pars = c("mu_log_p_Am", "sigma_log_p_Am", "p_M", "kappa"))
+```
+
+### Population summary
+
+```{r hier-pop}
+# Population parameters
+bdeb_summary(fit_h,
+  pars = c("mu_log_p_Am", "sigma_log_p_Am",
+           "p_M", "kappa", "v", "E_G", "sigma_L"),
+  prob = 0.95)
+```
+
+### Individual assimilation rates
+
+The hierarchical model produces a **shrinkage** effect: individuals
+with sparse or noisy data are pulled toward the population mean.
+
+```{r hier-ind}
+# All 21 individual p_Am values
+bdeb_summary(fit_h,
+  pars = paste0("p_Am_ind[", 1:21, "]"),
+  prob = 0.90)
+
+# Compare with the population mean
+pop_mean <- exp(
+  posterior::summarise_draws(
+    posterior::as_draws_df(fit_h$fit$draws()),
+    "mean"
+  )$mean[1]  # mu_log_p_Am
+)
+cat("Population mean p_Am:", round(pop_mean, 2), "\n")
+```
+
+### Prediction for a new individual
+
+The Stan model generates `p_Am_new` in the `generated quantities`
+block — a draw from the population distribution, useful for predicting
+a yet-unobserved individual.
+
+```{r hier-new}
+bdeb_summary(fit_h, pars = "p_Am_new", prob = 0.95)
+```
+
+### Compare individual vs hierarchical
+
+```{r compare}
+# Individual fit (single organism):
+s1 <- bdeb_summary(fit1,
+  pars = c("p_Am", "p_M", "kappa"),
+  prob = 0.90)
+cat("Individual model (id=5):\n")
+print(as.data.frame(s1), digits = 3, row.names = FALSE)
+
+# Hierarchical fit (population + individual):
+s_h <- bdeb_summary(fit_h,
+  pars = c("p_M", "kappa"),
+  prob = 0.90)
+cat("\nHierarchical model (shared parameters):\n")
+print(as.data.frame(s_h), digits = 3, row.names = FALSE)
+```
+
+The hierarchical model typically gives **tighter credible intervals**
+for shared parameters because it pools information across 21 individuals.
+
+
+# Part 2: Folsomia candida Reproduction (DEBtox)
+
+## 2.1 Explore the data
+
+The `folsomia_repro` dataset is a standard 28-day reproduction test
+with *Folsomia candida* exposed to cadmium.
+
+```{r folsomia-explore}
+data(folsomia_repro)
+
+str(folsomia_repro)
+# 30 obs: 5 concentrations x 6 replicates
+
+# Offspring counts by concentration
+ggplot(folsomia_repro,
+       aes(x = factor(concentration), y = count)) +
+  geom_boxplot(fill = "steelblue", alpha = 0.3) +
+  geom_jitter(width = 0.15, size = 2, alpha = 0.6) +
+  theme_bw(base_size = 12) +
+  labs(x = "Cd concentration (mg/kg)",
+       y = "Offspring count (28 days)",
+       title = "Folsomia candida: 28-day reproduction test")
+```
+
+Key observations:
+
+- Control (0 mg/kg): ~110–130 offspring.
+- 10 and 50 mg/kg: slight reduction.
+- 100 mg/kg: clear reduction to ~60–95.
+- 500 mg/kg: near-complete inhibition (0–16 offspring).
+
+## 2.2 Prepare data for DEBtox
+
+The DEBtox model needs both growth data and concentration mapping.
+Since `folsomia_repro` only has reproduction data (no individual growth
+curves), we combine it with simulated growth from `debtox_growth` as a
+demonstration.  In a real study, you would supply your own measured
+growth data.
+
+For this case study, we use `debtox_growth` which has 4 concentration
+groups with growth data:
+
+```{r debtox-data}
+data(debtox_growth)
+
+# Visualise growth under toxicant
+ggplot(debtox_growth,
+       aes(time, length, colour = factor(concentration),
+           group = id)) +
+  geom_line(alpha = 0.3) +
+  geom_point(size = 0.8, alpha = 0.4) +
+  facet_wrap(~concentration, labeller = label_both) +
+  theme_bw(base_size = 11) +
+  labs(x = "Time (days)", y = "Structural length (cm)",
+       colour = "Concentration",
+       title = "DEBtox growth data: 4 concentration groups")
+```
+
+### Build data object
+
+```{r debtox-prep}
+# Concentration mapping: match IDs to concentration groups
+conc_levels <- unique(debtox_growth$concentration)
+conc_map <- setNames(conc_levels, as.character(conc_levels))
+
+dat_tox <- bdeb_data(
+  growth        = debtox_growth,
+  concentration = conc_map,
+  f_food        = 1.0
+)
+dat_tox
+```
+
+## 2.3 Specify DEBtox model
+
+We use `bdeb_tox()` which is a convenience wrapper for `bdeb_model()`
+with `type = "debtox"`.  The current implementation supports stress on
+assimilation.
+
+```{r debtox-model}
+mod_tox <- bdeb_tox(dat_tox, stress = "assimilation",
+  priors = list(
+    p_Am    = prior_lognormal(mu = 1.5, sigma = 0.5),
+    p_M     = prior_lognormal(mu = -1.0, sigma = 0.5),
+    kappa   = prior_beta(a = 3, b = 2),
+    v       = prior_lognormal(mu = -1.5, sigma = 0.5),
+    E_G     = prior_lognormal(mu = 6.0, sigma = 0.5),
+    sigma_L = prior_halfnormal(sigma = 0.05),
+    # Toxicological priors
+    k_d     = prior_lognormal(mu = -1.0, sigma = 1.0),
+    z_w     = prior_lognormal(mu = 2.5, sigma = 1.0),
+    b_w     = prior_lognormal(mu = -5.0, sigma = 2.0)
+  ))
+mod_tox
+```
+
+Prior rationale for tox parameters:
+
+- **k_d** (damage recovery rate): `prior_lognormal(mu=-1, sigma=1)` centres
+  around $e^{-1} \approx 0.37$ d$^{-1}$, allowing fast or slow recovery.
+- **z_w** (NEC): `prior_lognormal(mu=2.5, sigma=1)` centres around
+  $e^{2.5} \approx 12$, which is sensible given the data range 0–200.
+- **b_w** (effect intensity): `prior_lognormal(mu=-5, sigma=2)` is a
+  weakly informative prior on a small positive value.
+
+## 2.4 Fit
+
+DEBtox models solve an ODE per concentration group per iteration, so
+they are computationally heavier.  High `adapt_delta` is recommended.
+
+```{r debtox-fit}
+fit_tox <- bdeb_fit(mod_tox,
+  chains         = 4,
+  iter_warmup    = 1000,
+  iter_sampling  = 2000,
+  adapt_delta    = 0.95,
+  max_treedepth  = 12,
+  seed           = 77
+)
+```
+
+## 2.5 Diagnose
+
+```{r debtox-diag}
+bdeb_diagnose(fit_tox)
+
+# Trace: DEB parameters
+plot(fit_tox, type = "trace",
+  pars = c("p_Am", "p_M", "kappa"))
+
+# Trace: Tox parameters
+plot(fit_tox, type = "trace",
+  pars = c("k_d", "z_w", "b_w"))
+
+# Posterior densities
+plot(fit_tox, type = "posterior",
+  pars = c("k_d", "z_w", "b_w"))
+
+# Pairs: check for pathological correlations
+plot(fit_tox, type = "pairs",
+  pars = c("z_w", "b_w", "k_d"))
+```
+
+## 2.6 Tox parameter summary
+
+```{r debtox-summary}
+bdeb_summary(fit_tox,
+  pars = c("p_Am", "p_M", "kappa", "v", "E_G",
+           "k_d", "z_w", "b_w", "sigma_L"),
+  prob = 0.95)
+```
+
+## 2.7 EC50 and NEC
+
+The key ecotoxicological endpoints.  The EC50 is computed analytically
+in Stan as $\text{EC}_{50} = z_w + 0.5/b_w$.
+
+```{r debtox-ec50}
+ec <- bdeb_ec50(fit_tox, prob = 0.95)
+
+# Summary table
+print(ec$summary, digits = 3)
+
+# Posterior distribution of EC50
+hist(ec$draws, breaks = 50, col = "steelblue", border = "white",
+     main = "Posterior distribution of EC50",
+     xlab = "Concentration")
+abline(v = ec$summary$median[1], col = "red", lwd = 2, lty = 2)
+legend("topright", "Posterior median", col = "red", lty = 2, lwd = 2)
+```
+
+**Interpretation:**
+
+- The NEC (No Effect Concentration) represents the threshold below
+  which no toxic effect is expected.
+- The EC50 is the concentration causing 50% reduction in the affected
+  process (here, assimilation).
+- The full posterior gives you a probability distribution, not just a
+  point estimate — crucial for regulatory risk assessment.
+
+## 2.8 Dose-response curve
+
+```{r debtox-dr}
+plot_dose_response(fit_tox, n_draws = 200)
+```
+
+This plot shows the stress function $\max(1 - b_w\max(C-z_w, 0), 0)$
+evaluated at each posterior draw.  The observed data points are
+normalised to the control group.
+
+## 2.9 Prior sensitivity analysis
+
+Always check whether the data are informative by comparing posteriors
+under different priors:
+
+```{r debtox-sens}
+# Tighter prior on z_w
+mod_tox2 <- bdeb_tox(dat_tox, stress = "assimilation",
+  priors = list(
+    z_w = prior_lognormal(mu = 3.0, sigma = 0.3),  # tighter
+    b_w = prior_lognormal(mu = -5.0, sigma = 2.0)
+  ))
+fit_tox2 <- bdeb_fit(mod_tox2, chains = 4, adapt_delta = 0.95,
+                     seed = 78)
+
+# Compare
+cat("Original z_w prior: LogNormal(2.5, 1.0)\n")
+bdeb_summary(fit_tox,  pars = c("z_w", "b_w"), prob = 0.95)
+
+cat("\nTighter z_w prior: LogNormal(3.0, 0.3)\n")
+bdeb_summary(fit_tox2, pars = c("z_w", "b_w"), prob = 0.95)
+```
+
+If the posteriors agree despite different priors, the data are driving
+the inference (good).  If they differ substantially, the parameter is
+prior-dominated and you should report this.
+
+
+# Part 3: Utility Functions
+
+## 3.1 Arrhenius temperature correction
+
+If your experiments were run at a temperature different from the
+reference, correct rate parameters before interpreting them:
+
+```{r arrhenius}
+# Experiment at 22°C, reference is 20°C
+cT <- arrhenius(T = 273.15 + 22, T_ref = 273.15 + 20, T_A = 8000)
+cat("Temperature correction factor:", round(cT, 3), "\n")
+
+# To get rate at reference temperature:
+# p_Am_ref = p_Am_observed / cT
+```
+
+## 3.2 Energy flux calculator
+
+Explore the energetics at a specific state:
+
+```{r fluxes}
+fl <- deb_fluxes(
+  E = 10, V = 0.5, f = 1.0,
+  p_Am = 5, p_M = 0.5, kappa = 0.75,
+  v = 0.2, E_G = 400
+)
+
+cat("Assimilation:  ", round(fl$p_A, 3), "J/d\n")
+cat("Mobilisation:  ", round(fl$p_C, 3), "J/d\n")
+cat("Maintenance:   ", round(fl$p_M, 3), "J/d\n")
+cat("Growth:        ", round(fl$p_G, 3), "J/d\n")
+cat("Struct. length:", round(fl$L, 3), "cm\n")
+cat("Scaled reserve:", round(fl$e, 3), "\n")
+```
+
+
+# Summary
+
+| Analysis | Model type | Key output |
+|----------|-----------|------------|
+| Single worm growth | `"individual"` | DEB parameter posteriors, PPC |
+| 21 worms (population) | `"hierarchical"` | Population mean/SD of $p_{Am}$, shrinkage |
+| Toxicant effect | `"debtox"` | EC50, NEC with uncertainty |
+
+The Bayesian framework gives you:
+
+1. **Full uncertainty quantification** — every derived quantity comes
+   with a posterior distribution.
+2. **Prior incorporation** — biological knowledge informs estimation.
+3. **Hierarchical structure** — partial pooling borrows strength across
+   individuals.
+4. **Model checking** — PPC and diagnostics catch model mis-specification.
+
+## Session info
+
+```{r session}
+sessionInfo()
+```
