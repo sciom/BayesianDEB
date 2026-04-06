@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head><title>R: Bayesian Dynamic Energy Budget Modelling</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<link rel="stylesheet" type="text/css" href="R.css">
+</head><body><div class="container">
+<h1> Bayesian Dynamic Energy Budget Modelling
+<img class="toplogo" src="../../../doc/html/Rlogo.svg" alt="[R logo]">
+</h1>
+<hr>
+<div style="text-align: center;">
+<a href="../../../doc/html/packages.html"><img class="arrow" src="../../../doc/html/left.jpg" alt="[Up]"></a>
+<a href="../../../doc/html/index.html"><img class="arrow" src="../../../doc/html/up.jpg" alt="[Top]"></a>
+</div><h2>Documentation for package &lsquo;BayesianDEB&rsquo; version 0.1.0</h2>
+
+<ul><li><a href="../DESCRIPTION" type="text/plain; charset=utf-8">DESCRIPTION file</a>.</li>
+<li><a href="../doc/index.html">User guides, package vignettes and other documentation.</a></li>
+<li><a href="../NEWS.md">Package NEWS</a>.</li>
+</ul>
+
+<h2>Help Pages</h2>
+
+
+<table style="width: 100%;">
+<tr><td style="width: 25%;"><a href="arrhenius.html">arrhenius</a></td>
+<td>Arrhenius Temperature Correction</td></tr>
+<tr><td style="width: 25%;"><a href="bdeb_data.html">bdeb_data</a></td>
+<td>Prepare Data for BDEB Models</td></tr>
+<tr><td style="width: 25%;"><a href="bdeb_derived.html">bdeb_derived</a></td>
+<td>Compute Derived Biological Quantities from the Posterior</td></tr>
+<tr><td style="width: 25%;"><a href="bdeb_diagnose.html">bdeb_diagnose</a></td>
+<td>MCMC Convergence Diagnostics</td></tr>
+<tr><td style="width: 25%;"><a href="bdeb_ec50.html">bdeb_ec50</a></td>
+<td>Extract EC50 and NEC from a DEBtox Fit</td></tr>
+<tr><td style="width: 25%;"><a href="bdeb_fit.html">bdeb_fit</a></td>
+<td>Fit a BDEB Model via Hamiltonian Monte Carlo</td></tr>
+<tr><td style="width: 25%;"><a href="bdeb_loo.html">bdeb_loo</a></td>
+<td>LOO Cross-Validation for Model Comparison</td></tr>
+<tr><td style="width: 25%;"><a href="bdeb_model.html">bdeb_model</a></td>
+<td>Specify a BDEB Model</td></tr>
+<tr><td style="width: 25%;"><a href="bdeb_plots.html">bdeb_plots</a></td>
+<td>Plot Methods for BDEB Objects</td></tr>
+<tr><td style="width: 25%;"><a href="bdeb_ppc.html">bdeb_ppc</a></td>
+<td>Posterior Predictive Checks for BDEB Models</td></tr>
+<tr><td style="width: 25%;"><a href="predict.bdeb_fit.html">bdeb_predict</a></td>
+<td>Predict from a BDEB Fit</td></tr>
+<tr><td style="width: 25%;"><a href="bdeb_prior_predictive.html">bdeb_prior_predictive</a></td>
+<td>Prior Predictive Check</td></tr>
+<tr><td style="width: 25%;"><a href="bdeb_session_info.html">bdeb_session_info</a></td>
+<td>Reproducibility Report</td></tr>
+<tr><td style="width: 25%;"><a href="bdeb_summary.html">bdeb_summary</a></td>
+<td>Posterior Summary for BDEB Parameters</td></tr>
+<tr><td style="width: 25%;"><a href="bdeb_tox.html">bdeb_tox</a></td>
+<td>DEBtox Model Specification</td></tr>
+<tr><td style="width: 25%;"><a href="coef.bdeb_fit.html">coef.bdeb_fit</a></td>
+<td>Extract Point Estimates from a BDEB Fit</td></tr>
+<tr><td style="width: 25%;"><a href="debtox_growth.html">debtox_growth</a></td>
+<td>Simulated DEBtox Growth Data</td></tr>
+<tr><td style="width: 25%;"><a href="debtox_simulate.html">debtox_simulate</a></td>
+<td>Simulate DEBtox Growth Under Toxicant Exposure</td></tr>
+<tr><td style="width: 25%;"><a href="deb_fluxes.html">deb_fluxes</a></td>
+<td>Compute DEB Energy Fluxes</td></tr>
+<tr><td style="width: 25%;"><a href="deb_simulate.html">deb_simulate</a></td>
+<td>Simulate DEB Growth Trajectory</td></tr>
+<tr><td style="width: 25%;"><a href="eisenia_growth.html">eisenia_growth</a></td>
+<td>Simulated Eisenia fetida Growth Data</td></tr>
+<tr><td style="width: 25%;"><a href="folsomia_repro.html">folsomia_repro</a></td>
+<td>Simulated Folsomia candida Reproduction Data</td></tr>
+<tr><td style="width: 25%;"><a href="observation_models.html">observation_models</a></td>
+<td>Observation Model Specifications</td></tr>
+<tr><td style="width: 25%;"><a href="observation_models.html">obs_lognormal</a></td>
+<td>Observation Model Specifications</td></tr>
+<tr><td style="width: 25%;"><a href="observation_models.html">obs_negbinom</a></td>
+<td>Observation Model Specifications</td></tr>
+<tr><td style="width: 25%;"><a href="observation_models.html">obs_normal</a></td>
+<td>Observation Model Specifications</td></tr>
+<tr><td style="width: 25%;"><a href="observation_models.html">obs_poisson</a></td>
+<td>Observation Model Specifications</td></tr>
+<tr><td style="width: 25%;"><a href="observation_models.html">obs_student_t</a></td>
+<td>Observation Model Specifications</td></tr>
+<tr><td style="width: 25%;"><a href="plot.bdeb_fit.html">plot.bdeb_fit</a></td>
+<td>Plot a BDEB Fit</td></tr>
+<tr><td style="width: 25%;"><a href="plot.bdeb_ppc.html">plot.bdeb_ppc</a></td>
+<td>Plot Posterior Predictive Checks</td></tr>
+<tr><td style="width: 25%;"><a href="plot_dose_response.html">plot_dose_response</a></td>
+<td>Plot DEBtox Dose-Response</td></tr>
+<tr><td style="width: 25%;"><a href="predict.bdeb_fit.html">predict.bdeb_fit</a></td>
+<td>Predict from a BDEB Fit</td></tr>
+<tr><td style="width: 25%;"><a href="priors.html">priors</a></td>
+<td>Prior Distribution Specifications for BDEB Models</td></tr>
+<tr><td style="width: 25%;"><a href="priors.html">prior_beta</a></td>
+<td>Prior Distribution Specifications for BDEB Models</td></tr>
+<tr><td style="width: 25%;"><a href="prior_default.html">prior_default</a></td>
+<td>Default Priors for DEB Parameters</td></tr>
+<tr><td style="width: 25%;"><a href="priors.html">prior_exponential</a></td>
+<td>Prior Distribution Specifications for BDEB Models</td></tr>
+<tr><td style="width: 25%;"><a href="priors.html">prior_halfcauchy</a></td>
+<td>Prior Distribution Specifications for BDEB Models</td></tr>
+<tr><td style="width: 25%;"><a href="priors.html">prior_halfnormal</a></td>
+<td>Prior Distribution Specifications for BDEB Models</td></tr>
+<tr><td style="width: 25%;"><a href="priors.html">prior_lognormal</a></td>
+<td>Prior Distribution Specifications for BDEB Models</td></tr>
+<tr><td style="width: 25%;"><a href="priors.html">prior_normal</a></td>
+<td>Prior Distribution Specifications for BDEB Models</td></tr>
+<tr><td style="width: 25%;"><a href="repro_to_intervals.html">repro_to_intervals</a></td>
+<td>Convert Cumulative Reproduction to Intervals</td></tr>
+</table>
+</div></body></html>
