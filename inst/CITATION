@@ -1,0 +1,23 @@
+bibentry(
+  bibtype  = "Manual",
+  title    = "BayesianDEB: Bayesian Dynamic Energy Budget Modelling",
+  author   = c(
+    person("Branimir K.", "Hackenberger"),
+    person("Tamara", "Djerdj"),
+    person("Domagoj K.", "Hackenberger")
+  ),
+  year     = "2026",
+  note     = "R package version 0.1.0",
+  url      = "https://github.com/sciom/BayesianDEB"
+)
+
+bibentry(
+  bibtype  = "Book",
+  title    = "Dynamic Energy Budget Theory for Metabolic Organisation",
+  author   = person("S.A.L.M.", "Kooijman"),
+  year     = "2010",
+  edition  = "3rd",
+  publisher = "Cambridge University Press",
+  doi      = "10.1017/CBO9780511805400",
+  note     = "The theoretical foundation for BayesianDEB"
+)
