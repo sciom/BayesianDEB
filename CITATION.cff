@@ -1,0 +1,39 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+type: software
+title: "BayesianDEB: Bayesian Dynamic Energy Budget Modelling"
+version: 0.1.0
+doi: 10.5281/zenodo.19443805
+date-released: "2026-04-06"
+url: "https://github.com/sciom/BayesianDEB"
+repository-code: "https://github.com/sciom/BayesianDEB"
+license: MIT
+authors:
+  - family-names: Hackenberger
+    given-names: Branimir K.
+    email: branimir@sciom.hr
+    orcid: ""
+  - family-names: Djerdj
+    given-names: Tamara
+  - family-names: Hackenberger
+    given-names: Domagoj K.
+keywords:
+  - dynamic energy budget
+  - DEB theory
+  - Bayesian inference
+  - Stan
+  - ecotoxicology
+  - DEBtox
+  - TKTD
+  - R package
+references:
+  - type: book
+    title: "Dynamic Energy Budget Theory for Metabolic Organisation"
+    authors:
+      - family-names: Kooijman
+        given-names: S.A.L.M.
+    edition: "3rd"
+    year: 2010
+    publisher:
+      name: Cambridge University Press
+    doi: 10.1017/CBO9780511805400
