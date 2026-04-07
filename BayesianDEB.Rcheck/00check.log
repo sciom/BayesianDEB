@@ -8,9 +8,9 @@
 * using session charset: UTF-8
 * using option ‘--as-cran’
 * checking for file ‘BayesianDEB/DESCRIPTION’ ... OK
-* this is package ‘BayesianDEB’ version ‘0.1.0’
+* this is package ‘BayesianDEB’ version ‘0.1.1’
 * package encoding: UTF-8
-* checking CRAN incoming feasibility ... [6s/13s] NOTE
+* checking CRAN incoming feasibility ... [5s/13s] NOTE
 Maintainer: ‘Branimir K. Hackenberger <branimir@sciom.hr>’
 
 New submission
@@ -70,8 +70,8 @@ Package has a VignetteBuilder field but no prebuilt vignette index.
 * checking files in ‘vignettes’ ... OK
 * checking examples ... OK
 * checking for unstated dependencies in ‘tests’ ... OK
-* checking tests ... [70s/70s] OK
-  Running ‘testthat.R’ [70s/70s]
+* checking tests ... [46s/46s] OK
+  Running ‘testthat.R’ [45s/45s]
 * checking for unstated dependencies in vignettes ... OK
 * checking package vignettes ... OK
 * checking re-building of vignette outputs ... OK

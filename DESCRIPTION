@@ -1,6 +1,6 @@
 Package: BayesianDEB
 Title: Bayesian Dynamic Energy Budget Modelling
-Version: 0.1.0
+Version: 0.1.1
 Authors@R: c(
     person("Branimir K.", "Hackenberger",
            email = "branimir@sciom.hr",

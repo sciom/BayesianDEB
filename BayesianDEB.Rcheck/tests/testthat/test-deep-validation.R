@@ -431,7 +431,7 @@ test_that("build_stan_data_individual preserves data order", {
   sd <- build_stan_data_individual(dat, priors)
 
   # Should be sorted by time
-  expect_equal(sd$t_obs, c(0, 7, 14))
+  expect_equal(sd$t_obs, c(1e-3, 7, 14))  # t=0 replaced with epsilon
   expect_equal(sd$L_obs, c(0.1, 0.2, 0.3))
 })
 

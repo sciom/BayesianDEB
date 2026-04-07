@@ -252,6 +252,12 @@ build_stan_data_individual <- function(data, priors, temperature = NULL,
 
 	g <- g[order(g$time), ]
 
+	# ODE solver requires all t_obs > 0 (initial time is t0=0).
+	# Replace t=0 with small epsilon; corresponding L_obs constrains L0.
+	if (any(g$time == 0)) {
+		g$time[g$time == 0] <- 1e-3
+	}
+
 	stan_data <- list(
 		N_obs  = nrow(g),
 		t_obs  = g$time,

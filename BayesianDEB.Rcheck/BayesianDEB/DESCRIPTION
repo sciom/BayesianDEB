@@ -1,6 +1,6 @@
 Package: BayesianDEB
 Title: Bayesian Dynamic Energy Budget Modelling
-Version: 0.1.0
+Version: 0.1.1
 Authors@R: c(
     person("Branimir K.", "Hackenberger",
            email = "branimir@sciom.hr",
@@ -41,9 +41,9 @@ Config/testthat/edition: 3
 VignetteBuilder: knitr
 LazyData: true
 NeedsCompilation: no
-Packaged: 2026-04-06 18:51:54 UTC; branimir
+Packaged: 2026-04-07 00:56:16 UTC; branimir
 Author: Branimir K. Hackenberger [aut, cre],
   Tamara Djerdj [aut],
   Domagoj K. Hackenberger [aut]
 Maintainer: Branimir K. Hackenberger <branimir@sciom.hr>
-Built: R 4.5.2; ; 2026-04-06 18:52:09 UTC; unix
+Built: R 4.5.2; ; 2026-04-07 00:56:31 UTC; unix

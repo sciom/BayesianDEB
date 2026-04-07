@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2025.10.13)  6 APR 2026 20:53
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2025.10.13)  7 APR 2026 02:57
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -354,7 +354,7 @@ File: t1ptm.fd 2001/06/04 font definitions for T1/ptm.
 File: l3backend-pdftex.def 2025-06-09 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count315
 )
-(/tmp/Rtmp41yh26/Rd2pdf24353181cb3de/Rd2.aux)
+(/tmp/Rtmpn1dA7S/Rd2pdf7f22404e9abf/Rd2.aux)
 \openout1 = `Rd2.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 8.
@@ -391,8 +391,8 @@ LaTeX Font Info:    ... okay on input line 8.
 \everyMPtoPDFconversion=\toks28
 )
 Package hyperref Info: Link coloring ON on input line 8.
- (/tmp/Rtmp41yh26/Rd2pdf24353181cb3de/Rd2.out)
-(/tmp/Rtmp41yh26/Rd2pdf24353181cb3de/Rd2.out)
+ (/tmp/Rtmpn1dA7S/Rd2pdf7f22404e9abf/Rd2.out)
+(/tmp/Rtmpn1dA7S/Rd2pdf7f22404e9abf/Rd2.out)
 \@outlinefile=\write4
 \openout4 = `Rd2.out'.
 
@@ -435,7 +435,7 @@ File: ursfs.fd 1998/03/24 rsfs font definition file (jk)
 {/usr/local/texlive/2025/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/usr/loc
 al/texlive/2025/texmf-dist/fonts/enc/dvips/base/8r.enc}{/usr/local/texlive/2025
 /texmf-dist/fonts/enc/dvips/inconsolata/i4-t1-0.enc}]
-(/tmp/Rtmp41yh26/Rd2pdf24353181cb3de/Rd2.toc
+(/tmp/Rtmpn1dA7S/Rd2pdf7f22404e9abf/Rd2.toc
 
 [2])
 \tf@toc=\write5
@@ -645,7 +645,7 @@ ightweight
 
 [37]
 
-[38] (/tmp/Rtmp41yh26/Rd2pdf24353181cb3de/Rd2.ind
+[38] (/tmp/Rtmpn1dA7S/Rd2pdf7f22404e9abf/Rd2.ind
 
 [39]
 
@@ -666,7 +666,7 @@ LaTeX Font Info:    Font shape `T1/zi4/m/it' will be
 
 [41
 
-]) (/tmp/Rtmp41yh26/Rd2pdf24353181cb3de/Rd2.aux)
+]) (/tmp/Rtmpn1dA7S/Rd2pdf7f22404e9abf/Rd2.aux)
  ***********
 LaTeX2e <2025-06-01> patch level 1
 L3 programming layer <2025-09-02>
@@ -680,7 +680,7 @@ Package rerunfilecheck Info: File `Rd2.out' has not changed.
  ) 
 Here is how much of TeX's memory you used:
  11019 strings out of 467748
- 166164 string characters out of 5426964
+ 166151 string characters out of 5426964
  571738 words of memory out of 5000000
  39179 multiletter control sequences out of 15000+600000
  665165 words of font info for 86 fonts, out of 8000000 for 9000
@@ -714,7 +714,7 @@ sr/local/texlive/2025/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/t
 exlive/2025/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/202
 5/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2025/texmf-di
 st/fonts/type1/urw/times/utmri8a.pfb>
-Output written on Rd2.pdf (41 pages, 259919 bytes).
+Output written on Rd2.pdf (41 pages, 259921 bytes).
 PDF statistics:
  1010 PDF objects out of 1200 (max. 8388607)
  932 compressed objects within 10 object streams
