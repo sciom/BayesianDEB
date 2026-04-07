@@ -1,6 +1,7 @@
 # BayesianDEB
 
 <!-- badges: start -->
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19443805.svg)](https://doi.org/10.5281/zenodo.19443805)
 <!-- badges: end -->
 
 **BayesianDEB** provides a Bayesian framework for Dynamic Energy Budget

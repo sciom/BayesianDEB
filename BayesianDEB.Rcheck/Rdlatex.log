@@ -204,7 +204,7 @@ ightweight
 [37]
 No file Rd2.ind.
 
-[38] (/tmp/Rtmp41yh26/Rd2pdf24353181cb3de/Rd2.aux)
+[38] (/tmp/Rtmpn1dA7S/Rd2pdf7f22404e9abf/Rd2.aux)
 
 Package rerunfilecheck Warning: File `Rd2.out' has changed.
 (rerunfilecheck)                Rerun to get outlines right
@@ -239,7 +239,7 @@ sr/local/texlive/2025/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/t
 exlive/2025/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/202
 5/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2025/texmf-di
 st/fonts/type1/urw/times/utmri8a.pfb>
-Output written on Rd2.pdf (38 pages, 246807 bytes).
+Output written on Rd2.pdf (38 pages, 246809 bytes).
 Transcript written on Rd2.log.
 This is makeindex, version 2.17 [TeX Live 2025] (kpathsea + Thai support).
 Scanning input file Rd2.idx....done (114 entries accepted, 0 rejected).
@@ -313,11 +313,11 @@ ty (/usr/local/texlive/2025/texmf-dist/tex/latex/kvoptions/kvoptions.sty)))
 Writing index file Rd2.idx
 (/usr/local/texlive/2025/texmf-dist/tex/latex/psnfss/t1ptm.fd)
 (/usr/local/texlive/2025/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def)
-(/tmp/Rtmp41yh26/Rd2pdf24353181cb3de/Rd2.aux)
+(/tmp/Rtmpn1dA7S/Rd2pdf7f22404e9abf/Rd2.aux)
 (/usr/local/texlive/2025/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-) (/tmp/Rtmp41yh26/Rd2pdf24353181cb3de/Rd2.out)
-(/tmp/Rtmp41yh26/Rd2pdf24353181cb3de/Rd2.out)
+) (/tmp/Rtmpn1dA7S/Rd2pdf7f22404e9abf/Rd2.out)
+(/tmp/Rtmpn1dA7S/Rd2pdf7f22404e9abf/Rd2.out)
 (/usr/local/texlive/2025/texmf-dist/tex/latex/psnfss/ts1ptm.fd)
 (/usr/local/texlive/2025/texmf-dist/tex/latex/inconsolata/t1zi4.fd)
 (/usr/local/texlive/2025/texmf-dist/tex/latex/amsfonts/umsa.fd)
@@ -326,7 +326,7 @@ Writing index file Rd2.idx
 [1{/usr/local/texlive/2025/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/usr/l
 ocal/texlive/2025/texmf-dist/fonts/enc/dvips/base/8r.enc}{/usr/local/texlive/20
 25/texmf-dist/fonts/enc/dvips/inconsolata/i4-t1-0.enc}]
-(/tmp/Rtmp41yh26/Rd2pdf24353181cb3de/Rd2.toc
+(/tmp/Rtmpn1dA7S/Rd2pdf7f22404e9abf/Rd2.toc
 [2])
 [3]
 Overfull \hbox (22.93004pt too wide) in paragraph at lines 135--141
@@ -448,7 +448,7 @@ ightweight
 [35]
 [36]
 [37]
-[38] (/tmp/Rtmp41yh26/Rd2pdf24353181cb3de/Rd2.ind
+[38] (/tmp/Rtmpn1dA7S/Rd2pdf7f22404e9abf/Rd2.ind
 [39]
 
 LaTeX Font Warning: Font shape `T1/zi4/m/it' undefined
@@ -458,7 +458,7 @@ LaTeX Font Warning: Font shape `T1/zi4/m/it' undefined
 
 [40]
 
-[41]) (/tmp/Rtmp41yh26/Rd2pdf24353181cb3de/Rd2.aux)
+[41]) (/tmp/Rtmpn1dA7S/Rd2pdf7f22404e9abf/Rd2.aux)
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
@@ -570,11 +570,11 @@ ty (/usr/local/texlive/2025/texmf-dist/tex/latex/kvoptions/kvoptions.sty)))
 Writing index file Rd2.idx
 (/usr/local/texlive/2025/texmf-dist/tex/latex/psnfss/t1ptm.fd)
 (/usr/local/texlive/2025/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def)
-(/tmp/Rtmp41yh26/Rd2pdf24353181cb3de/Rd2.aux)
+(/tmp/Rtmpn1dA7S/Rd2pdf7f22404e9abf/Rd2.aux)
 (/usr/local/texlive/2025/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-) (/tmp/Rtmp41yh26/Rd2pdf24353181cb3de/Rd2.out)
-(/tmp/Rtmp41yh26/Rd2pdf24353181cb3de/Rd2.out)
+) (/tmp/Rtmpn1dA7S/Rd2pdf7f22404e9abf/Rd2.out)
+(/tmp/Rtmpn1dA7S/Rd2pdf7f22404e9abf/Rd2.out)
 (/usr/local/texlive/2025/texmf-dist/tex/latex/psnfss/ts1ptm.fd)
 (/usr/local/texlive/2025/texmf-dist/tex/latex/inconsolata/t1zi4.fd)
 (/usr/local/texlive/2025/texmf-dist/tex/latex/amsfonts/umsa.fd)
@@ -583,7 +583,7 @@ Writing index file Rd2.idx
 [1{/usr/local/texlive/2025/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/usr/l
 ocal/texlive/2025/texmf-dist/fonts/enc/dvips/base/8r.enc}{/usr/local/texlive/20
 25/texmf-dist/fonts/enc/dvips/inconsolata/i4-t1-0.enc}]
-(/tmp/Rtmp41yh26/Rd2pdf24353181cb3de/Rd2.toc
+(/tmp/Rtmpn1dA7S/Rd2pdf7f22404e9abf/Rd2.toc
 [2])
 [3]
 Overfull \hbox (22.93004pt too wide) in paragraph at lines 135--141
@@ -705,7 +705,7 @@ ightweight
 [35]
 [36]
 [37]
-[38] (/tmp/Rtmp41yh26/Rd2pdf24353181cb3de/Rd2.ind
+[38] (/tmp/Rtmpn1dA7S/Rd2pdf7f22404e9abf/Rd2.ind
 [39]
 
 LaTeX Font Warning: Font shape `T1/zi4/m/it' undefined
@@ -715,7 +715,7 @@ LaTeX Font Warning: Font shape `T1/zi4/m/it' undefined
 
 [40]
 
-[41]) (/tmp/Rtmp41yh26/Rd2pdf24353181cb3de/Rd2.aux)
+[41]) (/tmp/Rtmpn1dA7S/Rd2pdf7f22404e9abf/Rd2.aux)
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
@@ -748,7 +748,7 @@ sr/local/texlive/2025/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/t
 exlive/2025/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/202
 5/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2025/texmf-di
 st/fonts/type1/urw/times/utmri8a.pfb>
-Output written on Rd2.pdf (41 pages, 259923 bytes).
+Output written on Rd2.pdf (41 pages, 259924 bytes).
 Transcript written on Rd2.log.
 This is makeindex, version 2.17 [TeX Live 2025] (kpathsea + Thai support).
 Scanning input file Rd2.idx....done (114 entries accepted, 0 rejected).
@@ -822,11 +822,11 @@ ty (/usr/local/texlive/2025/texmf-dist/tex/latex/kvoptions/kvoptions.sty)))
 Writing index file Rd2.idx
 (/usr/local/texlive/2025/texmf-dist/tex/latex/psnfss/t1ptm.fd)
 (/usr/local/texlive/2025/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def)
-(/tmp/Rtmp41yh26/Rd2pdf24353181cb3de/Rd2.aux)
+(/tmp/Rtmpn1dA7S/Rd2pdf7f22404e9abf/Rd2.aux)
 (/usr/local/texlive/2025/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-) (/tmp/Rtmp41yh26/Rd2pdf24353181cb3de/Rd2.out)
-(/tmp/Rtmp41yh26/Rd2pdf24353181cb3de/Rd2.out)
+) (/tmp/Rtmpn1dA7S/Rd2pdf7f22404e9abf/Rd2.out)
+(/tmp/Rtmpn1dA7S/Rd2pdf7f22404e9abf/Rd2.out)
 (/usr/local/texlive/2025/texmf-dist/tex/latex/psnfss/ts1ptm.fd)
 (/usr/local/texlive/2025/texmf-dist/tex/latex/inconsolata/t1zi4.fd)
 (/usr/local/texlive/2025/texmf-dist/tex/latex/amsfonts/umsa.fd)
@@ -835,7 +835,7 @@ Writing index file Rd2.idx
 [1{/usr/local/texlive/2025/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/usr/l
 ocal/texlive/2025/texmf-dist/fonts/enc/dvips/base/8r.enc}{/usr/local/texlive/20
 25/texmf-dist/fonts/enc/dvips/inconsolata/i4-t1-0.enc}]
-(/tmp/Rtmp41yh26/Rd2pdf24353181cb3de/Rd2.toc
+(/tmp/Rtmpn1dA7S/Rd2pdf7f22404e9abf/Rd2.toc
 [2])
 [3]
 Overfull \hbox (22.93004pt too wide) in paragraph at lines 135--141
@@ -957,7 +957,7 @@ ightweight
 [35]
 [36]
 [37]
-[38] (/tmp/Rtmp41yh26/Rd2pdf24353181cb3de/Rd2.ind
+[38] (/tmp/Rtmpn1dA7S/Rd2pdf7f22404e9abf/Rd2.ind
 [39]
 
 LaTeX Font Warning: Font shape `T1/zi4/m/it' undefined
@@ -967,7 +967,7 @@ LaTeX Font Warning: Font shape `T1/zi4/m/it' undefined
 
 [40]
 
-[41]) (/tmp/Rtmp41yh26/Rd2pdf24353181cb3de/Rd2.aux)
+[41]) (/tmp/Rtmpn1dA7S/Rd2pdf7f22404e9abf/Rd2.aux)
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
@@ -1000,8 +1000,8 @@ sr/local/texlive/2025/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/t
 exlive/2025/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/202
 5/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2025/texmf-di
 st/fonts/type1/urw/times/utmri8a.pfb>
-Output written on Rd2.pdf (41 pages, 259919 bytes).
+Output written on Rd2.pdf (41 pages, 259921 bytes).
 Transcript written on Rd2.log.
 Saving output to ‘BayesianDEB-manual.pdf’ ...
 Done
-You may want to clean up by 'rm -Rf /tmp/Rtmp41yh26/Rd2pdf24353181cb3de'
+You may want to clean up by 'rm -Rf /tmp/Rtmpn1dA7S/Rd2pdf7f22404e9abf'

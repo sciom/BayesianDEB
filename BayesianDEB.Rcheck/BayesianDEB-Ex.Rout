@@ -33,7 +33,7 @@ Type 'q()' to quit R.
 > 
 > ### * </HEADER>
 > library('BayesianDEB')
-BayesianDEB v0.1.0
+BayesianDEB v0.1.1
 > 
 > base::assign(".oldSearch", base::search(), pos = 'CheckExEnv')
 > base::assign(".old_wd", base::getwd(), pos = 'CheckExEnv')
@@ -153,7 +153,7 @@ BayesianDEB v0.1.0
 ── BayesianDEB Reproducibility Report ──
 
 ℹ R: 4.5.2 (x86_64-pc-linux-gnu)
-ℹ BayesianDEB: 0.1.0
+ℹ BayesianDEB: 0.1.1
 ℹ cmdstanr: 0.8.0
 ℹ CmdStan: 2.36.0
 ℹ posterior: 1.6.1, loo: 2.8.0
@@ -521,7 +521,7 @@ attr(,"class")
 > cleanEx()
 > options(digits = 7L)
 > base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
-Time elapsed:  1.061 0.047 1.117 0 0.003 
+Time elapsed:  0.677 0.017 0.699 0 0.002 
 > grDevices::dev.off()
 null device 
           1 

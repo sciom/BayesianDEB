@@ -231,7 +231,7 @@ test_that("build_stan_data_individual produces correct structure", {
   sd <- build_stan_data_individual(dat, priors)
 
   expect_equal(sd$N_obs, 3)
-  expect_equal(sd$t_obs, c(0, 7, 14))
+  expect_equal(sd$t_obs, c(1e-3, 7, 14))  # t=0 replaced with epsilon
   expect_equal(sd$L_obs, c(0.1, 0.2, 0.3))
   expect_equal(sd$f_food, 0.8)
   # Prior hyperparameters present
