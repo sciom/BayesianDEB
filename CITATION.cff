@@ -2,7 +2,7 @@ cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
 type: software
 title: "BayesianDEB: Bayesian Dynamic Energy Budget Modelling"
-version: 0.1.1
+version: 0.1.2
 doi: 10.5281/zenodo.19443805
 date-released: "2026-04-06"
 url: "https://github.com/sciom/BayesianDEB"
@@ -12,11 +12,14 @@ authors:
   - family-names: Hackenberger
     given-names: Branimir K.
     email: branimir@sciom.hr
+    affiliation: "SCIOM d.o.o."
     orcid: ""
   - family-names: Djerdj
     given-names: Tamara
+    affiliation: "Department of Biology, Josip Juraj Strossmayer University of Osijek"
   - family-names: Hackenberger
     given-names: Domagoj K.
+    affiliation: "Ruđer Bošković Institute, Zagreb"
 keywords:
   - dynamic energy budget
   - DEB theory

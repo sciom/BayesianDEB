@@ -280,6 +280,11 @@ build_stan_data_hierarchical <- function(data, priors, temperature = NULL,
 	ids <- unique(g$id)
 	n_ind <- length(ids)
 
+	# ODE solver requires all t_obs > 0 (initial time is t0=0).
+	if (any(g$time == 0)) {
+		g$time[g$time == 0] <- 1e-3
+	}
+
 	# Split by individual
 	by_id <- split(g, g$id)
 	n_obs <- vapply(by_id, nrow, integer(1))
@@ -321,22 +326,18 @@ build_stan_data_growth_repro <- function(data, priors, temperature = NULL,
 	g <- data$growth
 	r <- data$reproduction
 
+	# ODE solver requires all t_obs > 0 (initial time is t0=0).
+	if (any(g$time == 0)) g$time[g$time == 0] <- 1e-3
+	if (any(r$t_start == 0)) r$t_start[r$t_start == 0] <- 1e-3
+	if (any(r$t_end == 0)) r$t_end[r$t_end == 0] <- 1e-3
+
 	# All unique times needed for ODE solving
 	all_times <- sort(unique(c(g$time, r$t_start, r$t_end)))
-	all_times <- all_times[all_times > 0]
 
 	# Index mappings
 	idx_L <- match(g$time, all_times)
 	idx_R_start <- match(r$t_start, all_times)
 	idx_R_end   <- match(r$t_end, all_times)
-
-	# Handle t=0 observations by shifting to first positive time
-	if (any(g$time == 0)) {
-		t0_obs <- which(g$time == 0)
-		all_times <- sort(unique(c(1e-3, all_times)))
-		idx_L <- match(g$time, all_times)
-		idx_L[t0_obs] <- 1
-	}
 
 	stan_data <- list(
 		N_L         = nrow(g),
@@ -405,6 +406,11 @@ build_stan_data_debtox <- function(data, priors, temperature = NULL,
 		g <- stats::aggregate(length ~ concentration + time, data = g, FUN = mean)
 	}
 
+	# ODE solver requires all t_obs > 0 (initial time is t0=0).
+	if (any(g$time == 0)) {
+		g$time[g$time == 0] <- 1e-3
+	}
+
 	by_group <- split(g, g$concentration)
 	n_obs <- vapply(by_group, nrow, integer(1))
 	max_n_obs <- max(n_obs)
@@ -430,6 +436,10 @@ build_stan_data_debtox <- function(data, priors, temperature = NULL,
 
 	if (!is.null(data$reproduction)) {
 		r <- data$reproduction
+
+		# Match t=0 shift applied to growth times
+		if (any(r$t_start == 0)) r$t_start[r$t_start == 0] <- 1e-3
+		if (any(r$t_end == 0))   r$t_end[r$t_end == 0]     <- 1e-3
 
 		# Assign concentration to each repro record
 		if ("concentration" %in% names(r)) {

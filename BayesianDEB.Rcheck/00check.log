@@ -8,17 +8,10 @@
 * using session charset: UTF-8
 * using option ‘--as-cran’
 * checking for file ‘BayesianDEB/DESCRIPTION’ ... OK
-* this is package ‘BayesianDEB’ version ‘0.1.1’
+* this is package ‘BayesianDEB’ version ‘0.1.2’
 * package encoding: UTF-8
-* checking CRAN incoming feasibility ... [5s/13s] NOTE
+* checking CRAN incoming feasibility ... NOTE
 Maintainer: ‘Branimir K. Hackenberger <branimir@sciom.hr>’
-
-New submission
-
-Suggests or Enhances not in mainstream repositories:
-  cmdstanr
-Availability using Additional_repositories specification:
-  cmdstanr   yes   https://stan-dev.r-universe.dev
 
 Package has a VignetteBuilder field but no prebuilt vignette index.
 * checking package namespace information ... OK
@@ -32,7 +25,8 @@ Package has a VignetteBuilder field but no prebuilt vignette index.
 * checking whether package ‘BayesianDEB’ can be installed ... OK
 * checking installed package size ... OK
 * checking package directory ... OK
-* checking for future file timestamps ... OK
+* checking for future file timestamps ... NOTE
+unable to verify current time
 * checking DESCRIPTION meta-information ... OK
 * checking top-level files ... OK
 * checking for left-over files ... OK
@@ -70,8 +64,8 @@ Package has a VignetteBuilder field but no prebuilt vignette index.
 * checking files in ‘vignettes’ ... OK
 * checking examples ... OK
 * checking for unstated dependencies in ‘tests’ ... OK
-* checking tests ... [46s/46s] OK
-  Running ‘testthat.R’ [45s/45s]
+* checking tests ... [91s/91s] OK
+  Running ‘testthat.R’ [91s/90s]
 * checking for unstated dependencies in vignettes ... OK
 * checking package vignettes ... OK
 * checking re-building of vignette outputs ... OK
@@ -80,4 +74,4 @@ Package has a VignetteBuilder field but no prebuilt vignette index.
 * checking for non-standard things in the check directory ... OK
 * checking for detritus in the temp directory ... OK
 * DONE
-Status: 1 NOTE
+Status: 2 NOTEs

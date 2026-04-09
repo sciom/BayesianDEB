@@ -27,7 +27,9 @@ debtox_growth	debtox_growth
 debtox_simulate	debtox_simulate
 deb_fluxes	deb_fluxes
 deb_simulate	deb_simulate
+eisenia_cd	eisenia_cd
 eisenia_growth	eisenia_growth
+eisenia_neuhauser	eisenia_neuhauser
 folsomia_repro	folsomia_repro
 observation_models	observation_models
 observation_to_stan_data	observation_to_stan_data
@@ -48,6 +50,7 @@ prior_halfcauchy	priors
 prior_halfnormal	priors
 prior_lognormal	priors
 prior_normal	priors
+prior_species	prior_species
 repro_to_intervals	repro_to_intervals
 stan_file	stan_file
 temperature_to_stan_data	temperature_to_stan_data

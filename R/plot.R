@@ -16,6 +16,7 @@ NULL
 #'   - `"posterior"`: marginal posterior densities
 #'   - `"pairs"`: bivariate posterior scatter plots
 #'   - `"trajectory"`: predicted trajectories with data overlay
+#'   - `"prior_posterior"`: prior (red) vs posterior (blue) densities
 #' @param pars Character vector of parameters to plot. Default: core DEB
 #'   parameters.
 #' @param n_draws Number of posterior draws for trajectory plots. Default 100.
@@ -25,7 +26,7 @@ NULL
 #' @return A ggplot2 object.
 #' @export
 plot.bdeb_fit <- function(x, type = c("trace", "posterior", "pairs",
-                                       "trajectory"),
+                                       "trajectory", "prior_posterior"),
                           pars = NULL, n_draws = 100, seed = NULL, ...) {
 	type <- match.arg(type)
 
@@ -39,7 +40,8 @@ plot.bdeb_fit <- function(x, type = c("trace", "posterior", "pairs",
 		trace     = plot_trace(draws, pars, ...),
 		posterior = plot_posterior(draws, pars, ...),
 		pairs     = plot_pairs(draws, pars, ...),
-		trajectory = plot_trajectory(x, n_draws, seed, ...)
+		trajectory = plot_trajectory(x, n_draws, seed, ...),
+		prior_posterior = plot_prior_posterior(x, pars, ...)
 	)
 }
 
@@ -197,7 +199,7 @@ plot_trajectory_hierarchical <- function(fit, n_draws) {
 			ni     <- sd$N_obs[j]
 			t_end  <- sd$t_obs[j, ni]
 
-			traj <- sim_deb_euler(t_end, p_Am_j, p_M, kappa, v_val,
+			traj <- sim_deb_lsoda(t_end, p_Am_j, p_M, kappa, v_val,
 			                      E_G, E0, L0_j, f)
 			t_out <- sd$t_obs[j, seq_len(ni)]
 			L_pred <- stats::approx(traj$time, traj$L, xout = t_out)$y
@@ -276,7 +278,7 @@ plot_trajectory_debtox <- function(fit, n_draws) {
 			ni  <- sd$N_obs[g]
 			t_end <- sd$t_obs[g, ni]
 
-			traj <- sim_debtox_euler(t_end, p_Am, p_M, kappa, v_val,
+			traj <- sim_debtox_lsoda(t_end, p_Am, p_M, kappa, v_val,
 			                         E_G, E0, L0, f, k_d, z_w, b_w, C_w)
 			t_out <- sd$t_obs[g, seq_len(ni)]
 			L_pred <- stats::approx(traj$time, traj$L, xout = t_out)$y
@@ -312,51 +314,135 @@ plot_trajectory_debtox <- function(fit, n_draws) {
 # --- Euler forward simulators for R-side trajectory plots ---
 
 #' @keywords internal
-sim_deb_euler <- function(t_max, p_Am, p_M, kappa, v, E_G, E0, L0, f,
+sim_deb_lsoda <- function(t_max, p_Am, p_M, kappa, v, E_G, E0, L0, f,
                           dt = 0.5) {
-	n <- ceiling(t_max / dt)
-	t <- seq(0, t_max, length.out = n + 1)
-	E <- V <- numeric(n + 1)
-	V[1] <- L0^3
-	E[1] <- E0 * V[1]
-
-	for (i in seq_len(n)) {
-		L <- V[i]^(1/3)
+	times <- seq(0, t_max, by = dt)
+	if (times[length(times)] < t_max) times <- c(times, t_max)
+	V0 <- L0^3
+	y0 <- c(E = E0 * V0, V = V0)
+	ode_fn <- function(t, y, pars) {
+		E <- y[1]; V <- max(y[2], 1e-12)
+		L <- V^(1/3)
 		pA <- f * p_Am * L^2
-		pC <- E[i] * v * L / (E[i] + E_G * V[i] + 1e-12)  # consistent with Stan ODE
-		pM <- p_M * V[i]
+		pC <- E * v * L / (E + E_G * V + 1e-12)
+		pM <- p_M * V
 		dE <- pA - pC
 		dV <- (kappa * pC - pM) / E_G
-		E[i + 1] <- max(E[i] + dE * dt, 1e-12)
-		V[i + 1] <- max(V[i] + dV * dt, 1e-12)
+		if (V < 1e-12 && dV < 0) dV <- 0
+		list(c(dE, dV))
 	}
-	data.frame(time = t, L = V^(1/3))
+	out <- deSolve::lsoda(y0, times, ode_fn, parms = NULL,
+	                       rtol = 1e-6, atol = 1e-6)
+	data.frame(time = out[, 1],
+	           L = pmax(out[, 3], 1e-12)^(1/3))
 }
 
 #' @keywords internal
-sim_debtox_euler <- function(t_max, p_Am, p_M, kappa, v, E_G, E0, L0,
+sim_debtox_lsoda <- function(t_max, p_Am, p_M, kappa, v, E_G, E0, L0,
                              f, k_d, z_w, b_w, C_w, dt = 0.5) {
-	n <- ceiling(t_max / dt)
-	t <- seq(0, t_max, length.out = n + 1)
-	E <- V <- Dw <- numeric(n + 1)
-	V[1] <- L0^3
-	E[1] <- E0 * V[1]
-	Dw[1] <- 0
-
-	for (i in seq_len(n)) {
-		L <- V[i]^(1/3)
-		dDw <- k_d * (max(C_w - z_w, 0) - Dw[i])
-		s <- b_w * max(Dw[i], 0)
+	times <- seq(0, t_max, by = dt)
+	if (times[length(times)] < t_max) times <- c(times, t_max)
+	V0 <- L0^3
+	y0 <- c(E = E0 * V0, V = V0, Dw = 0)
+	ode_fn <- function(t, y, pars) {
+		E <- y[1]; V <- max(y[2], 1e-12); Dw <- y[3]
+		L <- V^(1/3)
+		dDw <- k_d * (max(C_w - z_w, 0) - Dw)
+		s <- b_w * max(Dw, 0)
 		pA <- f * p_Am * L^2 * max(1 - s, 0)
-		pC <- E[i] * v * L / (E[i] + E_G * V[i] + 1e-12)  # consistent with Stan ODE
-		pM <- p_M * V[i]
+		pC <- E * v * L / (E + E_G * V + 1e-12)
+		pM <- p_M * V
 		dE <- pA - pC
 		dV <- (kappa * pC - pM) / E_G
-		E[i + 1]  <- max(E[i] + dE * dt, 1e-12)
-		V[i + 1]  <- max(V[i] + dV * dt, 1e-12)
-		Dw[i + 1] <- max(Dw[i] + dDw * dt, 0)
+		if (V < 1e-12 && dV < 0) dV <- 0
+		list(c(dE, dV, dDw))
 	}
-	data.frame(time = t, L = V^(1/3))
+	out <- deSolve::lsoda(y0, times, ode_fn, parms = NULL,
+	                       rtol = 1e-6, atol = 1e-6)
+	data.frame(time = out[, 1],
+	           L = pmax(out[, 3], 1e-12)^(1/3))
+}
+
+# --- Prior vs Posterior plotting ---
+
+#' @keywords internal
+plot_prior_posterior <- function(fit, pars, ...) {
+	priors <- fit$model$priors
+	draws_mat <- as.data.frame(posterior::as_draws_matrix(fit$fit$draws()))
+
+	# Only plot parameters that have both posterior draws and prior specs
+	pars <- intersect(pars, names(priors))
+	pars <- intersect(pars, names(draws_mat))
+
+	n_prior <- 50000L
+	plot_data <- do.call(rbind, lapply(pars, function(p) {
+		pr <- priors[[p]]
+		# Sample from prior
+		prior_samp <- switch(pr$family,
+			lognormal   = stats::rlnorm(n_prior, pr$mu, pr$sigma),
+			normal      = stats::rnorm(n_prior, pr$mu, pr$sigma),
+			beta        = stats::rbeta(n_prior, pr$a, pr$b),
+			halfnormal  = abs(stats::rnorm(n_prior, 0, pr$sigma)),
+			halfcauchy  = abs(stats::rcauchy(n_prior, 0, pr$sigma)),
+			exponential = stats::rexp(n_prior, pr$rate),
+			NULL
+		)
+		if (is.null(prior_samp)) return(NULL)
+
+		post_samp <- draws_mat[[p]]
+
+		# Trim to reasonable range for density estimation
+		q_low  <- min(stats::quantile(post_samp, 0.001),
+		              stats::quantile(prior_samp, 0.01))
+		q_high <- max(stats::quantile(post_samp, 0.999),
+		              stats::quantile(prior_samp, 0.99))
+		q_low  <- max(q_low, 0)
+
+		rbind(
+			data.frame(parameter = p, value = post_samp, source = "Posterior",
+			           stringsAsFactors = FALSE),
+			data.frame(parameter = p, value = prior_samp, source = "Prior",
+			           stringsAsFactors = FALSE)
+		)
+	}))
+
+	if (is.null(plot_data) || nrow(plot_data) == 0) {
+		cli::cli_abort("No parameters with matching priors found to plot.")
+	}
+
+	# Pretty parameter labels
+	par_labels <- c(
+		p_Am = "p[Am]", p_M = "p[M]", kappa = "kappa", v = "v",
+		E_G = "E[G]", sigma_L = "sigma[L]", E0 = "E[0]", L0 = "L[0]",
+		k_d = "k[d]", z_w = "z[w]", b_w = "b[w]",
+		k_J = "k[J]", k_R = "k[R]", phi_R = "phi[R]",
+		mu_log_p_Am = "mu[log~p[Am]]",
+		sigma_log_p_Am = "sigma[log~p[Am]]"
+	)
+	plot_data$par_label <- ifelse(
+		plot_data$parameter %in% names(par_labels),
+		par_labels[plot_data$parameter],
+		plot_data$parameter
+	)
+	plot_data$par_label <- factor(plot_data$par_label,
+		levels = par_labels[intersect(pars, names(par_labels))])
+
+	plot_data$source <- factor(plot_data$source, levels = c("Prior", "Posterior"))
+
+	ggplot2::ggplot(plot_data, ggplot2::aes(x = .data$value,
+	                                         fill = .data$source,
+	                                         colour = .data$source)) +
+		ggplot2::geom_density(alpha = 0.35, linewidth = 0.5) +
+		ggplot2::facet_wrap(~ .data$par_label, scales = "free",
+		                    labeller = ggplot2::label_parsed) +
+		ggplot2::scale_fill_manual(values = c(Prior = "#E41A1C",
+		                                       Posterior = "#377EB8")) +
+		ggplot2::scale_colour_manual(values = c(Prior = "#E41A1C",
+		                                         Posterior = "#377EB8")) +
+		ggplot2::theme_bw(base_size = 10) +
+		ggplot2::labs(x = "Value", y = "Density",
+		              fill = NULL, colour = NULL) +
+		ggplot2::theme(legend.position = "top")
 }
 
 # --- PPC plotting ---

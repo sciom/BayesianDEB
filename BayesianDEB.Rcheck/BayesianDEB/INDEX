@@ -18,7 +18,10 @@ deb_fluxes              Compute DEB Energy Fluxes
 deb_simulate            Simulate DEB Growth Trajectory
 debtox_growth           Simulated DEBtox Growth Data
 debtox_simulate         Simulate DEBtox Growth Under Toxicant Exposure
+eisenia_cd              Eisenia andrei Cadmium Toxicity Data (Van
+                        Gestel 1991)
 eisenia_growth          Simulated Eisenia fetida Growth Data
+eisenia_neuhauser       Eisenia fetida Growth Data (Neuhauser 1980)
 folsomia_repro          Simulated Folsomia candida Reproduction Data
 observation_models      Observation Model Specifications
 plot.bdeb_fit           Plot a BDEB Fit
@@ -26,6 +29,7 @@ plot.bdeb_ppc           Plot Posterior Predictive Checks
 plot_dose_response      Plot DEBtox Dose-Response
 predict.bdeb_fit        Predict from a BDEB Fit
 prior_default           Default Priors for DEB Parameters
+prior_species           Species-Specific Priors from the AmP Collection
 priors                  Prior Distribution Specifications for BDEB
                         Models
 repro_to_intervals      Convert Cumulative Reproduction to Intervals

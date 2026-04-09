@@ -33,7 +33,7 @@ Type 'q()' to quit R.
 > 
 > ### * </HEADER>
 > library('BayesianDEB')
-BayesianDEB v0.1.1
+BayesianDEB v0.1.2
 > 
 > base::assign(".oldSearch", base::search(), pos = 'CheckExEnv')
 > base::assign(".old_wd", base::getwd(), pos = 'CheckExEnv')
@@ -153,7 +153,7 @@ BayesianDEB v0.1.1
 ── BayesianDEB Reproducibility Report ──
 
 ℹ R: 4.5.2 (x86_64-pc-linux-gnu)
-ℹ BayesianDEB: 0.1.1
+ℹ BayesianDEB: 0.1.2
 ℹ cmdstanr: 0.8.0
 ℹ CmdStan: 2.36.0
 ℹ posterior: 1.6.1, loo: 2.8.0
@@ -258,6 +258,29 @@ BayesianDEB v0.1.1
 > base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
 > base::cat("debtox_simulate", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
 > cleanEx()
+> nameEx("eisenia_cd")
+> ### * eisenia_cd
+> 
+> flush(stderr()); flush(stdout())
+> 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
+> ### Name: eisenia_cd
+> ### Title: Eisenia andrei Cadmium Toxicity Data (Van Gestel 1991)
+> ### Aliases: eisenia_cd
+> ### Keywords: datasets
+> 
+> ### ** Examples
+> 
+> data(eisenia_cd)
+> plot(eisenia_cd$time, eisenia_cd$length,
++      col = as.factor(eisenia_cd$concentration),
++      xlab = "Days", ylab = "Structural length (cm)")
+> 
+> 
+> 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("eisenia_cd", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
+> cleanEx()
 > nameEx("eisenia_growth")
 > ### * eisenia_growth
 > 
@@ -285,6 +308,28 @@ BayesianDEB v0.1.1
 > 
 > base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
 > base::cat("eisenia_growth", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
+> cleanEx()
+> nameEx("eisenia_neuhauser")
+> ### * eisenia_neuhauser
+> 
+> flush(stderr()); flush(stdout())
+> 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
+> ### Name: eisenia_neuhauser
+> ### Title: Eisenia fetida Growth Data (Neuhauser 1980)
+> ### Aliases: eisenia_neuhauser
+> ### Keywords: datasets
+> 
+> ### ** Examples
+> 
+> data(eisenia_neuhauser)
+> plot(eisenia_neuhauser$time, eisenia_neuhauser$length,
++      xlab = "Days", ylab = "Structural length (cm)")
+> 
+> 
+> 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("eisenia_neuhauser", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
 > cleanEx()
 > nameEx("folsomia_repro")
 > ### * folsomia_repro
@@ -471,6 +516,144 @@ attr(,"class")
 > base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
 > base::cat("prior_default", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
 > cleanEx()
+> nameEx("prior_species")
+> ### * prior_species
+> 
+> flush(stderr()); flush(stdout())
+> 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
+> ### Name: prior_species
+> ### Title: Species-Specific Priors from the AmP Collection
+> ### Aliases: prior_species
+> 
+> ### ** Examples
+> 
+> # Use AmP-calibrated priors for E. fetida
+> prior_species("Eisenia_fetida")
+$p_Am
+$family
+[1] "lognormal"
+
+$mu
+      mu 
+1.609438 
+
+$sigma
+sigma 
+  0.3 
+
+attr(,"class")
+[1] "bdeb_prior"
+
+$p_M
+$family
+[1] "lognormal"
+
+$mu
+        mu 
+-0.6931472 
+
+$sigma
+sigma 
+  0.3 
+
+attr(,"class")
+[1] "bdeb_prior"
+
+$kappa
+$family
+[1] "beta"
+
+$a
+a 
+5 
+
+$b
+b 
+2 
+
+attr(,"class")
+[1] "bdeb_prior"
+
+$v
+$family
+[1] "lognormal"
+
+$mu
+       mu 
+-3.912023 
+
+$sigma
+sigma 
+  0.5 
+
+attr(,"class")
+[1] "bdeb_prior"
+
+$E_G
+$family
+[1] "lognormal"
+
+$mu
+     mu 
+8.38936 
+
+$sigma
+sigma 
+  0.3 
+
+attr(,"class")
+[1] "bdeb_prior"
+
+$E0
+$family
+[1] "lognormal"
+
+$mu
+[1] 0
+
+$sigma
+[1] 1
+
+attr(,"class")
+[1] "bdeb_prior"
+
+$L0
+$family
+[1] "lognormal"
+
+$mu
+[1] -2
+
+$sigma
+[1] 1
+
+attr(,"class")
+[1] "bdeb_prior"
+
+$sigma_L
+$family
+[1] "halfnormal"
+
+$sigma
+sigma 
+ 0.05 
+
+attr(,"class")
+[1] "bdeb_prior"
+
+> 
+> # Combine with model specification
+> ## Not run: 
+> ##D mod <- bdeb_model(dat, type = "individual",
+> ##D   priors = prior_species("Eisenia_fetida"))
+> ## End(Not run)
+> 
+> 
+> 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("prior_species", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
+> cleanEx()
 > nameEx("priors")
 > ### * priors
 > 
@@ -521,7 +704,7 @@ attr(,"class")
 > cleanEx()
 > options(digits = 7L)
 > base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
-Time elapsed:  0.677 0.017 0.699 0 0.002 
+Time elapsed:  1.463 0.052 1.518 0 0.003 
 > grDevices::dev.off()
 null device 
           1 

@@ -82,39 +82,40 @@ ocal/texlive/2025/texmf-dist/fonts/enc/dvips/base/8r.enc}{/usr/local/texlive/20
 No file Rd2.toc.
 
 [2]
-Overfull \hbox (22.93004pt too wide) in paragraph at lines 135--141
+Overfull \hbox (22.93004pt too wide) in paragraph at lines 136--142
 []\T1/zi4/m/n/10 bdeb_fit()[]\T1/ptm/m/n/10 , []\T1/zi4/m/n/10 bdeb_diagnose()[
 ]\T1/ptm/m/n/10 , []\T1/zi4/m/n/10 bdeb_summary()[]\T1/ptm/m/n/10 , []\T1/zi4/m
 /n/10 bdeb_ec50()[]\T1/ptm/m/n/10 , []\T1/zi4/m/n/10 bdeb_loo()[]\T1/ptm/m/n/10
  ,
 
-Overfull \hbox (41.9694pt too wide) in paragraph at lines 141--148
+Overfull \hbox (71.04987pt too wide) in paragraph at lines 142--150
 []\T1/zi4/m/n/10 bdeb_prior_predictive()[]\T1/ptm/m/n/10 , []\T1/zi4/m/n/10 bde
-b_predict(newdata=...)[]\T1/ptm/m/n/10 , []\T1/zi4/m/n/10 plot(fit,
+b_predict(newdata=...)[]\T1/ptm/m/n/10 , []\T1/zi4/m/n/10 plot(fit, type="traje
+ctory")
 
-Overfull \hbox (41.55064pt too wide) in paragraph at lines 157--164
+Overfull \hbox (41.55064pt too wide) in paragraph at lines 159--166
 []\T1/zi4/m/n/10 bdeb_data()[]\T1/ptm/m/n/10 , []\T1/zi4/m/n/10 bdeb_model()[]\
 T1/ptm/m/n/10 , []\T1/zi4/m/n/10 bdeb_fit()[]\T1/ptm/m/n/10 , []\T1/zi4/m/n/10 
 bdeb_diagnose()[]\T1/ptm/m/n/10 , []\T1/zi4/m/n/10 bdeb_summary()[]\T1/ptm/m/n/
 10 , []\T1/zi4/m/n/10 bdeb_derived()[]\T1/ptm/m/n/10 ,
 
-Overfull \hbox (41.88098pt too wide) in paragraph at lines 157--164
+Overfull \hbox (41.88098pt too wide) in paragraph at lines 159--166
 []\T1/zi4/m/n/10 bdeb_ppc()[]\T1/ptm/m/n/10 , []\T1/zi4/m/n/10 bdeb_predict()[]
 \T1/ptm/m/n/10 , []\T1/zi4/m/n/10 bdeb_loo()[]\T1/ptm/m/n/10 , []\T1/zi4/m/n/10
  bdeb_ec50()[]\T1/ptm/m/n/10 , []\T1/zi4/m/n/10 bdeb_tox()[]\T1/ptm/m/n/10 , []
 \T1/zi4/m/n/10 bdeb_prior_predictive()[]\T1/ptm/m/n/10 ,
 
-Overfull \hbox (1.50914pt too wide) in paragraph at lines 157--164
+Overfull \hbox (1.50914pt too wide) in paragraph at lines 159--166
 []\T1/zi4/m/n/10 plot_dose_response()[]\T1/ptm/m/n/10 , []\T1/zi4/m/n/10 coef()
 []\T1/ptm/m/n/10 , all prior and ob-ser-va-tion model con-struc-tors, []\T1/zi4
 /m/n/10 arrhenius()[]\T1/ptm/m/n/10 ,
 
-Overfull \hbox (6.95695pt too wide) in paragraph at lines 166--168
+Overfull \hbox (6.95695pt too wide) in paragraph at lines 168--170
 []\T1/zi4/m/n/10 "debtox" []\T1/ptm/m/n/10 (group-level, 1 ODE per con-cen-tra-
 tion; hi-er-ar-chi-cal individual-level DEBtox
 
 [3]
-Overfull \hbox (0.358pt too wide) in paragraph at lines 214--218
+Overfull \hbox (0.358pt too wide) in paragraph at lines 216--220
 []\T1/ptm/m/n/10 Vehtari, A., Gel-man, A., Simp-son, D., Car-pen-ter, B. and Bü
 rkner, P.-C. (2021). Rank-normalization,
 
@@ -123,47 +124,47 @@ rkner, P.-C. (2021). Rank-normalization,
 [6]
 [7]
 [8]
-Overfull \hbox (0.358pt too wide) in paragraph at lines 518--522
+Overfull \hbox (0.358pt too wide) in paragraph at lines 520--524
 []\T1/ptm/m/n/10 Vehtari, A., Gel-man, A., Simp-son, D., Car-pen-ter, B. and Bü
 rkner, P.-C. (2021). Rank-normalization,
 
 [9]
-Overfull \hbox (0.27759pt too wide) in paragraph at lines 529--536
+Overfull \hbox (0.27759pt too wide) in paragraph at lines 531--538
 \T1/ptm/m/n/10 fit-ted DEBtox model. Both quan-ti-ties are com-puted an-a-lyt-i
 -cally in the Stan \T1/zi4/m/n/10 generated quantities
 
 [10]
-Overfull \hbox (1.27808pt too wide) in paragraph at lines 630--639
+Overfull \hbox (1.27808pt too wide) in paragraph at lines 632--641
 []\T1/ptm/m/n/10 Number of threads per chain for within-chain par-al-lelism via
  Stan's []\T1/zi4/m/n/10 reduce_sum[]\T1/ptm/m/n/10 .
 
 [11]
-Overfull \hbox (0.358pt too wide) in paragraph at lines 667--671
+Overfull \hbox (0.358pt too wide) in paragraph at lines 669--673
 []\T1/ptm/m/n/10 Vehtari, A., Gel-man, A., Simp-son, D., Car-pen-ter, B. and Bü
 rkner, P.-C. (2021). Rank-normalization,
 
 [12]
-Overfull \hbox (26.42935pt too wide) in paragraph at lines 711--720
+Overfull \hbox (26.42935pt too wide) in paragraph at lines 713--722
 []\T1/ptm/m/n/10 and []\T1/zi4/m/n/10 "debtox" []\T1/ptm/m/n/10 mod-els do not 
 store per-observation []\T1/zi4/m/n/10 log_lik []\T1/ptm/m/n/10 in \T1/zi4/m/n/
 10 generated quantities\T1/ptm/m/n/10 : []\T1/zi4/m/n/10 "hierarchical"
 
 [13]
-Overfull \hbox (0.60818pt too wide) in paragraph at lines 778--780
+Overfull \hbox (0.60818pt too wide) in paragraph at lines 780--782
 []\T1/ptm/m/n/10 Named list of ob-ser-va-tion model specs for each end-point. D
 e-fault: []\T1/zi4/m/n/10 list(growth
 
 [14]
 [15]
 [16]
-Overfull \hbox (4.0477pt too wide) in paragraph at lines 964--968
+Overfull \hbox (4.0477pt too wide) in paragraph at lines 966--970
 \T1/ptm/m/n/10 Bayesian work-flow. \T1/ptm/m/it/10 Jour-nal of the Royal Sta-ti
 s-ti-cal So-ci-ety: Se-ries A\T1/ptm/m/n/10 , 182(2), 389--402. [][]doi:10.1111
 /
 
 [17]
 [18]
-Overfull \hbox (16.36723pt too wide) in paragraph at lines 1097--1099
+Overfull \hbox (16.36723pt too wide) in paragraph at lines 1099--1101
 []\T1/ptm/b/n/10 Lifecycle: beta. \T1/ptm/m/n/10 Stress on as-sim-i-la-tion is 
 im-ple-mented and tested; []\T1/zi4/m/n/10 "maintenance" []\T1/ptm/m/n/10 and [
 ]\T1/zi4/m/n/10 "growth_cost"
@@ -178,33 +179,46 @@ im-ple-mented and tested; []\T1/zi4/m/n/10 "maintenance" []\T1/ptm/m/n/10 and [
 [25]
 [26]
 [27]
-Overfull \hbox (3.25397pt too wide) in paragraph at lines 1582--1593
+[28]
+Overfull \hbox (3.25397pt too wide) in paragraph at lines 1640--1651
 []\T1/ptm/m/n/10 Simulated from the stan-dard DEB model (Kooi-j-man, 2010, Eqs.
  2.4--2.6) with pa-ram-e-ters: $\OMS/cmsy/m/n/10 f\OML/cmm/m/it/10 p[]\OMS/cmsy
 /m/n/10 g \OT1/cmr/m/n/10 =
 
-[28]
 [29]
 [30]
 [31]
 [32]
 [33]
-Overfull \hbox (6.05867pt too wide) in paragraph at lines 1921--1923
+[34]
+[35]
+Overfull \hbox (6.05867pt too wide) in paragraph at lines 2035--2037
 []\T1/ptm/m/n/10 External tox-i-cant con-cen-tra-tion (scalar; only for []\T1/z
 i4/m/n/10 "debtox" []\T1/ptm/m/n/10 mod-
 
-Overfull \hbox (4.73735pt too wide) in paragraph at lines 1953--1958
+Overfull \hbox (4.73735pt too wide) in paragraph at lines 2067--2072
 []\T1/ptm/m/n/10 Constructor func-tions for prior dis-tri-bu-tion ob-jects used
  in [][][]\T1/zi4/m/n/10 bdeb_model()[][][][]\T1/ptm/m/n/10 . Each re-turns a l
 ightweight
 
-[34]
-[35]
 [36]
 [37]
+[38]
+Overfull \hbox (17.63808pt too wide) in paragraph at lines 2232--2234
+[]\T1/ptm/m/n/10 Character string: species name with un-der-score sep-a-ra-tor 
+(e.g., []\T1/zi4/m/n/10 "Eisenia_fetida"[]\T1/ptm/m/n/10 ).
+
+Overfull \hbox (11.60883pt too wide) in paragraph at lines 2255--2257
+[]\T1/ptm/m/n/10 Named list of []\T1/zi4/m/n/10 bdeb_prior []\T1/ptm/m/n/10 ob-
+jects, suit-able for the []\T1/zi4/m/n/10 priors []\T1/ptm/m/n/10 ar-gu-ment of
+ [][][]\T1/zi4/m/n/10 bdeb_model()[][][] []\T1/ptm/m/n/10 or [][][]\T1/zi4/m/n/
+10 bdeb_tox()[][][][]\T1/ptm/m/n/10 . 
+
+[39]
+[40]
 No file Rd2.ind.
 
-[38] (/tmp/Rtmpn1dA7S/Rd2pdf7f22404e9abf/Rd2.aux)
+[41] (/tmp/RtmpEFng2C/Rd2pdf4d813982c9e0/Rd2.aux)
 
 Package rerunfilecheck Warning: File `Rd2.out' has changed.
 (rerunfilecheck)                Rerun to get outlines right
@@ -239,12 +253,12 @@ sr/local/texlive/2025/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/t
 exlive/2025/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/202
 5/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2025/texmf-di
 st/fonts/type1/urw/times/utmri8a.pfb>
-Output written on Rd2.pdf (38 pages, 246809 bytes).
+Output written on Rd2.pdf (41 pages, 254918 bytes).
 Transcript written on Rd2.log.
 This is makeindex, version 2.17 [TeX Live 2025] (kpathsea + Thai support).
-Scanning input file Rd2.idx....done (114 entries accepted, 0 rejected).
-Sorting entries....done (838 comparisons).
-Generating output file Rd2.ind....done (165 lines written, 0 warnings).
+Scanning input file Rd2.idx....done (121 entries accepted, 0 rejected).
+Sorting entries....done (886 comparisons).
+Generating output file Rd2.ind....done (172 lines written, 0 warnings).
 Output written in Rd2.ind.
 Transcript written in Rd2.ilg.
 This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex)
@@ -313,11 +327,11 @@ ty (/usr/local/texlive/2025/texmf-dist/tex/latex/kvoptions/kvoptions.sty)))
 Writing index file Rd2.idx
 (/usr/local/texlive/2025/texmf-dist/tex/latex/psnfss/t1ptm.fd)
 (/usr/local/texlive/2025/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def)
-(/tmp/Rtmpn1dA7S/Rd2pdf7f22404e9abf/Rd2.aux)
+(/tmp/RtmpEFng2C/Rd2pdf4d813982c9e0/Rd2.aux)
 (/usr/local/texlive/2025/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-) (/tmp/Rtmpn1dA7S/Rd2pdf7f22404e9abf/Rd2.out)
-(/tmp/Rtmpn1dA7S/Rd2pdf7f22404e9abf/Rd2.out)
+) (/tmp/RtmpEFng2C/Rd2pdf4d813982c9e0/Rd2.out)
+(/tmp/RtmpEFng2C/Rd2pdf4d813982c9e0/Rd2.out)
 (/usr/local/texlive/2025/texmf-dist/tex/latex/psnfss/ts1ptm.fd)
 (/usr/local/texlive/2025/texmf-dist/tex/latex/inconsolata/t1zi4.fd)
 (/usr/local/texlive/2025/texmf-dist/tex/latex/amsfonts/umsa.fd)
@@ -326,42 +340,43 @@ Writing index file Rd2.idx
 [1{/usr/local/texlive/2025/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/usr/l
 ocal/texlive/2025/texmf-dist/fonts/enc/dvips/base/8r.enc}{/usr/local/texlive/20
 25/texmf-dist/fonts/enc/dvips/inconsolata/i4-t1-0.enc}]
-(/tmp/Rtmpn1dA7S/Rd2pdf7f22404e9abf/Rd2.toc
+(/tmp/RtmpEFng2C/Rd2pdf4d813982c9e0/Rd2.toc
 [2])
 [3]
-Overfull \hbox (22.93004pt too wide) in paragraph at lines 135--141
+Overfull \hbox (22.93004pt too wide) in paragraph at lines 136--142
 []\T1/zi4/m/n/10 bdeb_fit()[]\T1/ptm/m/n/10 , []\T1/zi4/m/n/10 bdeb_diagnose()[
 ]\T1/ptm/m/n/10 , []\T1/zi4/m/n/10 bdeb_summary()[]\T1/ptm/m/n/10 , []\T1/zi4/m
 /n/10 bdeb_ec50()[]\T1/ptm/m/n/10 , []\T1/zi4/m/n/10 bdeb_loo()[]\T1/ptm/m/n/10
  ,
 
-Overfull \hbox (41.9694pt too wide) in paragraph at lines 141--148
+Overfull \hbox (71.04987pt too wide) in paragraph at lines 142--150
 []\T1/zi4/m/n/10 bdeb_prior_predictive()[]\T1/ptm/m/n/10 , []\T1/zi4/m/n/10 bde
-b_predict(newdata=...)[]\T1/ptm/m/n/10 , []\T1/zi4/m/n/10 plot(fit,
+b_predict(newdata=...)[]\T1/ptm/m/n/10 , []\T1/zi4/m/n/10 plot(fit, type="traje
+ctory")
 
-Overfull \hbox (41.55064pt too wide) in paragraph at lines 157--164
+Overfull \hbox (41.55064pt too wide) in paragraph at lines 159--166
 []\T1/zi4/m/n/10 bdeb_data()[]\T1/ptm/m/n/10 , []\T1/zi4/m/n/10 bdeb_model()[]\
 T1/ptm/m/n/10 , []\T1/zi4/m/n/10 bdeb_fit()[]\T1/ptm/m/n/10 , []\T1/zi4/m/n/10 
 bdeb_diagnose()[]\T1/ptm/m/n/10 , []\T1/zi4/m/n/10 bdeb_summary()[]\T1/ptm/m/n/
 10 , []\T1/zi4/m/n/10 bdeb_derived()[]\T1/ptm/m/n/10 ,
 
-Overfull \hbox (41.88098pt too wide) in paragraph at lines 157--164
+Overfull \hbox (41.88098pt too wide) in paragraph at lines 159--166
 []\T1/zi4/m/n/10 bdeb_ppc()[]\T1/ptm/m/n/10 , []\T1/zi4/m/n/10 bdeb_predict()[]
 \T1/ptm/m/n/10 , []\T1/zi4/m/n/10 bdeb_loo()[]\T1/ptm/m/n/10 , []\T1/zi4/m/n/10
  bdeb_ec50()[]\T1/ptm/m/n/10 , []\T1/zi4/m/n/10 bdeb_tox()[]\T1/ptm/m/n/10 , []
 \T1/zi4/m/n/10 bdeb_prior_predictive()[]\T1/ptm/m/n/10 ,
 
-Overfull \hbox (1.50914pt too wide) in paragraph at lines 157--164
+Overfull \hbox (1.50914pt too wide) in paragraph at lines 159--166
 []\T1/zi4/m/n/10 plot_dose_response()[]\T1/ptm/m/n/10 , []\T1/zi4/m/n/10 coef()
 []\T1/ptm/m/n/10 , all prior and ob-ser-va-tion model con-struc-tors, []\T1/zi4
 /m/n/10 arrhenius()[]\T1/ptm/m/n/10 ,
 
-Overfull \hbox (6.95695pt too wide) in paragraph at lines 166--168
+Overfull \hbox (6.95695pt too wide) in paragraph at lines 168--170
 []\T1/zi4/m/n/10 "debtox" []\T1/ptm/m/n/10 (group-level, 1 ODE per con-cen-tra-
 tion; hi-er-ar-chi-cal individual-level DEBtox
 
 [4]
-Overfull \hbox (0.358pt too wide) in paragraph at lines 214--218
+Overfull \hbox (0.358pt too wide) in paragraph at lines 216--220
 []\T1/ptm/m/n/10 Vehtari, A., Gel-man, A., Simp-son, D., Car-pen-ter, B. and Bü
 rkner, P.-C. (2021). Rank-normalization,
 
@@ -370,47 +385,47 @@ rkner, P.-C. (2021). Rank-normalization,
 [7]
 [8]
 [9]
-Overfull \hbox (0.358pt too wide) in paragraph at lines 518--522
+Overfull \hbox (0.358pt too wide) in paragraph at lines 520--524
 []\T1/ptm/m/n/10 Vehtari, A., Gel-man, A., Simp-son, D., Car-pen-ter, B. and Bü
 rkner, P.-C. (2021). Rank-normalization,
 
-Overfull \hbox (0.27759pt too wide) in paragraph at lines 529--536
+[10]
+Overfull \hbox (0.27759pt too wide) in paragraph at lines 531--538
 \T1/ptm/m/n/10 fit-ted DEBtox model. Both quan-ti-ties are com-puted an-a-lyt-i
 -cally in the Stan \T1/zi4/m/n/10 generated quantities
 
-[10]
 [11]
-Overfull \hbox (1.27808pt too wide) in paragraph at lines 630--639
+Overfull \hbox (1.27808pt too wide) in paragraph at lines 632--641
 []\T1/ptm/m/n/10 Number of threads per chain for within-chain par-al-lelism via
  Stan's []\T1/zi4/m/n/10 reduce_sum[]\T1/ptm/m/n/10 .
 
 [12]
-Overfull \hbox (0.358pt too wide) in paragraph at lines 667--671
+Overfull \hbox (0.358pt too wide) in paragraph at lines 669--673
 []\T1/ptm/m/n/10 Vehtari, A., Gel-man, A., Simp-son, D., Car-pen-ter, B. and Bü
 rkner, P.-C. (2021). Rank-normalization,
 
 [13]
-Overfull \hbox (26.42935pt too wide) in paragraph at lines 711--720
+Overfull \hbox (26.42935pt too wide) in paragraph at lines 713--722
 []\T1/ptm/m/n/10 and []\T1/zi4/m/n/10 "debtox" []\T1/ptm/m/n/10 mod-els do not 
 store per-observation []\T1/zi4/m/n/10 log_lik []\T1/ptm/m/n/10 in \T1/zi4/m/n/
 10 generated quantities\T1/ptm/m/n/10 : []\T1/zi4/m/n/10 "hierarchical"
 
 [14]
-Overfull \hbox (0.60818pt too wide) in paragraph at lines 778--780
+Overfull \hbox (0.60818pt too wide) in paragraph at lines 780--782
 []\T1/ptm/m/n/10 Named list of ob-ser-va-tion model specs for each end-point. D
 e-fault: []\T1/zi4/m/n/10 list(growth
 
 [15]
 [16]
 [17]
-Overfull \hbox (4.0477pt too wide) in paragraph at lines 964--968
+Overfull \hbox (4.0477pt too wide) in paragraph at lines 966--970
 \T1/ptm/m/n/10 Bayesian work-flow. \T1/ptm/m/it/10 Jour-nal of the Royal Sta-ti
 s-ti-cal So-ci-ety: Se-ries A\T1/ptm/m/n/10 , 182(2), 389--402. [][]doi:10.1111
 /
 
 [18]
 [19]
-Overfull \hbox (16.36723pt too wide) in paragraph at lines 1097--1099
+Overfull \hbox (16.36723pt too wide) in paragraph at lines 1099--1101
 []\T1/ptm/b/n/10 Lifecycle: beta. \T1/ptm/m/n/10 Stress on as-sim-i-la-tion is 
 im-ple-mented and tested; []\T1/zi4/m/n/10 "maintenance" []\T1/ptm/m/n/10 and [
 ]\T1/zi4/m/n/10 "growth_cost"
@@ -425,40 +440,53 @@ im-ple-mented and tested; []\T1/zi4/m/n/10 "maintenance" []\T1/ptm/m/n/10 and [
 [26]
 [27]
 [28]
-Overfull \hbox (3.25397pt too wide) in paragraph at lines 1582--1593
+[29]
+Overfull \hbox (3.25397pt too wide) in paragraph at lines 1640--1651
 []\T1/ptm/m/n/10 Simulated from the stan-dard DEB model (Kooi-j-man, 2010, Eqs.
  2.4--2.6) with pa-ram-e-ters: $\OMS/cmsy/m/n/10 f\OML/cmm/m/it/10 p[]\OMS/cmsy
 /m/n/10 g \OT1/cmr/m/n/10 =
 
-[29]
 [30]
 [31]
 [32]
 [33]
 [34]
-Overfull \hbox (6.05867pt too wide) in paragraph at lines 1921--1923
+[35]
+[36]
+Overfull \hbox (6.05867pt too wide) in paragraph at lines 2035--2037
 []\T1/ptm/m/n/10 External tox-i-cant con-cen-tra-tion (scalar; only for []\T1/z
 i4/m/n/10 "debtox" []\T1/ptm/m/n/10 mod-
 
-Overfull \hbox (4.73735pt too wide) in paragraph at lines 1953--1958
+Overfull \hbox (4.73735pt too wide) in paragraph at lines 2067--2072
 []\T1/ptm/m/n/10 Constructor func-tions for prior dis-tri-bu-tion ob-jects used
  in [][][]\T1/zi4/m/n/10 bdeb_model()[][][][]\T1/ptm/m/n/10 . Each re-turns a l
 ightweight
 
-[35]
-[36]
 [37]
-[38] (/tmp/Rtmpn1dA7S/Rd2pdf7f22404e9abf/Rd2.ind
+[38]
 [39]
+Overfull \hbox (17.63808pt too wide) in paragraph at lines 2232--2234
+[]\T1/ptm/m/n/10 Character string: species name with un-der-score sep-a-ra-tor 
+(e.g., []\T1/zi4/m/n/10 "Eisenia_fetida"[]\T1/ptm/m/n/10 ).
 
-LaTeX Font Warning: Font shape `T1/zi4/m/it' undefined
-(Font)              using `T1/zi4/m/n' instead on input line 30.
-
-
+Overfull \hbox (11.60883pt too wide) in paragraph at lines 2255--2257
+[]\T1/ptm/m/n/10 Named list of []\T1/zi4/m/n/10 bdeb_prior []\T1/ptm/m/n/10 ob-
+jects, suit-able for the []\T1/zi4/m/n/10 priors []\T1/ptm/m/n/10 ar-gu-ment of
+ [][][]\T1/zi4/m/n/10 bdeb_model()[][][] []\T1/ptm/m/n/10 or [][][]\T1/zi4/m/n/
+10 bdeb_tox()[][][][]\T1/ptm/m/n/10 . 
 
 [40]
+[41] (/tmp/RtmpEFng2C/Rd2pdf4d813982c9e0/Rd2.ind
+[42]
 
-[41]) (/tmp/Rtmpn1dA7S/Rd2pdf7f22404e9abf/Rd2.aux)
+LaTeX Font Warning: Font shape `T1/zi4/m/it' undefined
+(Font)              using `T1/zi4/m/n' instead on input line 32.
+
+
+
+[43]
+
+[44]) (/tmp/RtmpEFng2C/Rd2pdf4d813982c9e0/Rd2.aux)
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
@@ -496,12 +524,12 @@ sr/local/texlive/2025/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/t
 exlive/2025/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/202
 5/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2025/texmf-di
 st/fonts/type1/urw/times/utmri8a.pfb>
-Output written on Rd2.pdf (41 pages, 259656 bytes).
+Output written on Rd2.pdf (44 pages, 267111 bytes).
 Transcript written on Rd2.log.
 This is makeindex, version 2.17 [TeX Live 2025] (kpathsea + Thai support).
-Scanning input file Rd2.idx....done (114 entries accepted, 0 rejected).
-Sorting entries....done (838 comparisons).
-Generating output file Rd2.ind....done (165 lines written, 0 warnings).
+Scanning input file Rd2.idx....done (121 entries accepted, 0 rejected).
+Sorting entries....done (886 comparisons).
+Generating output file Rd2.ind....done (172 lines written, 0 warnings).
 Output written in Rd2.ind.
 Transcript written in Rd2.ilg.
 This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex)
@@ -570,11 +598,11 @@ ty (/usr/local/texlive/2025/texmf-dist/tex/latex/kvoptions/kvoptions.sty)))
 Writing index file Rd2.idx
 (/usr/local/texlive/2025/texmf-dist/tex/latex/psnfss/t1ptm.fd)
 (/usr/local/texlive/2025/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def)
-(/tmp/Rtmpn1dA7S/Rd2pdf7f22404e9abf/Rd2.aux)
+(/tmp/RtmpEFng2C/Rd2pdf4d813982c9e0/Rd2.aux)
 (/usr/local/texlive/2025/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-) (/tmp/Rtmpn1dA7S/Rd2pdf7f22404e9abf/Rd2.out)
-(/tmp/Rtmpn1dA7S/Rd2pdf7f22404e9abf/Rd2.out)
+) (/tmp/RtmpEFng2C/Rd2pdf4d813982c9e0/Rd2.out)
+(/tmp/RtmpEFng2C/Rd2pdf4d813982c9e0/Rd2.out)
 (/usr/local/texlive/2025/texmf-dist/tex/latex/psnfss/ts1ptm.fd)
 (/usr/local/texlive/2025/texmf-dist/tex/latex/inconsolata/t1zi4.fd)
 (/usr/local/texlive/2025/texmf-dist/tex/latex/amsfonts/umsa.fd)
@@ -583,42 +611,43 @@ Writing index file Rd2.idx
 [1{/usr/local/texlive/2025/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/usr/l
 ocal/texlive/2025/texmf-dist/fonts/enc/dvips/base/8r.enc}{/usr/local/texlive/20
 25/texmf-dist/fonts/enc/dvips/inconsolata/i4-t1-0.enc}]
-(/tmp/Rtmpn1dA7S/Rd2pdf7f22404e9abf/Rd2.toc
+(/tmp/RtmpEFng2C/Rd2pdf4d813982c9e0/Rd2.toc
 [2])
 [3]
-Overfull \hbox (22.93004pt too wide) in paragraph at lines 135--141
+Overfull \hbox (22.93004pt too wide) in paragraph at lines 136--142
 []\T1/zi4/m/n/10 bdeb_fit()[]\T1/ptm/m/n/10 , []\T1/zi4/m/n/10 bdeb_diagnose()[
 ]\T1/ptm/m/n/10 , []\T1/zi4/m/n/10 bdeb_summary()[]\T1/ptm/m/n/10 , []\T1/zi4/m
 /n/10 bdeb_ec50()[]\T1/ptm/m/n/10 , []\T1/zi4/m/n/10 bdeb_loo()[]\T1/ptm/m/n/10
  ,
 
-Overfull \hbox (41.9694pt too wide) in paragraph at lines 141--148
+Overfull \hbox (71.04987pt too wide) in paragraph at lines 142--150
 []\T1/zi4/m/n/10 bdeb_prior_predictive()[]\T1/ptm/m/n/10 , []\T1/zi4/m/n/10 bde
-b_predict(newdata=...)[]\T1/ptm/m/n/10 , []\T1/zi4/m/n/10 plot(fit,
+b_predict(newdata=...)[]\T1/ptm/m/n/10 , []\T1/zi4/m/n/10 plot(fit, type="traje
+ctory")
 
-Overfull \hbox (41.55064pt too wide) in paragraph at lines 157--164
+Overfull \hbox (41.55064pt too wide) in paragraph at lines 159--166
 []\T1/zi4/m/n/10 bdeb_data()[]\T1/ptm/m/n/10 , []\T1/zi4/m/n/10 bdeb_model()[]\
 T1/ptm/m/n/10 , []\T1/zi4/m/n/10 bdeb_fit()[]\T1/ptm/m/n/10 , []\T1/zi4/m/n/10 
 bdeb_diagnose()[]\T1/ptm/m/n/10 , []\T1/zi4/m/n/10 bdeb_summary()[]\T1/ptm/m/n/
 10 , []\T1/zi4/m/n/10 bdeb_derived()[]\T1/ptm/m/n/10 ,
 
-Overfull \hbox (41.88098pt too wide) in paragraph at lines 157--164
+Overfull \hbox (41.88098pt too wide) in paragraph at lines 159--166
 []\T1/zi4/m/n/10 bdeb_ppc()[]\T1/ptm/m/n/10 , []\T1/zi4/m/n/10 bdeb_predict()[]
 \T1/ptm/m/n/10 , []\T1/zi4/m/n/10 bdeb_loo()[]\T1/ptm/m/n/10 , []\T1/zi4/m/n/10
  bdeb_ec50()[]\T1/ptm/m/n/10 , []\T1/zi4/m/n/10 bdeb_tox()[]\T1/ptm/m/n/10 , []
 \T1/zi4/m/n/10 bdeb_prior_predictive()[]\T1/ptm/m/n/10 ,
 
-Overfull \hbox (1.50914pt too wide) in paragraph at lines 157--164
+Overfull \hbox (1.50914pt too wide) in paragraph at lines 159--166
 []\T1/zi4/m/n/10 plot_dose_response()[]\T1/ptm/m/n/10 , []\T1/zi4/m/n/10 coef()
 []\T1/ptm/m/n/10 , all prior and ob-ser-va-tion model con-struc-tors, []\T1/zi4
 /m/n/10 arrhenius()[]\T1/ptm/m/n/10 ,
 
-Overfull \hbox (6.95695pt too wide) in paragraph at lines 166--168
+Overfull \hbox (6.95695pt too wide) in paragraph at lines 168--170
 []\T1/zi4/m/n/10 "debtox" []\T1/ptm/m/n/10 (group-level, 1 ODE per con-cen-tra-
 tion; hi-er-ar-chi-cal individual-level DEBtox
 
 [4]
-Overfull \hbox (0.358pt too wide) in paragraph at lines 214--218
+Overfull \hbox (0.358pt too wide) in paragraph at lines 216--220
 []\T1/ptm/m/n/10 Vehtari, A., Gel-man, A., Simp-son, D., Car-pen-ter, B. and Bü
 rkner, P.-C. (2021). Rank-normalization,
 
@@ -627,47 +656,47 @@ rkner, P.-C. (2021). Rank-normalization,
 [7]
 [8]
 [9]
-Overfull \hbox (0.358pt too wide) in paragraph at lines 518--522
+Overfull \hbox (0.358pt too wide) in paragraph at lines 520--524
 []\T1/ptm/m/n/10 Vehtari, A., Gel-man, A., Simp-son, D., Car-pen-ter, B. and Bü
 rkner, P.-C. (2021). Rank-normalization,
 
 [10]
-Overfull \hbox (0.27759pt too wide) in paragraph at lines 529--536
+Overfull \hbox (0.27759pt too wide) in paragraph at lines 531--538
 \T1/ptm/m/n/10 fit-ted DEBtox model. Both quan-ti-ties are com-puted an-a-lyt-i
 -cally in the Stan \T1/zi4/m/n/10 generated quantities
 
 [11]
-Overfull \hbox (1.27808pt too wide) in paragraph at lines 630--639
+Overfull \hbox (1.27808pt too wide) in paragraph at lines 632--641
 []\T1/ptm/m/n/10 Number of threads per chain for within-chain par-al-lelism via
  Stan's []\T1/zi4/m/n/10 reduce_sum[]\T1/ptm/m/n/10 .
 
 [12]
-Overfull \hbox (0.358pt too wide) in paragraph at lines 667--671
+Overfull \hbox (0.358pt too wide) in paragraph at lines 669--673
 []\T1/ptm/m/n/10 Vehtari, A., Gel-man, A., Simp-son, D., Car-pen-ter, B. and Bü
 rkner, P.-C. (2021). Rank-normalization,
 
 [13]
-Overfull \hbox (26.42935pt too wide) in paragraph at lines 711--720
+Overfull \hbox (26.42935pt too wide) in paragraph at lines 713--722
 []\T1/ptm/m/n/10 and []\T1/zi4/m/n/10 "debtox" []\T1/ptm/m/n/10 mod-els do not 
 store per-observation []\T1/zi4/m/n/10 log_lik []\T1/ptm/m/n/10 in \T1/zi4/m/n/
 10 generated quantities\T1/ptm/m/n/10 : []\T1/zi4/m/n/10 "hierarchical"
 
 [14]
-Overfull \hbox (0.60818pt too wide) in paragraph at lines 778--780
+Overfull \hbox (0.60818pt too wide) in paragraph at lines 780--782
 []\T1/ptm/m/n/10 Named list of ob-ser-va-tion model specs for each end-point. D
 e-fault: []\T1/zi4/m/n/10 list(growth
 
 [15]
 [16]
 [17]
-Overfull \hbox (4.0477pt too wide) in paragraph at lines 964--968
+Overfull \hbox (4.0477pt too wide) in paragraph at lines 966--970
 \T1/ptm/m/n/10 Bayesian work-flow. \T1/ptm/m/it/10 Jour-nal of the Royal Sta-ti
 s-ti-cal So-ci-ety: Se-ries A\T1/ptm/m/n/10 , 182(2), 389--402. [][]doi:10.1111
 /
 
 [18]
 [19]
-Overfull \hbox (16.36723pt too wide) in paragraph at lines 1097--1099
+Overfull \hbox (16.36723pt too wide) in paragraph at lines 1099--1101
 []\T1/ptm/b/n/10 Lifecycle: beta. \T1/ptm/m/n/10 Stress on as-sim-i-la-tion is 
 im-ple-mented and tested; []\T1/zi4/m/n/10 "maintenance" []\T1/ptm/m/n/10 and [
 ]\T1/zi4/m/n/10 "growth_cost"
@@ -682,40 +711,53 @@ im-ple-mented and tested; []\T1/zi4/m/n/10 "maintenance" []\T1/ptm/m/n/10 and [
 [26]
 [27]
 [28]
-Overfull \hbox (3.25397pt too wide) in paragraph at lines 1582--1593
+[29]
+Overfull \hbox (3.25397pt too wide) in paragraph at lines 1640--1651
 []\T1/ptm/m/n/10 Simulated from the stan-dard DEB model (Kooi-j-man, 2010, Eqs.
  2.4--2.6) with pa-ram-e-ters: $\OMS/cmsy/m/n/10 f\OML/cmm/m/it/10 p[]\OMS/cmsy
 /m/n/10 g \OT1/cmr/m/n/10 =
 
-[29]
 [30]
 [31]
 [32]
 [33]
 [34]
-Overfull \hbox (6.05867pt too wide) in paragraph at lines 1921--1923
+[35]
+[36]
+Overfull \hbox (6.05867pt too wide) in paragraph at lines 2035--2037
 []\T1/ptm/m/n/10 External tox-i-cant con-cen-tra-tion (scalar; only for []\T1/z
 i4/m/n/10 "debtox" []\T1/ptm/m/n/10 mod-
 
-Overfull \hbox (4.73735pt too wide) in paragraph at lines 1953--1958
+Overfull \hbox (4.73735pt too wide) in paragraph at lines 2067--2072
 []\T1/ptm/m/n/10 Constructor func-tions for prior dis-tri-bu-tion ob-jects used
  in [][][]\T1/zi4/m/n/10 bdeb_model()[][][][]\T1/ptm/m/n/10 . Each re-turns a l
 ightweight
 
-[35]
-[36]
 [37]
-[38] (/tmp/Rtmpn1dA7S/Rd2pdf7f22404e9abf/Rd2.ind
+[38]
 [39]
+Overfull \hbox (17.63808pt too wide) in paragraph at lines 2232--2234
+[]\T1/ptm/m/n/10 Character string: species name with un-der-score sep-a-ra-tor 
+(e.g., []\T1/zi4/m/n/10 "Eisenia_fetida"[]\T1/ptm/m/n/10 ).
 
-LaTeX Font Warning: Font shape `T1/zi4/m/it' undefined
-(Font)              using `T1/zi4/m/n' instead on input line 30.
-
-
+Overfull \hbox (11.60883pt too wide) in paragraph at lines 2255--2257
+[]\T1/ptm/m/n/10 Named list of []\T1/zi4/m/n/10 bdeb_prior []\T1/ptm/m/n/10 ob-
+jects, suit-able for the []\T1/zi4/m/n/10 priors []\T1/ptm/m/n/10 ar-gu-ment of
+ [][][]\T1/zi4/m/n/10 bdeb_model()[][][] []\T1/ptm/m/n/10 or [][][]\T1/zi4/m/n/
+10 bdeb_tox()[][][][]\T1/ptm/m/n/10 . 
 
 [40]
+[41] (/tmp/RtmpEFng2C/Rd2pdf4d813982c9e0/Rd2.ind
+[42]
 
-[41]) (/tmp/Rtmpn1dA7S/Rd2pdf7f22404e9abf/Rd2.aux)
+LaTeX Font Warning: Font shape `T1/zi4/m/it' undefined
+(Font)              using `T1/zi4/m/n' instead on input line 32.
+
+
+
+[43]
+
+[44]) (/tmp/RtmpEFng2C/Rd2pdf4d813982c9e0/Rd2.aux)
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
@@ -748,260 +790,8 @@ sr/local/texlive/2025/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/t
 exlive/2025/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/202
 5/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2025/texmf-di
 st/fonts/type1/urw/times/utmri8a.pfb>
-Output written on Rd2.pdf (41 pages, 259924 bytes).
-Transcript written on Rd2.log.
-This is makeindex, version 2.17 [TeX Live 2025] (kpathsea + Thai support).
-Scanning input file Rd2.idx....done (114 entries accepted, 0 rejected).
-Sorting entries....done (838 comparisons).
-Generating output file Rd2.ind....done (165 lines written, 0 warnings).
-Output written in Rd2.ind.
-Transcript written in Rd2.ilg.
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex)
- restricted \write18 enabled.
-entering extended mode
-LaTeX2e <2025-06-01> patch level 1
-L3 programming layer <2025-09-02>
-(./Rd2.tex
-(/usr/local/texlive/2025/texmf-dist/tex/latex/base/book.cls
-Document Class: book 2025/01/22 v1.4n Standard LaTeX document class
-(/usr/local/texlive/2025/texmf-dist/tex/latex/base/bk10.clo))
-(/usr/share/R/share/texmf/tex/latex/Rd.sty
-(/usr/local/texlive/2025/texmf-dist/tex/latex/base/ifthen.sty)
-(/usr/local/texlive/2025/texmf-dist/tex/generic/iftex/iftex.sty)
-(/usr/local/texlive/2025/texmf-dist/tex/latex/tools/longtable.sty)
-(/usr/local/texlive/2025/texmf-dist/tex/latex/tools/bm.sty)
-(/usr/local/texlive/2025/texmf-dist/tex/latex/base/alltt.sty)
-(/usr/local/texlive/2025/texmf-dist/tex/latex/tools/verbatim.sty)
-(/usr/local/texlive/2025/texmf-dist/tex/latex/url/url.sty)
-(/usr/local/texlive/2025/texmf-dist/tex/latex/base/textcomp.sty)
-(/usr/local/texlive/2025/texmf-dist/tex/latex/amsmath/amsmath.sty
-For additional information on amsmath, use the `?' option.
-(/usr/local/texlive/2025/texmf-dist/tex/latex/amsmath/amstext.sty
-(/usr/local/texlive/2025/texmf-dist/tex/latex/amsmath/amsgen.sty))
-(/usr/local/texlive/2025/texmf-dist/tex/latex/amsmath/amsbsy.sty)
-(/usr/local/texlive/2025/texmf-dist/tex/latex/amsmath/amsopn.sty))
-(/usr/local/texlive/2025/texmf-dist/tex/latex/amsfonts/amsfonts.sty)
-(/usr/local/texlive/2025/texmf-dist/tex/latex/amsfonts/amssymb.sty)
-(/usr/local/texlive/2025/texmf-dist/tex/latex/jknapltx/mathrsfs.sty)
-(/usr/local/texlive/2025/texmf-dist/tex/latex/base/fontenc.sty)
-(/usr/local/texlive/2025/texmf-dist/tex/latex/psnfss/times.sty)
-(/usr/local/texlive/2025/texmf-dist/tex/latex/inconsolata/zi4.sty
-`inconsolata-zi4' v1.12, 2019/05/17 Text macros for Inconsolata (msharpe)
-(/usr/local/texlive/2025/texmf-dist/tex/latex/xkeyval/xkeyval.sty
-(/usr/local/texlive/2025/texmf-dist/tex/generic/xkeyval/xkeyval.tex
-(/usr/local/texlive/2025/texmf-dist/tex/generic/xkeyval/xkvutils.tex
-(/usr/local/texlive/2025/texmf-dist/tex/generic/xkeyval/keyval.tex)))))
-(/usr/local/texlive/2025/texmf-dist/tex/latex/graphics/color.sty
-(/usr/local/texlive/2025/texmf-dist/tex/latex/graphics-cfg/color.cfg)
-(/usr/local/texlive/2025/texmf-dist/tex/latex/graphics-def/pdftex.def)
-(/usr/local/texlive/2025/texmf-dist/tex/latex/graphics/mathcolor.ltx))
-(/usr/local/texlive/2025/texmf-dist/tex/latex/hyperref/hyperref.sty
-(/usr/local/texlive/2025/texmf-dist/tex/latex/kvsetkeys/kvsetkeys.sty)
-(/usr/local/texlive/2025/texmf-dist/tex/generic/kvdefinekeys/kvdefinekeys.sty)
-(/usr/local/texlive/2025/texmf-dist/tex/generic/pdfescape/pdfescape.sty
-(/usr/local/texlive/2025/texmf-dist/tex/generic/ltxcmds/ltxcmds.sty)
-(/usr/local/texlive/2025/texmf-dist/tex/generic/pdftexcmds/pdftexcmds.sty
-(/usr/local/texlive/2025/texmf-dist/tex/generic/infwarerr/infwarerr.sty)))
-(/usr/local/texlive/2025/texmf-dist/tex/latex/hycolor/hycolor.sty)
-(/usr/local/texlive/2025/texmf-dist/tex/latex/hyperref/nameref.sty
-(/usr/local/texlive/2025/texmf-dist/tex/latex/refcount/refcount.sty)
-(/usr/local/texlive/2025/texmf-dist/tex/generic/gettitlestring/gettitlestring.s
-ty (/usr/local/texlive/2025/texmf-dist/tex/latex/kvoptions/kvoptions.sty)))
-(/usr/local/texlive/2025/texmf-dist/tex/latex/etoolbox/etoolbox.sty)
-(/usr/local/texlive/2025/texmf-dist/tex/generic/stringenc/stringenc.sty)
-(/usr/local/texlive/2025/texmf-dist/tex/latex/hyperref/pd1enc.def)
-(/usr/local/texlive/2025/texmf-dist/tex/generic/intcalc/intcalc.sty)
-(/usr/local/texlive/2025/texmf-dist/tex/latex/hyperref/puenc.def)
-(/usr/local/texlive/2025/texmf-dist/tex/generic/bitset/bitset.sty
-(/usr/local/texlive/2025/texmf-dist/tex/generic/bigintcalc/bigintcalc.sty)))
-(/usr/local/texlive/2025/texmf-dist/tex/latex/hyperref/hpdftex.def
-(/usr/local/texlive/2025/texmf-dist/tex/latex/rerunfilecheck/rerunfilecheck.sty
-
-(/usr/local/texlive/2025/texmf-dist/tex/generic/uniquecounter/uniquecounter.sty
-)))) (/usr/local/texlive/2025/texmf-dist/tex/latex/base/makeidx.sty)
-Writing index file Rd2.idx
-(/usr/local/texlive/2025/texmf-dist/tex/latex/psnfss/t1ptm.fd)
-(/usr/local/texlive/2025/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def)
-(/tmp/Rtmpn1dA7S/Rd2pdf7f22404e9abf/Rd2.aux)
-(/usr/local/texlive/2025/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
-[Loading MPS to PDF converter (version 2006.09.02).]
-) (/tmp/Rtmpn1dA7S/Rd2pdf7f22404e9abf/Rd2.out)
-(/tmp/Rtmpn1dA7S/Rd2pdf7f22404e9abf/Rd2.out)
-(/usr/local/texlive/2025/texmf-dist/tex/latex/psnfss/ts1ptm.fd)
-(/usr/local/texlive/2025/texmf-dist/tex/latex/inconsolata/t1zi4.fd)
-(/usr/local/texlive/2025/texmf-dist/tex/latex/amsfonts/umsa.fd)
-(/usr/local/texlive/2025/texmf-dist/tex/latex/amsfonts/umsb.fd)
-(/usr/local/texlive/2025/texmf-dist/tex/latex/jknapltx/ursfs.fd)
-[1{/usr/local/texlive/2025/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/usr/l
-ocal/texlive/2025/texmf-dist/fonts/enc/dvips/base/8r.enc}{/usr/local/texlive/20
-25/texmf-dist/fonts/enc/dvips/inconsolata/i4-t1-0.enc}]
-(/tmp/Rtmpn1dA7S/Rd2pdf7f22404e9abf/Rd2.toc
-[2])
-[3]
-Overfull \hbox (22.93004pt too wide) in paragraph at lines 135--141
-[]\T1/zi4/m/n/10 bdeb_fit()[]\T1/ptm/m/n/10 , []\T1/zi4/m/n/10 bdeb_diagnose()[
-]\T1/ptm/m/n/10 , []\T1/zi4/m/n/10 bdeb_summary()[]\T1/ptm/m/n/10 , []\T1/zi4/m
-/n/10 bdeb_ec50()[]\T1/ptm/m/n/10 , []\T1/zi4/m/n/10 bdeb_loo()[]\T1/ptm/m/n/10
- ,
-
-Overfull \hbox (41.9694pt too wide) in paragraph at lines 141--148
-[]\T1/zi4/m/n/10 bdeb_prior_predictive()[]\T1/ptm/m/n/10 , []\T1/zi4/m/n/10 bde
-b_predict(newdata=...)[]\T1/ptm/m/n/10 , []\T1/zi4/m/n/10 plot(fit,
-
-Overfull \hbox (41.55064pt too wide) in paragraph at lines 157--164
-[]\T1/zi4/m/n/10 bdeb_data()[]\T1/ptm/m/n/10 , []\T1/zi4/m/n/10 bdeb_model()[]\
-T1/ptm/m/n/10 , []\T1/zi4/m/n/10 bdeb_fit()[]\T1/ptm/m/n/10 , []\T1/zi4/m/n/10 
-bdeb_diagnose()[]\T1/ptm/m/n/10 , []\T1/zi4/m/n/10 bdeb_summary()[]\T1/ptm/m/n/
-10 , []\T1/zi4/m/n/10 bdeb_derived()[]\T1/ptm/m/n/10 ,
-
-Overfull \hbox (41.88098pt too wide) in paragraph at lines 157--164
-[]\T1/zi4/m/n/10 bdeb_ppc()[]\T1/ptm/m/n/10 , []\T1/zi4/m/n/10 bdeb_predict()[]
-\T1/ptm/m/n/10 , []\T1/zi4/m/n/10 bdeb_loo()[]\T1/ptm/m/n/10 , []\T1/zi4/m/n/10
- bdeb_ec50()[]\T1/ptm/m/n/10 , []\T1/zi4/m/n/10 bdeb_tox()[]\T1/ptm/m/n/10 , []
-\T1/zi4/m/n/10 bdeb_prior_predictive()[]\T1/ptm/m/n/10 ,
-
-Overfull \hbox (1.50914pt too wide) in paragraph at lines 157--164
-[]\T1/zi4/m/n/10 plot_dose_response()[]\T1/ptm/m/n/10 , []\T1/zi4/m/n/10 coef()
-[]\T1/ptm/m/n/10 , all prior and ob-ser-va-tion model con-struc-tors, []\T1/zi4
-/m/n/10 arrhenius()[]\T1/ptm/m/n/10 ,
-
-Overfull \hbox (6.95695pt too wide) in paragraph at lines 166--168
-[]\T1/zi4/m/n/10 "debtox" []\T1/ptm/m/n/10 (group-level, 1 ODE per con-cen-tra-
-tion; hi-er-ar-chi-cal individual-level DEBtox
-
-[4]
-Overfull \hbox (0.358pt too wide) in paragraph at lines 214--218
-[]\T1/ptm/m/n/10 Vehtari, A., Gel-man, A., Simp-son, D., Car-pen-ter, B. and Bü
-rkner, P.-C. (2021). Rank-normalization,
-
-[5]
-[6]
-[7]
-[8]
-[9]
-Overfull \hbox (0.358pt too wide) in paragraph at lines 518--522
-[]\T1/ptm/m/n/10 Vehtari, A., Gel-man, A., Simp-son, D., Car-pen-ter, B. and Bü
-rkner, P.-C. (2021). Rank-normalization,
-
-[10]
-Overfull \hbox (0.27759pt too wide) in paragraph at lines 529--536
-\T1/ptm/m/n/10 fit-ted DEBtox model. Both quan-ti-ties are com-puted an-a-lyt-i
--cally in the Stan \T1/zi4/m/n/10 generated quantities
-
-[11]
-Overfull \hbox (1.27808pt too wide) in paragraph at lines 630--639
-[]\T1/ptm/m/n/10 Number of threads per chain for within-chain par-al-lelism via
- Stan's []\T1/zi4/m/n/10 reduce_sum[]\T1/ptm/m/n/10 .
-
-[12]
-Overfull \hbox (0.358pt too wide) in paragraph at lines 667--671
-[]\T1/ptm/m/n/10 Vehtari, A., Gel-man, A., Simp-son, D., Car-pen-ter, B. and Bü
-rkner, P.-C. (2021). Rank-normalization,
-
-[13]
-Overfull \hbox (26.42935pt too wide) in paragraph at lines 711--720
-[]\T1/ptm/m/n/10 and []\T1/zi4/m/n/10 "debtox" []\T1/ptm/m/n/10 mod-els do not 
-store per-observation []\T1/zi4/m/n/10 log_lik []\T1/ptm/m/n/10 in \T1/zi4/m/n/
-10 generated quantities\T1/ptm/m/n/10 : []\T1/zi4/m/n/10 "hierarchical"
-
-[14]
-Overfull \hbox (0.60818pt too wide) in paragraph at lines 778--780
-[]\T1/ptm/m/n/10 Named list of ob-ser-va-tion model specs for each end-point. D
-e-fault: []\T1/zi4/m/n/10 list(growth
-
-[15]
-[16]
-[17]
-Overfull \hbox (4.0477pt too wide) in paragraph at lines 964--968
-\T1/ptm/m/n/10 Bayesian work-flow. \T1/ptm/m/it/10 Jour-nal of the Royal Sta-ti
-s-ti-cal So-ci-ety: Se-ries A\T1/ptm/m/n/10 , 182(2), 389--402. [][]doi:10.1111
-/
-
-[18]
-[19]
-Overfull \hbox (16.36723pt too wide) in paragraph at lines 1097--1099
-[]\T1/ptm/b/n/10 Lifecycle: beta. \T1/ptm/m/n/10 Stress on as-sim-i-la-tion is 
-im-ple-mented and tested; []\T1/zi4/m/n/10 "maintenance" []\T1/ptm/m/n/10 and [
-]\T1/zi4/m/n/10 "growth_cost"
-
-[20]
-[21]
-[22]
-[23] (/usr/local/texlive/2025/texmf-dist/tex/latex/inconsolata/ts1zi4.fd)
-[24{/usr/local/texlive/2025/texmf-dist/fonts/enc/dvips/inconsolata/i4-ts1.enc}]
-
-[25]
-[26]
-[27]
-[28]
-Overfull \hbox (3.25397pt too wide) in paragraph at lines 1582--1593
-[]\T1/ptm/m/n/10 Simulated from the stan-dard DEB model (Kooi-j-man, 2010, Eqs.
- 2.4--2.6) with pa-ram-e-ters: $\OMS/cmsy/m/n/10 f\OML/cmm/m/it/10 p[]\OMS/cmsy
-/m/n/10 g \OT1/cmr/m/n/10 =
-
-[29]
-[30]
-[31]
-[32]
-[33]
-[34]
-Overfull \hbox (6.05867pt too wide) in paragraph at lines 1921--1923
-[]\T1/ptm/m/n/10 External tox-i-cant con-cen-tra-tion (scalar; only for []\T1/z
-i4/m/n/10 "debtox" []\T1/ptm/m/n/10 mod-
-
-Overfull \hbox (4.73735pt too wide) in paragraph at lines 1953--1958
-[]\T1/ptm/m/n/10 Constructor func-tions for prior dis-tri-bu-tion ob-jects used
- in [][][]\T1/zi4/m/n/10 bdeb_model()[][][][]\T1/ptm/m/n/10 . Each re-turns a l
-ightweight
-
-[35]
-[36]
-[37]
-[38] (/tmp/Rtmpn1dA7S/Rd2pdf7f22404e9abf/Rd2.ind
-[39]
-
-LaTeX Font Warning: Font shape `T1/zi4/m/it' undefined
-(Font)              using `T1/zi4/m/n' instead on input line 30.
-
-
-
-[40]
-
-[41]) (/tmp/Rtmpn1dA7S/Rd2pdf7f22404e9abf/Rd2.aux)
-
-LaTeX Font Warning: Some font shapes were not available, defaults substituted.
-
- )
-(see the transcript file for additional information)
-pdfTeX warning (dest): name{Rfn.coef} has been referenced but does not exist, r
-eplaced by a fixed one
-
-
-pdfTeX warning (dest): name{Rfn.loo::loo\(\)} has been referenced but does not 
-exist, replaced by a fixed one
-
-
-pdfTeX warning (dest): name{Rfn.posterior::summarise.Rul.draws\(\)} has been re
-ferenced but does not exist, replaced by a fixed one
-
-
-pdfTeX warning (dest): name{Rfn.posterior::draws.Rul.df} has been referenced bu
-t does not exist, replaced by a fixed one
-
-</usr/local/texlive/2025/texmf-dist/fonts/type1/public/inconsolata/Inconsolata-
-zi4r.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cme
-x10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi
-10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7
-.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.p
-fb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb>
-</usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><
-/usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></u
-sr/local/texlive/2025/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/t
-exlive/2025/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/202
-5/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2025/texmf-di
-st/fonts/type1/urw/times/utmri8a.pfb>
-Output written on Rd2.pdf (41 pages, 259921 bytes).
+Output written on Rd2.pdf (44 pages, 267887 bytes).
 Transcript written on Rd2.log.
 Saving output to â€˜BayesianDEB-manual.pdfâ€™ ...
 Done
-You may want to clean up by 'rm -Rf /tmp/Rtmpn1dA7S/Rd2pdf7f22404e9abf'
+You may want to clean up by 'rm -Rf /tmp/RtmpEFng2C/Rd2pdf4d813982c9e0'

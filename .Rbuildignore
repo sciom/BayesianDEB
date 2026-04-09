@@ -21,3 +21,6 @@
 ^MANUSCRIPT_JSS/
 ^CITATION\.cff$
 ^texput\.log$
+^ZaNastavak
+^\.~lock
+^bayesiandeb\.log$

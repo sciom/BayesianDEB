@@ -7,10 +7,13 @@
 #' checks.
 #'
 #' @section Numerical note:
-#' This uses a fixed-step Euler integrator, which is an approximation.
-#' The Stan models use the adaptive BDF solver for fitting.  For
-#' visualisation and exploration the Euler integrator is adequate;
-#' reduce `dt` for higher accuracy.
+#' This uses the LSODA solver from \pkg{deSolve}, which
+#' automatically switches between stiff (BDF) and non-stiff (Adams)
+#' methods.  This matches the BDF solver used in the Stan models,
+#' ensuring numerical consistency between R-side simulation and
+#' Stan-side inference.  The `dt` parameter controls output
+#' resolution, not integration accuracy (governed by `rtol`/`atol`
+#' = 1e-6).
 #'
 #' @param t_max End time (days).
 #' @param p_Am Surface-area-specific assimilation rate \eqn{\{p_{Am}\}}
@@ -42,23 +45,28 @@ deb_simulate <- function(t_max, p_Am, p_M, kappa, v, E_G, E0, L0,
 	assert_positive(E0, "E0")
 	assert_positive(L0, "L0")
 
-	n <- ceiling(t_max / dt)
-	t <- seq(0, t_max, length.out = n + 1)
-	E <- V <- numeric(n + 1)
-	V[1] <- L0^3
-	E[1] <- E0 * V[1]
+	times <- seq(0, t_max, by = dt)
+	if (times[length(times)] < t_max) times <- c(times, t_max)
+	V0 <- L0^3
+	y0 <- c(E = E0 * V0, V = V0)
 
-	for (i in seq_len(n)) {
-		L <- V[i]^(1/3)
+	ode_fn <- function(t, y, pars) {
+		E <- y[1]; V <- max(y[2], 1e-12)
+		L <- V^(1/3)
 		pA <- f * p_Am * L^2
-		pC <- E[i] * v * L / (E[i] + E_G * V[i] + 1e-12)
-		pM <- p_M * V[i]
+		pC <- E * v * L / (E + E_G * V + 1e-12)
+		pM <- p_M * V
 		dE <- pA - pC
 		dV <- (kappa * pC - pM) / E_G
-		E[i + 1] <- max(E[i] + dE * dt, 1e-12)
-		V[i + 1] <- max(V[i] + dV * dt, 1e-12)
+		if (V < 1e-12 && dV < 0) dV <- 0
+		list(c(dE, dV))
 	}
-	data.frame(time = t, E = E, V = V, L = V^(1/3))
+
+	out <- deSolve::lsoda(y0, times, ode_fn, parms = NULL,
+	                       rtol = 1e-6, atol = 1e-6)
+	data.frame(time = out[, 1], E = out[, 2],
+	           V = pmax(out[, 3], 1e-12),
+	           L = pmax(out[, 3], 1e-12)^(1/3))
 }
 
 #' Simulate DEBtox Growth Under Toxicant Exposure
@@ -91,26 +99,30 @@ debtox_simulate <- function(t_max, p_Am, p_M, kappa, v, E_G, E0, L0,
 	assert_positive(L0, "L0")
 	assert_positive(k_d, "k_d")
 
-	n <- ceiling(t_max / dt)
-	t <- seq(0, t_max, length.out = n + 1)
-	E <- V <- Dw <- R <- numeric(n + 1)
-	V[1] <- L0^3
-	E[1] <- E0 * V[1]
+	times <- seq(0, t_max, by = dt)
+	if (times[length(times)] < t_max) times <- c(times, t_max)
+	V0 <- L0^3
+	y0 <- c(E = E0 * V0, V = V0, Dw = 0, R = 0)
 
-	for (i in seq_len(n)) {
-		L <- V[i]^(1/3)
-		dDw <- k_d * (max(C_w - z_w, 0) - Dw[i])
-		s <- b_w * max(Dw[i], 0)
+	ode_fn <- function(t, y, pars) {
+		E <- y[1]; V <- max(y[2], 1e-12); Dw <- y[3]; R <- y[4]
+		L <- V^(1/3)
+		dDw <- k_d * (max(C_w - z_w, 0) - Dw)
+		s <- b_w * max(Dw, 0)
 		pA <- f * p_Am * L^2 * max(1 - s, 0)
-		pC <- E[i] * v * L / (E[i] + E_G * V[i] + 1e-12)
-		pM <- p_M * V[i]
+		pC <- E * v * L / (E + E_G * V + 1e-12)
+		pM <- p_M * V
 		dE <- pA - pC
 		dV <- (kappa * pC - pM) / E_G
+		if (V < 1e-12 && dV < 0) dV <- 0
 		dR <- max((1 - kappa) * pC, 0)
-		E[i + 1]  <- max(E[i] + dE * dt, 1e-12)
-		V[i + 1]  <- max(V[i] + dV * dt, 1e-12)
-		Dw[i + 1] <- max(Dw[i] + dDw * dt, 0)
-		R[i + 1]  <- R[i] + dR * dt
+		list(c(dE, dV, dDw, dR))
 	}
-	data.frame(time = t, E = E, V = V, L = V^(1/3), R = R, Dw = Dw)
+
+	out <- deSolve::lsoda(y0, times, ode_fn, parms = NULL,
+	                       rtol = 1e-6, atol = 1e-6)
+	data.frame(time = out[, 1], E = out[, 2],
+	           V = pmax(out[, 3], 1e-12),
+	           L = pmax(out[, 3], 1e-12)^(1/3),
+	           R = out[, 5], Dw = out[, 4])
 }

@@ -200,7 +200,7 @@ bdeb_prior_predictive <- function(model, n_draws = 500, dt = 0.5,
 	L_mat <- matrix(NA_real_, nrow = n_draws, ncol = length(t_grid))
 
 	for (i in seq_len(n_draws)) {
-		traj <- sim_deb_euler(t_max, p_Am_draws[i], p_M_draws[i],
+		traj <- sim_deb_lsoda(t_max, p_Am_draws[i], p_M_draws[i],
 		                      kappa_draws[i], v_draws[i], E_G_draws[i],
 		                      E0_draws[i], L0_draws[i], f, dt = dt)
 		L_mat[i, ] <- stats::approx(traj$time, traj$L, xout = t_grid)$y
@@ -375,11 +375,11 @@ bdeb_predict <- function(fit, newdata = NULL, n_draws = 200, dt = 0.5,
 			k_d <- draws$k_d[i]
 			z_w <- draws$z_w[i]
 			b_w <- draws$b_w[i]
-			traj <- sim_debtox_euler(t_max, p_Am, p_M, kappa, v_val,
+			traj <- sim_debtox_lsoda(t_max, p_Am, p_M, kappa, v_val,
 			                         E_G, E0, L0, f_new,
 			                         k_d, z_w, b_w, C_w, dt = dt)
 		} else {
-			traj <- sim_deb_euler(t_max, p_Am, p_M, kappa, v_val,
+			traj <- sim_deb_lsoda(t_max, p_Am, p_M, kappa, v_val,
 			                      E_G, E0, L0, f_new, dt = dt)
 		}
 

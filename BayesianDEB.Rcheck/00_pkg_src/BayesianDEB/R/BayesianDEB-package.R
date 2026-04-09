@@ -93,13 +93,14 @@
 #'     solver with adaptive step size and tolerances \eqn{10^{-6}}.
 #'     Posteriors, derived quantities, and log-likelihoods from this
 #'     layer are publication-grade.}
-#'   \item{R-side simulation (approximate)}{`bdeb_prior_predictive()`,
+#'   \item{R-side simulation}{`bdeb_prior_predictive()`,
 #'     `bdeb_predict(newdata=...)`,
 #'     `plot(fit, type="trajectory")` for hierarchical/debtox,
-#'     `plot_dose_response()`.  These use a simple Euler integrator
-#'     (fixed step `dt`, default 0.5 days) for speed.  They are
-#'     **visualisation and exploration tools**, not exact inference.
-#'     For quantitative results, use the Stan-based functions.}
+#'     `plot_dose_response()`.  These use the LSODA solver from
+#'     \pkg{deSolve} (adaptive step size, tolerances \eqn{10^{-6}}),
+#'     matching Stan's BDF solver.  They are **visualisation and
+#'     exploration tools**, not exact inference.  For quantitative
+#'     results, use the Stan-based functions.}
 #' }
 #'
 #' @section Lifecycle:

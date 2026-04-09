@@ -1,3 +1,34 @@
+# BayesianDEB 0.1.2
+
+ODE solver upgrade and bug fix release.
+
+## Breaking changes
+* R-side ODE integration now uses `deSolve::lsoda()` (adaptive
+  BDF/Adams) instead of fixed-step Euler. This matches the BDF
+  solver used in Stan, ensuring numerical consistency between
+  R-side simulation and Stan-side inference. The `dt` parameter
+  now controls output resolution, not integration accuracy.
+* `deSolve` (>= 1.40) added to Imports.
+
+## Bug fixes
+* Fixed `bdeb_ec50()$NEC` returning a data frame instead of numeric
+  draws — `median(ec50$NEC)` now works correctly.
+* Fixed `build_stan_data_hierarchical()` crashing when growth data
+  starts at `time = 0` (same fix as individual model in 0.1.1).
+* Fixed `build_stan_data_debtox()` crashing when growth or
+  reproduction data starts at `time = 0`.
+* Fixed `build_stan_data_growth_repro()` t=0 handling producing NA
+  index matches — replaced convoluted fix with consistent epsilon
+  shift across growth and reproduction times.
+
+## Internal
+* Renamed internal helpers `sim_deb_euler()` / `sim_debtox_euler()`
+  to `sim_deb_lsoda()` / `sim_debtox_lsoda()` to reflect solver.
+* Updated package documentation to describe LSODA solver instead
+  of Euler.
+
+---
+
 # BayesianDEB 0.1.1
 
 Bug fix and hardening release.
@@ -55,7 +86,7 @@ Bug fix and hardening release.
   versions, fit configuration, Stan model hash).
 * `coef.bdeb_fit()`: S3 method returning posterior medians or means.
 * `deb_simulate()`, `debtox_simulate()`: standalone DEB/DEBtox
-  Euler simulators, independent of Stan.
+  simulators, independent of Stan.
 * `L_m` added to `bdeb_derived()`: maximum structural length at f=1.
 * `plot.bdeb_prediction()`: S3 plot method for prediction objects.
 * Observation model switching now fully implemented in all 4 Stan
