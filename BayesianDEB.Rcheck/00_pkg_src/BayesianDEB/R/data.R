@@ -110,3 +110,75 @@
 #' data(debtox_growth)
 #' head(debtox_growth)
 "debtox_growth"
+
+#' Eisenia fetida Growth Data (Neuhauser 1980)
+#'
+#' Real experimental growth data for *Eisenia fetida* on activated
+#' sludge at 25 °C from Neuhauser, Hartenstein & Kaplan (1980),
+#' obtained via the EGrowth database (Mathieu, 2018).  The dataset
+#' comprises 37 group-mean body mass measurements (20 worms per
+#' replicate) over 250 days, from hatchling (~8 mg) to adult
+#' (~2350 mg).  Wet mass was converted to structural length via
+#' \eqn{L = (W / d_V)^{1/3}} with tissue density
+#' \eqn{d_V = 1.05} g cm\eqn{^{-3}}.
+#'
+#' @format A data frame with 37 rows and 3 columns:
+#' \describe{
+#'   \item{id}{Individual/group identifier (always 1)}
+#'   \item{time}{Time in days since start (1--250)}
+#'   \item{length}{Structural length in cm (0.20--1.31)}
+#' }
+#'
+#' @source EGrowth database, curve ID gr0226.
+#'   \url{https://github.com/JeromeMathieuEcology/EGrowth}
+#'
+#' @references
+#' Neuhauser, E.F., Hartenstein, R. and Kaplan, D.L. (1980). Growth
+#' of the earthworm *Eisenia foetida* in relation to population density
+#' and food rationing. *Oikos*, 35, 93--98.
+#' \doi{10.2307/3544730}
+#'
+#' Mathieu, J. (2018). EGrowth: a global database on intraspecific
+#' body growth variability in earthworm. *Soil Biology and
+#' Biochemistry*, 122, 71--80. \doi{10.1016/j.soilbio.2018.04.004}
+#'
+#' @examples
+#' data(eisenia_neuhauser)
+#' plot(eisenia_neuhauser$time, eisenia_neuhauser$length,
+#'      xlab = "Days", ylab = "Structural length (cm)")
+"eisenia_neuhauser"
+
+#' Eisenia andrei Cadmium Toxicity Data (Van Gestel 1991)
+#'
+#' Real experimental growth data for *Eisenia andrei* exposed to
+#' cadmium in natural soil at 23 °C from Van Gestel et al. (1991),
+#' obtained via the EGrowth database (Mathieu, 2018).  Five
+#' concentration groups (0, 10, 32, 100, 320 mg Cd/kg) with 7 time
+#' points each over 84 days.  Group-mean body mass was converted to
+#' structural length via \eqn{L = (W / d_V)^{1/3}} with
+#' \eqn{d_V = 1.05} g cm\eqn{^{-3}}.
+#'
+#' @format A data frame with 35 rows and 4 columns:
+#' \describe{
+#'   \item{id}{Concentration group identifier (1--5)}
+#'   \item{time}{Time in days (0--85)}
+#'   \item{length}{Structural length in cm}
+#'   \item{concentration}{Cadmium concentration (mg Cd/kg soil)}
+#' }
+#'
+#' @source EGrowth database, curve IDs gr0119--gr0123.
+#'   \url{https://github.com/JeromeMathieuEcology/EGrowth}
+#'
+#' @references
+#' Van Gestel, C.A.M., Van Dis, W.A., Dirven-Van Breemen, E.M.,
+#' Sparenburg, P.M. and Baerselman, R. (1991). Influence of cadmium,
+#' copper, and pentachlorophenol on growth and sexual development of
+#' *Eisenia andrei* (Oligochaeta; Annelida). *Biology and Fertility
+#' of Soils*, 12, 117--121. \doi{10.1007/BF00341486}
+#'
+#' @examples
+#' data(eisenia_cd)
+#' plot(eisenia_cd$time, eisenia_cd$length,
+#'      col = as.factor(eisenia_cd$concentration),
+#'      xlab = "Days", ylab = "Structural length (cm)")
+"eisenia_cd"

@@ -17,7 +17,7 @@ Type 'q()' to quit R.
 
 > library(testthat)
 > library(BayesianDEB)
-BayesianDEB v0.1.1
+BayesianDEB v0.1.2
 > 
 > test_check("BayesianDEB")
 
@@ -609,4 +609,4 @@ i Time range: [0, 5]
 > 
 > proc.time()
    user  system elapsed 
- 42.802   2.636  45.439 
+ 86.135   4.422  90.311 

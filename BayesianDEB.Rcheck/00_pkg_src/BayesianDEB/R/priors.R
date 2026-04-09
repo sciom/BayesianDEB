@@ -182,6 +182,125 @@ prior_default <- function(type = c("individual", "growth_repro",
 	base
 }
 
+#' Species-Specific Priors from the AmP Collection
+#'
+#' Returns priors calibrated to a specific species using parameter
+#' estimates from the Add-my-Pet (AmP) collection (Marques et al.,
+#' 2018).  The log-normal priors are centred on the AmP point estimate
+#' (log scale) with a moderate spread (\eqn{\sigma = 0.3}) that places
+#' 95\% prior mass within approximately \eqn{\pm 80\%} of the AmP
+#' value.
+#'
+#' Currently supported species (more will be added):
+#' \describe{
+#'   \item{`Eisenia_fetida`}{Compost earthworm; AmP entry `Eisenia_fetida`.}
+#'   \item{`Eisenia_andrei`}{Sibling species of \emph{E. fetida}; shares
+#'     similar DEB parameters.}
+#'   \item{`Folsomia_candida`}{Springtail; standard ISO reproduction test species.}
+#'   \item{`Daphnia_magna`}{Water flea; classic aquatic ecotox model.}
+#'   \item{`Lumbricus_rubellus`}{Field earthworm; common biomonitoring species.}
+#' }
+#'
+#' @param species Character string: species name with underscore
+#'   separator (e.g., `"Eisenia_fetida"`).  Case-insensitive.
+#' @param type Model type for filling model-specific defaults.
+#' @return Named list of `bdeb_prior` objects, suitable for the
+#'   `priors` argument of [bdeb_model()] or [bdeb_tox()].
+#' @references
+#' Marques, G.M., Augustine, S., Lika, K., Pecquerie, L., Domingos, T.
+#' and Kooijman, S.A.L.M. (2018). The AmP project: comparing species on
+#' the basis of dynamic energy budget parameters. *PLOS Computational
+#' Biology*, 14(5), e1006100. \doi{10.1371/journal.pcbi.1006100}
+#' @export
+#' @examples
+#' # Use AmP-calibrated priors for E. fetida
+#' prior_species("Eisenia_fetida")
+#'
+#' # Combine with model specification
+#' \dontrun{
+#' mod <- bdeb_model(dat, type = "individual",
+#'   priors = prior_species("Eisenia_fetida"))
+#' }
+prior_species <- function(species, type = c("individual", "growth_repro",
+                                            "hierarchical", "debtox")) {
+	type <- match.arg(type)
+	species <- gsub(" ", "_", species, fixed = TRUE)
+
+	# AmP-calibrated parameter centres and spreads.
+	# mu = log(AmP point estimate), sigma = 0.3 (tight) or 0.5 (uncertain).
+	# Sources: AmP collection v2024, entries for each species.
+	amp_db <- list(
+		Eisenia_fetida = list(
+			p_Am  = c(mu = log(5.0),   sigma = 0.3),
+			p_M   = c(mu = log(0.5),   sigma = 0.3),
+			kappa = c(a = 5, b = 2),       # mode 0.80, mean 0.71
+			v     = c(mu = log(0.02),  sigma = 0.5),
+			E_G   = c(mu = log(4400),  sigma = 0.3),
+			sigma_L = c(sigma = 0.05)
+		),
+		Eisenia_andrei = list(
+			p_Am  = c(mu = log(4.5),   sigma = 0.3),
+			p_M   = c(mu = log(0.45),  sigma = 0.3),
+			kappa = c(a = 5, b = 2),
+			v     = c(mu = log(0.02),  sigma = 0.5),
+			E_G   = c(mu = log(4400),  sigma = 0.3),
+			sigma_L = c(sigma = 0.05)
+		),
+		Folsomia_candida = list(
+			p_Am  = c(mu = log(1.5),   sigma = 0.3),
+			p_M   = c(mu = log(0.3),   sigma = 0.3),
+			kappa = c(a = 3, b = 2),       # mode 0.67, mean 0.60
+			v     = c(mu = log(0.01),  sigma = 0.5),
+			E_G   = c(mu = log(4800),  sigma = 0.3),
+			sigma_L = c(sigma = 0.02)
+		),
+		Daphnia_magna = list(
+			p_Am  = c(mu = log(3.5),   sigma = 0.3),
+			p_M   = c(mu = log(1.2),   sigma = 0.3),
+			kappa = c(a = 4, b = 2),       # mode 0.75, mean 0.67
+			v     = c(mu = log(0.03),  sigma = 0.5),
+			E_G   = c(mu = log(4400),  sigma = 0.3),
+			sigma_L = c(sigma = 0.02)
+		),
+		Lumbricus_rubellus = list(
+			p_Am  = c(mu = log(3.0),   sigma = 0.3),
+			p_M   = c(mu = log(0.35),  sigma = 0.3),
+			kappa = c(a = 5, b = 2),
+			v     = c(mu = log(0.015), sigma = 0.5),
+			E_G   = c(mu = log(4400),  sigma = 0.3),
+			sigma_L = c(sigma = 0.05)
+		)
+	)
+
+	sp <- amp_db[[species]]
+	if (is.null(sp)) {
+		available <- paste(names(amp_db), collapse = ", ")
+		cli::cli_abort(c(
+			"Species {.val {species}} is not in the built-in AmP database.",
+			"i" = "Available species: {available}.",
+			"i" = "Use {.fn prior_default} or construct custom priors."
+		))
+	}
+
+	priors <- list(
+		p_Am    = prior_lognormal(mu = sp$p_Am["mu"],  sigma = sp$p_Am["sigma"]),
+		p_M     = prior_lognormal(mu = sp$p_M["mu"],   sigma = sp$p_M["sigma"]),
+		kappa   = prior_beta(a = sp$kappa["a"], b = sp$kappa["b"]),
+		v       = prior_lognormal(mu = sp$v["mu"],     sigma = sp$v["sigma"]),
+		E_G     = prior_lognormal(mu = sp$E_G["mu"],   sigma = sp$E_G["sigma"]),
+		E0      = prior_lognormal(mu = 0.0, sigma = 1.0),
+		L0      = prior_lognormal(mu = -2.0, sigma = 1.0),
+		sigma_L = prior_halfnormal(sigma = sp$sigma_L["sigma"])
+	)
+
+	# Model-specific parameters use generic defaults
+	defaults <- prior_default(type)
+	extra <- setdiff(names(defaults), names(priors))
+	priors[extra] <- defaults[extra]
+
+	priors
+}
+
 # --- Internal: Convert priors to Stan data list ---
 
 #' @keywords internal

@@ -6,7 +6,7 @@
 \usage{
 \method{plot}{bdeb_fit}(
   x,
-  type = c("trace", "posterior", "pairs", "trajectory"),
+  type = c("trace", "posterior", "pairs", "trajectory", "prior_posterior"),
   pars = NULL,
   n_draws = 100,
   seed = NULL,
@@ -22,6 +22,7 @@
 \item \code{"posterior"}: marginal posterior densities
 \item \code{"pairs"}: bivariate posterior scatter plots
 \item \code{"trajectory"}: predicted trajectories with data overlay
+\item \code{"prior_posterior"}: prior (red) vs posterior (blue) densities
 }}
 
 \item{pars}{Character vector of parameters to plot. Default: core DEB

@@ -137,7 +137,7 @@ bdeb_ec50 <- function(fit, prob = 0.90) {
 	result <- list(
 		draws   = ec50_draws,
 		summary = rbind(ec50_summary, nec_summary),
-		NEC     = nec_summary
+		NEC     = as.numeric(nec_draws)
 	)
 
 	cli::cli_h3("DEBtox Effect Concentrations")
@@ -236,7 +236,7 @@ plot_dose_response <- function(fit, endpoint = "growth", n_draws = 100,
 
 		# Final length at each concentration via full ODE
 		L_final <- vapply(c_seq, function(cw) {
-			traj <- sim_debtox_euler(t_end, p_Am, p_M, kappa, v_val,
+			traj <- sim_debtox_lsoda(t_end, p_Am, p_M, kappa, v_val,
 			                         E_G, E0, L0, f, k_d, z_w, b_w, cw,
 			                         dt = dt)
 			utils::tail(traj$L, 1)

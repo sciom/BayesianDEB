@@ -54,7 +54,7 @@ visualisation.
 | Derived quantities (L_m, L_inf, k_M, g, r_B) | **stable** | Kooijman (2010) formulas, dimensional tests |
 | EC50 / NEC extraction | **stable** | Analytical, full posterior |
 | Within-chain parallelism (`reduce_sum`) | **stable** | Hierarchical + DEBtox models |
-| Trajectory plots for hierarchical/debtox | **stable** | R-side Euler simulation from posterior |
+| Trajectory plots for hierarchical/debtox | **stable** | R-side LSODA simulation from posterior |
 | PPC for hierarchical/debtox | not available | Use trajectory plots and `bdeb_diagnose()` |
 | Survival endpoint | planned | Not in current API; will be added in future version |
 | Per-observation temperature (time-varying T) | planned | Currently global only |
@@ -83,7 +83,7 @@ visualisation.
 - All lengths are structural ($L = V^{1/3}$); the shape coefficient
   $\delta_M$ is not estimated (user must convert physical lengths).
 - R-side simulators (`deb_simulate`, trajectory plots, prior predictive)
-  use Euler integration — an approximation of the BDF solver used in Stan.
+  use the LSODA solver from `deSolve`, matching Stan's BDF solver.
 
 ## Installation
 
@@ -142,7 +142,7 @@ If you use BayesianDEB in your work, please cite:
 
 > Hackenberger, B.K., Djerdj, T. and Hackenberger, D.K. (2026).
 > BayesianDEB: Bayesian Dynamic Energy Budget Modelling. R package
-> version 0.1.0. https://github.com/sciom/BayesianDEB
+> version 0.1.2. https://github.com/sciom/BayesianDEB
 
 ## Key references
 

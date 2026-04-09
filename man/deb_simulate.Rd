@@ -42,10 +42,13 @@ checks.
 }
 \section{Numerical note}{
 
-This uses a fixed-step Euler integrator, which is an approximation.
-The Stan models use the adaptive BDF solver for fitting.  For
-visualisation and exploration the Euler integrator is adequate;
-reduce \code{dt} for higher accuracy.
+This uses the LSODA solver from \pkg{deSolve}, which
+automatically switches between stiff (BDF) and non-stiff (Adams)
+methods.  This matches the BDF solver used in the Stan models,
+ensuring numerical consistency between R-side simulation and
+Stan-side inference.  The \code{dt} parameter controls output
+resolution, not integration accuracy (governed by \code{rtol}/\code{atol}
+= 1e-6).
 }
 
 \examples{
