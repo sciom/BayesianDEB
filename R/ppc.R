@@ -368,7 +368,14 @@ bdeb_predict <- function(fit, newdata = NULL, n_draws = 200, dt = 0.5,
 			mu <- draws$mu_log_p_Am[i]
 			sigma <- draws$sigma_log_p_Am[i]
 			p_Am <- exp(stats::rnorm(1, mu, sigma))
-			L0 <- draws[["L0[1]"]][i]
+			# Use median L0 across individuals
+			L0_vars <- grep("^L0\\[", names(draws), value = TRUE)
+			if (length(L0_vars) > 0) {
+				L0_vals <- vapply(L0_vars, function(v) draws[[v]][i], numeric(1))
+				L0 <- stats::median(L0_vals)
+			} else {
+				L0 <- draws$L0[i]
+			}
 		}
 
 		if (is_tox) {

@@ -243,8 +243,8 @@ obs_lognormal <- function() {
 #' @param nu Degrees of freedom. Default 5.
 #' @export
 obs_student_t <- function(nu = 5) {
-	if (!is.numeric(nu) || length(nu) != 1 || nu <= 1)
-		cli::cli_abort("{.arg nu} must be > 1 (degrees of freedom).")
+	if (!is.numeric(nu) || length(nu) != 1 || nu < 1)
+		cli::cli_abort("{.arg nu} must be >= 1 (degrees of freedom).")
 	structure(list(family = "student_t", nu = nu), class = "bdeb_obs")
 }
 

@@ -116,6 +116,13 @@ bdeb_ec50 <- function(fit, prob = 0.90) {
 	ec50_draws <- draws$EC50
 	nec_draws  <- draws$NEC
 
+	if (is.null(ec50_draws) || is.null(nec_draws)) {
+		cli::cli_abort(c(
+			"EC50 and/or NEC variables not found in posterior draws.",
+			"i" = "Ensure the model was fitted with {.fn bdeb_tox}."
+		))
+	}
+
 	ec50_summary <- data.frame(
 		parameter = "EC50",
 		mean   = mean(ec50_draws),
@@ -214,7 +221,12 @@ plot_dose_response <- function(fit, endpoint = "growth", n_draws = 100,
 		vals <- vals[!is.nan(vals)]
 		if (length(vals) > 0) utils::tail(vals, 1) else NA_real_
 	}, numeric(1))
-	ctrl_obs <- obs_final[which.min(C_w)]
+	ctrl_idx <- which.min(C_w)
+	ctrl_obs <- obs_final[ctrl_idx]
+	if (min(C_w) > 0) {
+		cli::cli_warn("No zero-concentration control group found; normalising to lowest concentration ({C_w[ctrl_idx]}).")
+	}
+	if (!is.finite(ctrl_obs) || ctrl_obs < 1e-12) ctrl_obs <- NA_real_
 	obs_df <- data.frame(
 		concentration = C_w,
 		relative      = obs_final / ctrl_obs
@@ -244,6 +256,7 @@ plot_dose_response <- function(fit, endpoint = "growth", n_draws = 100,
 
 		# Normalise to control (C=0) for this draw
 		L_ctrl <- L_final[1]  # c_seq starts at 0
+		if (!is.finite(L_ctrl) || L_ctrl < 1e-12) L_ctrl <- NA_real_
 		data.frame(
 			concentration   = c_seq,
 			relative        = L_final / L_ctrl,
