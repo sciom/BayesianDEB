@@ -15,7 +15,6 @@
 ^\.claude$
 ^doc$
 ^Meta$
-^build$
 ^BayesianDEB_.*\.tar\.gz$
 ^MANUSCRIPT_JSS$
 ^MANUSCRIPT_JSS/
