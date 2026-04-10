@@ -80,9 +80,9 @@ data {
   real prior_L0_mu;
   real<lower=0> prior_L0_sd;
   real<lower=0> prior_sigma_L_sd;
-  real<lower=0> prior_k_R_mu;
+  real prior_k_R_mu;
   real<lower=0> prior_k_R_sd;
-  real<lower=0> prior_phi_R_mu;
+  real prior_phi_R_mu;
   real<lower=0> prior_phi_R_sd;
 }
 

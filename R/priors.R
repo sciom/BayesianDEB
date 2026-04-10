@@ -327,6 +327,9 @@ prior_to_stan_data <- function(priors) {
 #' @keywords internal
 prior_to_stan_data_hierarchical <- function(priors) {
 	base <- prior_to_stan_data(priors)
+	# Remove p_Am prior (hierarchical model uses mu/sigma_log_p_Am instead)
+	base$prior_p_Am_mu <- NULL
+	base$prior_p_Am_sd <- NULL
 	base$prior_mu_log_p_Am_mu   <- priors$mu_log_p_Am$mu
 	base$prior_mu_log_p_Am_sd   <- priors$mu_log_p_Am$sigma
 	base$prior_sigma_log_p_Am_rate <- priors$sigma_log_p_Am$rate

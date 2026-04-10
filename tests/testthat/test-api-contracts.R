@@ -117,9 +117,10 @@ test_that("prior_halfnormal rejects sigma <= 0", {
   expect_error(prior_halfnormal(sigma = -0.1), "positive")
 })
 
-test_that("obs_student_t rejects nu <= 1", {
-  expect_error(obs_student_t(nu = 1), "nu.*> 1")
-  expect_error(obs_student_t(nu = 0), "nu.*> 1")
+test_that("obs_student_t rejects nu < 1", {
+  expect_no_error(obs_student_t(nu = 1))
+  expect_error(obs_student_t(nu = 0), "nu.*>= 1")
+  expect_error(obs_student_t(nu = -1), "nu.*>= 1")
 })
 
 test_that("bdeb_data rejects f_food outside [0,1]", {

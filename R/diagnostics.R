@@ -141,7 +141,7 @@ bdeb_summary <- function(fit, pars = NULL, prob = 0.90, ...) {
 
 	if (is.null(pars)) {
 		all_vars <- posterior::variables(draws)
-		pars <- all_vars[!grepl("^(log_lik|lp__)", all_vars)]
+		pars <- all_vars[!grepl("^(log_lik|L_hat|L_rep|R_hat|R_rep|lp__|p_Am_new)", all_vars)]
 	}
 
 	alpha <- (1 - prob) / 2

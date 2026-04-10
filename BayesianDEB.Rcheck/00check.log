@@ -6,19 +6,9 @@
     GNU Fortran (Ubuntu 9.4.0-1ubuntu1~20.04.2) 9.4.0
 * running under: Ubuntu 22.04.5 LTS
 * using session charset: UTF-8
-* using option ‘--as-cran’
 * checking for file ‘BayesianDEB/DESCRIPTION’ ... OK
 * this is package ‘BayesianDEB’ version ‘0.1.2’
 * package encoding: UTF-8
-* checking CRAN incoming feasibility ... [10s/17s] NOTE
-Maintainer: ‘Branimir K. Hackenberger <branimir@sciom.hr>’
-
-New submission
-
-Suggests or Enhances not in mainstream repositories:
-  cmdstanr
-Availability using Additional_repositories specification:
-  cmdstanr   yes   https://stan-dev.r-universe.dev
 * checking package namespace information ... OK
 * checking package dependencies ... OK
 * checking if this is a source package ... OK
@@ -30,7 +20,6 @@ Availability using Additional_repositories specification:
 * checking whether package ‘BayesianDEB’ can be installed ... OK
 * checking installed package size ... OK
 * checking package directory ... OK
-* checking for future file timestamps ... OK
 * checking ‘build’ directory ... OK
 * checking DESCRIPTION meta-information ... OK
 * checking top-level files ... OK
@@ -46,7 +35,6 @@ Availability using Additional_repositories specification:
 * checking whether the namespace can be unloaded cleanly ... OK
 * checking loading without being on the library search path ... OK
 * checking whether startup messages can be suppressed ... OK
-* checking use of S3 registration ... OK
 * checking dependencies in R code ... OK
 * checking S3 generic/method consistency ... OK
 * checking replacement functions ... OK
@@ -54,7 +42,6 @@ Availability using Additional_repositories specification:
 * checking R code for possible problems ... OK
 * checking Rd files ... OK
 * checking Rd metadata ... OK
-* checking Rd line widths ... OK
 * checking Rd cross-references ... OK
 * checking for missing documentation entries ... OK
 * checking for code/documentation mismatches ... OK
@@ -69,14 +56,8 @@ Availability using Additional_repositories specification:
 * checking files in ‘vignettes’ ... OK
 * checking examples ... OK
 * checking for unstated dependencies in ‘tests’ ... OK
-* checking tests ... [113s/112s] OK
-  Running ‘testthat.R’ [113s/112s]
+* checking tests ... OK
+  Running ‘testthat.R’
 * checking for unstated dependencies in vignettes ... OK
 * checking package vignettes ... OK
-* checking re-building of vignette outputs ... OK
-* checking PDF version of manual ... OK
-* checking HTML version of manual ... OK
-* checking for non-standard things in the check directory ... OK
-* checking for detritus in the temp directory ... OK
-* DONE
-Status: 1 NOTE
+* checking re-building of vignette outputs ...

@@ -70,7 +70,7 @@ get_core_pars <- function(model_type) {
 		individual   = c("p_Am", "p_M", "kappa", "v", "E_G", "sigma_L"),
 		growth_repro = c("p_Am", "p_M", "kappa", "v", "E_G", "k_J", "sigma_L", "k_R"),
 		hierarchical = c("mu_log_p_Am", "sigma_log_p_Am", "p_M", "kappa", "v", "E_G", "sigma_L"),
-		debtox       = c("p_Am", "p_M", "kappa", "k_d", "z_w", "b_w", "sigma_L"),
+		debtox       = c("p_Am", "p_M", "kappa", "v", "E_G", "k_d", "z_w", "b_w", "sigma_L"),
 		c("p_Am", "p_M", "kappa", "sigma_L")
 	)
 }
@@ -124,15 +124,19 @@ plot_trajectory_individual <- function(fit, n_draws) {
 	n_total <- nrow(L_hat)
 	idx <- sort(sample.int(n_total, min(n_draws, n_total)))
 
-	t_obs <- fit$model$stan_data$t_obs
 	L_obs <- fit$model$stan_data$L_obs
 	if (fit$model$type == "growth_repro") {
+		# L_hat is computed at the merged time grid t_all
+		t_hat <- fit$model$stan_data$t_all
 		t_obs <- fit$model$stan_data$t_L
+	} else {
+		t_hat <- fit$model$stan_data$t_obs
+		t_obs <- t_hat
 	}
 
 	traj_list <- lapply(idx, function(i) {
 		data.frame(
-			time   = t_obs[seq_len(ncol(L_hat))],
+			time   = t_hat[seq_len(ncol(L_hat))],
 			length = as.numeric(L_hat[i, ]),
 			draw   = i
 		)
