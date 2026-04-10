@@ -609,4 +609,4 @@ i Time range: [0, 5]
 > 
 > proc.time()
    user  system elapsed 
- 86.135   4.422  90.311 
+107.187   5.281 112.034 
