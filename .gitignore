@@ -17,3 +17,8 @@ inst/stan/*.hpp
 inst/stan/*.exe
 /doc/
 /Meta/
+
+# R CMD build / check artifacts
+BayesianDEB_*.tar.gz
+*.Rcheck/
+..Rcheck/
