@@ -2,9 +2,9 @@ cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
 type: software
 title: "BayesianDEB: Bayesian Dynamic Energy Budget Modelling"
-version: 0.1.3
-doi: 10.5281/zenodo.19500753
-date-released: "2026-04-10"
+version: 0.1.4
+doi: 10.5281/zenodo.19443804
+date-released: "2026-04-18"
 url: "https://github.com/sciom/BayesianDEB"
 repository-code: "https://github.com/sciom/BayesianDEB"
 license: MIT

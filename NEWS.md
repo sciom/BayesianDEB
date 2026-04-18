@@ -35,6 +35,14 @@ of `T` as an identifier, which can shadow R's built-in `T` symbol
   Stan compilation + MCMC run takes > 30 seconds; the Rd comment
   explains the reason.
 
+## Citation
+* Switched README badge and `CITATION.cff` from the version-specific
+  DOI (`10.5281/zenodo.19500753`, v0.1.3) to the **concept DOI**
+  (`10.5281/zenodo.19443804`), which always resolves to the latest
+  archived version.  The v0.1.4 version DOI is
+  `10.5281/zenodo.19642839` for anyone needing to cite this specific
+  release.
+
 ---
 
 # BayesianDEB 0.1.3
