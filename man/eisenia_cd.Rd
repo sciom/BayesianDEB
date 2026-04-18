@@ -25,7 +25,7 @@ Real experimental growth data for \emph{Eisenia andrei} exposed to
 cadmium in natural soil at 23 °C from Van Gestel et al. (1991),
 obtained via the EGrowth database (Mathieu, 2018).  Five
 concentration groups (0, 10, 32, 100, 320 mg Cd/kg) with 7 time
-points each over 84 days.  Group-mean body mass was converted to
+points each over 85 days.  Group-mean body mass was converted to
 structural length via \eqn{L = (W / d_V)^{1/3}} with
 \eqn{d_V = 1.05} g cm\eqn{^{-3}}.
 }

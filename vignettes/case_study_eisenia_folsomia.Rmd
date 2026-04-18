@@ -745,7 +745,7 @@ $$
 
 ```{r arrhenius}
 # Experiment at 22 C, reference 20 C, typical T_A for ectotherms
-cT <- arrhenius(T = 273.15 + 22, T_ref = 273.15 + 20, T_A = 8000)
+cT <- arrhenius(temp = 273.15 + 22, T_ref = 273.15 + 20, T_A = 8000)
 cat("Temperature correction factor:", round(cT, 3), "\n")
 # Rate at reference temperature: p_Am_ref = p_Am_obs / cT
 ```

@@ -4,10 +4,12 @@
 \alias{arrhenius}
 \title{Arrhenius Temperature Correction}
 \usage{
-arrhenius(T, T_ref = 293.15, T_A = 8000)
+arrhenius(temp, T_ref = 293.15, T_A = 8000)
 }
 \arguments{
-\item{T}{Body (or ambient) temperature in Kelvin.}
+\item{temp}{Body (or ambient) temperature in Kelvin.  Renamed from
+\code{T} in version 0.1.4 to avoid shadowing R's built-in \code{T} symbol
+(= \code{TRUE}); pass positionally or use \code{temp = ...} explicitly.}
 
 \item{T_ref}{Reference temperature in Kelvin (default 293.15 K = 20 °C).}
 

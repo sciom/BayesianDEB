@@ -1,3 +1,42 @@
+# BayesianDEB 0.1.4
+
+CRAN-review compliance release.  Addresses reviewer feedback on the use
+of `T` as an identifier, which can shadow R's built-in `T` symbol
+(= `TRUE`).
+
+## Breaking changes
+* `arrhenius()`: first argument renamed from `T` to `temp`.  Positional
+  calls are unaffected (`arrhenius(298.15)`).  Code that passed the
+  argument by name (`arrhenius(T = 298.15)`) must be updated to
+  `arrhenius(temp = 298.15)`.
+* `bdeb_model(temperature = ...)`: the list field `T` was renamed to
+  `T_obs` to match the Stan data naming and to remove the `T` shadow.
+  Replace `list(T = 298.15, T_ref = ..., T_A = ...)` with
+  `list(T_obs = 298.15, T_ref = ..., T_A = ...)`.
+
+## CRAN compliance
+* `bdeb_diagnose()` and `bdeb_ec50()` now expose a `verbose = TRUE`
+  argument.  All user-facing output (diagnostic alerts and summary
+  tables) is routed through `cli` / [message()] rather than direct
+  `print()` calls, so it can be silenced with [suppressMessages()] or
+  by passing `verbose = FALSE`.  Return values are unchanged.
+
+## Documentation
+* Updated `R/utils.R`, `R/data_prep.R`, `R/model_spec.R` and
+  `man/arrhenius.Rd`, `man/bdeb_model.Rd`,
+  `man/temperature_to_stan_data.Rd`,
+  `man/build_stan_data_individual.Rd` to reflect the renaming.
+* Case-study vignette updated to use `arrhenius(temp = ...)`.
+* Tests updated for the new `temperature$T_obs` field.
+* `\dontrun{}` replaced with runnable examples for `prior_species()`,
+  `bdeb_tox()` and `bdeb_prior_predictive()` (all execute in < 0.2 s
+  against bundled datasets).  `bdeb_fit()` retains `\dontrun{}`
+  because it requires the external CmdStan toolchain and a single
+  Stan compilation + MCMC run takes > 30 seconds; the Rd comment
+  explains the reason.
+
+---
+
 # BayesianDEB 0.1.3
 
 New features and data release.

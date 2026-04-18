@@ -25,11 +25,11 @@ bdeb_model(
 \item{observation}{Named list of observation model specs for each endpoint.
 Default: \code{list(growth = obs_normal(), reproduction = obs_negbinom())}.}
 
-\item{temperature}{Optional list with components \code{T} (observation
+\item{temperature}{Optional list with components \code{T_obs} (observation
 temperature in Kelvin), \code{T_ref} (reference temperature in K), and
 \code{T_A} (Arrhenius temperature in K).  If provided, the correction
-factor \eqn{c_T = \exp(T_A/T_{\mathrm{ref}} - T_A/T)} (see
-\code{\link[=arrhenius]{arrhenius()}}) is applied \strong{inside the Stan ODE} to all rate
+factor \eqn{c_T = \exp(T_A/T_{\mathrm{ref}} - T_A/T_{\mathrm{obs}})}
+(see \code{\link[=arrhenius]{arrhenius()}}) is applied \strong{inside the Stan ODE} to all rate
 parameters: \eqn{\{p_{Am}\}}, \eqn{[p_M]}, \eqn{v}, \eqn{k_J}
 (growth_repro), \eqn{k_d} (debtox).  Parameters that are \strong{not}
 rates (\eqn{\kappa}, \eqn{[E_G]}, \eqn{z_w}, \eqn{b_w}) are not
@@ -37,7 +37,8 @@ corrected.  The posterior gives estimates at \eqn{T_{\mathrm{ref}}},
 making results comparable across experiments at different
 temperatures.  The correction is global (single temperature for the
 entire experiment).  If \code{NULL} (default), no correction is applied
-(\eqn{c_T = 1}).}
+(\eqn{c_T = 1}).  The field was renamed from \code{T} to \code{T_obs} in
+version 0.1.4 to avoid shadowing R's built-in \code{T} symbol.}
 }
 \value{
 A \code{bdeb_model} object (S3 list).

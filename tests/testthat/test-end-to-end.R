@@ -103,7 +103,7 @@ test_that("E2E temperature: data -> model -> stan_data at 25C", {
   df1 <- eisenia_growth[eisenia_growth$id == 1, ]
 
   dat <- bdeb_data(growth = df1)
-  temp <- list(T = 298.15, T_ref = 293.15, T_A = 8000)
+  temp <- list(T_obs = 298.15, T_ref = 293.15, T_A = 8000)
   mod <- bdeb_model(dat, "individual", temperature = temp)
 
   sd <- mod$stan_data

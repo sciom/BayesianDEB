@@ -23,6 +23,11 @@
 #' @param pars Character vector of parameter names to report.  Default:
 #'   all model parameters (excluding generated quantities such as
 #'   `log_lik`, `L_rep`, and `lp__`).
+#' @param verbose Logical; if `TRUE` (default) the diagnostic messages
+#'   and parameter summary table are printed via `cli` functions and
+#'   [message()].  All output is suppressible with
+#'   [suppressMessages()].  Set to `FALSE` for a silent run (the
+#'   invisible return value is unchanged).
 #' @return Invisibly returns a list with components `n_divergent`,
 #'   `n_max_treedepth`, `ebfmi`, and `summary` (a
 #'   [posterior::summarise_draws()] tibble).
@@ -37,12 +42,12 @@
 #' Stan case study. \url{https://mc-stan.org/users/documentation/case-studies/divergences_and_bias.html}
 #'
 #' @export
-bdeb_diagnose <- function(fit, pars = NULL) {
+bdeb_diagnose <- function(fit, pars = NULL, verbose = TRUE) {
 	if (!inherits(fit, "bdeb_fit")) {
 		cli::cli_abort("{.arg fit} must be a {.cls bdeb_fit} object.")
 	}
 
-	cli::cli_h2("BDEB Diagnostics")
+	if (verbose) cli::cli_h2("BDEB Diagnostics")
 
 	# --- CmdStan diagnostics ---
 	diag <- fit$fit$diagnostic_summary(quiet = TRUE)
@@ -51,25 +56,27 @@ bdeb_diagnose <- function(fit, pars = NULL) {
 	n_tree <- sum(diag$num_max_treedepth)
 	ebfmi  <- diag$ebfmi
 
-	if (n_div > 0) {
-		cli::cli_alert_danger("Divergent transitions: {n_div}")
-		cli::cli_alert_info("Consider: increase adapt_delta, reparameterise, or tighten priors.")
-	} else {
-		cli::cli_alert_success("No divergent transitions.")
-	}
+	if (verbose) {
+		if (n_div > 0) {
+			cli::cli_alert_danger("Divergent transitions: {n_div}")
+			cli::cli_alert_info("Consider: increase adapt_delta, reparameterise, or tighten priors.")
+		} else {
+			cli::cli_alert_success("No divergent transitions.")
+		}
 
-	if (n_tree > 0) {
-		cli::cli_alert_warning("Max treedepth saturated: {n_tree} times.")
-		cli::cli_alert_info("Consider: increase max_treedepth.")
-	} else {
-		cli::cli_alert_success("Treedepth OK.")
-	}
+		if (n_tree > 0) {
+			cli::cli_alert_warning("Max treedepth saturated: {n_tree} times.")
+			cli::cli_alert_info("Consider: increase max_treedepth.")
+		} else {
+			cli::cli_alert_success("Treedepth OK.")
+		}
 
-	low_ebfmi <- which(ebfmi < 0.3)
-	if (length(low_ebfmi) > 0) {
-		cli::cli_alert_warning("Low E-BFMI for chain(s): {low_ebfmi}")
-	} else {
-		cli::cli_alert_success("E-BFMI OK (all > 0.3).")
+		low_ebfmi <- which(ebfmi < 0.3)
+		if (length(low_ebfmi) > 0) {
+			cli::cli_alert_warning("Low E-BFMI for chain(s): {low_ebfmi}")
+		} else {
+			cli::cli_alert_success("E-BFMI OK (all > 0.3).")
+		}
 	}
 
 	# --- Parameter-level diagnostics ---
@@ -91,25 +98,32 @@ bdeb_diagnose <- function(fit, pars = NULL) {
 		"ess_tail"
 	)
 
-	cli::cli_h3("Parameter Summary")
+	if (verbose) {
+		cli::cli_h3("Parameter Summary")
 
-	# Check for problematic Rhat
-	bad_rhat <- summ$variable[!is.na(summ$rhat) & summ$rhat > 1.01]
-	if (length(bad_rhat) > 0) {
-		cli::cli_alert_danger("R-hat > 1.01 for: {paste(bad_rhat, collapse = ', ')}")
-	} else {
-		cli::cli_alert_success("All R-hat < 1.01.")
+		# Check for problematic Rhat
+		bad_rhat <- summ$variable[!is.na(summ$rhat) & summ$rhat > 1.01]
+		if (length(bad_rhat) > 0) {
+			cli::cli_alert_danger("R-hat > 1.01 for: {paste(bad_rhat, collapse = ', ')}")
+		} else {
+			cli::cli_alert_success("All R-hat < 1.01.")
+		}
+
+		# Check for low ESS
+		low_ess <- summ$variable[!is.na(summ$ess_bulk) & summ$ess_bulk < 400]
+		if (length(low_ess) > 0) {
+			cli::cli_alert_warning("Low bulk ESS (<400) for: {paste(low_ess, collapse = ', ')}")
+		} else {
+			cli::cli_alert_success("Bulk ESS adequate (>400) for all parameters.")
+		}
+
+		# Route the summary table through message() so it can be
+		# silenced with suppressMessages() — CRAN requirement.
+		tbl_lines <- utils::capture.output(
+			print(as.data.frame(summ), digits = 3, row.names = FALSE)
+		)
+		cli::cli_verbatim(tbl_lines)
 	}
-
-	# Check for low ESS
-	low_ess <- summ$variable[!is.na(summ$ess_bulk) & summ$ess_bulk < 400]
-	if (length(low_ess) > 0) {
-		cli::cli_alert_warning("Low bulk ESS (<400) for: {paste(low_ess, collapse = ', ')}")
-	} else {
-		cli::cli_alert_success("Bulk ESS adequate (>400) for all parameters.")
-	}
-
-	print(as.data.frame(summ), digits = 3, row.names = FALSE)
 
 	invisible(list(
 		n_divergent    = n_div,

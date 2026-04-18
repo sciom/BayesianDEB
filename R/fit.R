@@ -56,8 +56,12 @@
 #' *Bayesian Analysis*, 16(2), 667--718. \doi{10.1214/20-BA1221}
 #' @export
 #' @examples
+#' # \dontrun{} because bdeb_fit() requires the external CmdStan toolchain
+#' # (not on CRAN) and a single fit takes > 30 seconds (Stan compilation
+#' # + MCMC).  Users can run this manually after `cmdstanr::install_cmdstan()`.
 #' \dontrun{
-#' dat <- bdeb_data(growth = growth_df)
+#' data(eisenia_growth)
+#' dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
 #' mod <- bdeb_model(dat, type = "individual")
 #' fit <- bdeb_fit(mod, chains = 2, iter_sampling = 500)
 #' }

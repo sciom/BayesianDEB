@@ -16,7 +16,7 @@ build_stan_data_individual(
 
 \item{priors}{A list of \code{bdeb_prior} objects.}
 
-\item{temperature}{NULL or list with T, T_ref, T_A.}
+\item{temperature}{NULL or list with T_obs, T_ref, T_A.}
 }
 \value{
 Named list suitable for Stan.

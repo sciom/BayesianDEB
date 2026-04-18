@@ -40,11 +40,11 @@
 #'   [prior_default()].
 #' @param observation Named list of observation model specs for each endpoint.
 #'   Default: `list(growth = obs_normal(), reproduction = obs_negbinom())`.
-#' @param temperature Optional list with components `T` (observation
+#' @param temperature Optional list with components `T_obs` (observation
 #'   temperature in Kelvin), `T_ref` (reference temperature in K), and
 #'   `T_A` (Arrhenius temperature in K).  If provided, the correction
-#'   factor \eqn{c_T = \exp(T_A/T_{\mathrm{ref}} - T_A/T)} (see
-#'   [arrhenius()]) is applied **inside the Stan ODE** to all rate
+#'   factor \eqn{c_T = \exp(T_A/T_{\mathrm{ref}} - T_A/T_{\mathrm{obs}})}
+#'   (see [arrhenius()]) is applied **inside the Stan ODE** to all rate
 #'   parameters: \eqn{\{p_{Am}\}}, \eqn{[p_M]}, \eqn{v}, \eqn{k_J}
 #'   (growth_repro), \eqn{k_d} (debtox).  Parameters that are **not**
 #'   rates (\eqn{\kappa}, \eqn{[E_G]}, \eqn{z_w}, \eqn{b_w}) are not
@@ -52,7 +52,8 @@
 #'   making results comparable across experiments at different
 #'   temperatures.  The correction is global (single temperature for the
 #'   entire experiment).  If `NULL` (default), no correction is applied
-#'   (\eqn{c_T = 1}).
+#'   (\eqn{c_T = 1}).  The field was renamed from `T` to `T_obs` in
+#'   version 0.1.4 to avoid shadowing R's built-in `T` symbol.
 #' @return A `bdeb_model` object (S3 list).
 #'
 #' @references
@@ -139,10 +140,10 @@ bdeb_model <- function(data,
 
 	# Validate temperature if provided
 	if (!is.null(temperature)) {
-		required_t <- c("T", "T_ref", "T_A")
+		required_t <- c("T_obs", "T_ref", "T_A")
 		missing_t <- setdiff(required_t, names(temperature))
 		if (length(missing_t) > 0) {
-			cli::cli_abort("Temperature list missing: {.field {missing_t}}. Required: T, T_ref, T_A.")
+			cli::cli_abort("Temperature list missing: {.field {missing_t}}. Required: T_obs, T_ref, T_A.")
 		}
 		for (tn in required_t) {
 			val <- temperature[[tn]]
@@ -209,7 +210,7 @@ print.bdeb_model <- function(x, ...) {
 
 	if (!is.null(x$temperature)) {
 		cli::cli_h3("Temperature correction")
-		cli::cli_alert("  T = {x$temperature$T} K, T_ref = {x$temperature$T_ref} K, T_A = {x$temperature$T_A} K")
+		cli::cli_alert("  T_obs = {x$temperature$T_obs} K, T_ref = {x$temperature$T_ref} K, T_A = {x$temperature$T_A} K")
 	}
 
 	invisible(x)

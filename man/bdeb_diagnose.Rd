@@ -4,7 +4,7 @@
 \alias{bdeb_diagnose}
 \title{MCMC Convergence Diagnostics}
 \usage{
-bdeb_diagnose(fit, pars = NULL)
+bdeb_diagnose(fit, pars = NULL, verbose = TRUE)
 }
 \arguments{
 \item{fit}{A \code{\link[=bdeb_fit]{bdeb_fit()}} object.}
@@ -12,6 +12,12 @@ bdeb_diagnose(fit, pars = NULL)
 \item{pars}{Character vector of parameter names to report.  Default:
 all model parameters (excluding generated quantities such as
 \code{log_lik}, \code{L_rep}, and \code{lp__}).}
+
+\item{verbose}{Logical; if \code{TRUE} (default) the diagnostic messages
+and parameter summary table are printed via \code{cli} functions and
+\code{\link[=message]{message()}}.  All output is suppressible with
+\code{\link[=suppressMessages]{suppressMessages()}}.  Set to \code{FALSE} for a silent run (the
+invisible return value is unchanged).}
 }
 \value{
 Invisibly returns a list with components \code{n_divergent},

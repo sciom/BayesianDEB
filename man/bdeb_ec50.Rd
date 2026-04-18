@@ -4,12 +4,17 @@
 \alias{bdeb_ec50}
 \title{Extract EC50 and NEC from a DEBtox Fit}
 \usage{
-bdeb_ec50(fit, prob = 0.9)
+bdeb_ec50(fit, prob = 0.9, verbose = TRUE)
 }
 \arguments{
 \item{fit}{A \code{\link[=bdeb_fit]{bdeb_fit()}} object from a DEBtox model.}
 
 \item{prob}{Credible interval probability. Default 0.90.}
+
+\item{verbose}{Logical; if \code{TRUE} (default) the summary table is
+printed via \code{\link[cli:cli_verbatim]{cli::cli_verbatim()}} / \code{\link[=message]{message()}} and can be
+silenced with \code{\link[=suppressMessages]{suppressMessages()}}.  Set to \code{FALSE} for a silent
+run; the invisible return value is identical.}
 }
 \value{
 A named list with:

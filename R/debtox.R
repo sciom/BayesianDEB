@@ -49,11 +49,12 @@
 #' 74--81. \doi{10.1016/j.ecolmodel.2011.11.012}
 #' @export
 #' @examples
-#' \dontrun{
-#' conc <- c("ctrl" = 0, "low" = 5, "mid" = 20, "high" = 100)
-#' dat <- bdeb_data(growth = growth_df, concentration = conc)
+#' # R-side specification only (no Stan sampling)
+#' data(debtox_growth)
+#' # one replicate per concentration avoids aggregation warning
+#' dt <- debtox_growth[debtox_growth$id %in% c(1, 11, 21, 31), ]
+#' dat <- bdeb_data(growth = dt, concentration = c(0, 20, 80, 200))
 #' mod <- bdeb_tox(dat, stress = "assimilation")
-#' }
 bdeb_tox <- function(data,
                      stress = c("assimilation", "maintenance", "growth_cost"),
                      priors = list(),
@@ -96,12 +97,16 @@ bdeb_tox <- function(data,
 #'
 #' @param fit A [bdeb_fit()] object from a DEBtox model.
 #' @param prob Credible interval probability. Default 0.90.
+#' @param verbose Logical; if `TRUE` (default) the summary table is
+#'   printed via [cli::cli_verbatim()] / [message()] and can be
+#'   silenced with [suppressMessages()].  Set to `FALSE` for a silent
+#'   run; the invisible return value is identical.
 #' @return A named list with:
 #'   - `draws`: posterior draws of EC50
 #'   - `summary`: mean, median, sd, lower, upper
 #'   - `NEC`: posterior summary of the no-effect concentration
 #' @export
-bdeb_ec50 <- function(fit, prob = 0.90) {
+bdeb_ec50 <- function(fit, prob = 0.90, verbose = TRUE) {
 	if (!inherits(fit, "bdeb_fit")) {
 		cli::cli_abort("{.arg fit} must be a {.cls bdeb_fit} object.")
 	}
@@ -147,8 +152,14 @@ bdeb_ec50 <- function(fit, prob = 0.90) {
 		NEC     = as.numeric(nec_draws)
 	)
 
-	cli::cli_h3("DEBtox Effect Concentrations")
-	print(result$summary, row.names = FALSE, digits = 3)
+	if (verbose) {
+		cli::cli_h3("DEBtox Effect Concentrations")
+		# Route table through message() (CRAN-suppressible).
+		tbl_lines <- utils::capture.output(
+			print(result$summary, row.names = FALSE, digits = 3)
+		)
+		cli::cli_verbatim(tbl_lines)
+	}
 
 	invisible(result)
 }

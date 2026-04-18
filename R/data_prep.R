@@ -219,7 +219,7 @@ observation_to_stan_data <- function(observation) {
 }
 
 #' Encode temperature correction for Stan
-#' @param temperature NULL or list with T, T_ref, T_A.
+#' @param temperature NULL or list with T_obs, T_ref, T_A.
 #' @return Named list with has_temperature, T_obs, T_ref, T_A.
 #' @keywords internal
 temperature_to_stan_data <- function(temperature) {
@@ -228,7 +228,7 @@ temperature_to_stan_data <- function(temperature) {
 	} else {
 		list(
 			has_temperature = 1L,
-			T_obs = temperature$T,
+			T_obs = temperature$T_obs,
 			T_ref = temperature$T_ref,
 			T_A   = temperature$T_A
 		)
@@ -238,7 +238,7 @@ temperature_to_stan_data <- function(temperature) {
 #' Build Stan Data List for Individual Growth
 #' @param data A `bdeb_data` object.
 #' @param priors A list of `bdeb_prior` objects.
-#' @param temperature NULL or list with T, T_ref, T_A.
+#' @param temperature NULL or list with T_obs, T_ref, T_A.
 #' @return Named list suitable for Stan.
 #' @keywords internal
 build_stan_data_individual <- function(data, priors, temperature = NULL,

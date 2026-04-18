@@ -12,7 +12,9 @@
 #' 6000--12000 K for ectotherms; Kooijman, 2010, Table 8.1).  At
 #' \eqn{T = T_{\mathrm{ref}}}, the factor is exactly 1.
 #'
-#' @param T Body (or ambient) temperature in Kelvin.
+#' @param temp Body (or ambient) temperature in Kelvin.  Renamed from
+#'   `T` in version 0.1.4 to avoid shadowing R's built-in `T` symbol
+#'   (= `TRUE`); pass positionally or use `temp = ...` explicitly.
 #' @param T_ref Reference temperature in Kelvin (default 293.15 K = 20 °C).
 #' @param T_A Arrhenius temperature in Kelvin (default 8000 K).
 #' @return Numeric correction factor (dimensionless, > 0).
@@ -29,14 +31,14 @@
 #'
 #' # No correction at reference temperature
 #' arrhenius(293.15)  # exactly 1
-arrhenius <- function(T, T_ref = 293.15, T_A = 8000) {
-	if (!is.numeric(T) || any(T <= 0))
-		cli::cli_abort("{.arg T} must be positive (Kelvin).")
+arrhenius <- function(temp, T_ref = 293.15, T_A = 8000) {
+	if (!is.numeric(temp) || any(temp <= 0))
+		cli::cli_abort("{.arg temp} must be positive (Kelvin).")
 	if (!is.numeric(T_ref) || length(T_ref) != 1 || T_ref <= 0)
 		cli::cli_abort("{.arg T_ref} must be a positive scalar (Kelvin).")
 	if (!is.numeric(T_A) || length(T_A) != 1 || T_A < 0)
 		cli::cli_abort("{.arg T_A} must be a non-negative scalar (Kelvin).")
-	exp(T_A / T_ref - T_A / T)
+	exp(T_A / T_ref - T_A / temp)
 }
 
 #' Compute DEB Energy Fluxes

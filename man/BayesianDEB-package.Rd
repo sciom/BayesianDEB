@@ -52,6 +52,8 @@ described in Gelman et al. (2013, Ch. 6):
 \item Perform posterior predictive checks with \code{\link[=bdeb_ppc]{bdeb_ppc()}}
 (Gelman et al., 2013, Ch. 6).
 \item Compute derived quantities with \code{\link[=bdeb_derived]{bdeb_derived()}}.
+\item Compare models via \code{\link[=bdeb_loo]{bdeb_loo()}} (individual and
+growth_repro models only).
 \item Iterate: revise priors or model structure as needed.
 }
 }

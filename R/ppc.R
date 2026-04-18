@@ -144,13 +144,11 @@ bdeb_ppc <- function(fit, type = c("growth", "reproduction", "all")) {
 #'
 #' @export
 #' @examples
-#' \dontrun{
 #' dat <- bdeb_data(growth = data.frame(id = 1, time = 0:10,
 #'   length = seq(0.1, 0.5, length.out = 11)))
 #' mod <- bdeb_model(dat, type = "individual")
-#' pp <- bdeb_prior_predictive(mod, n_draws = 200)
-#' plot(pp)
-#' }
+#' pp <- bdeb_prior_predictive(mod, n_draws = 100, seed = 1)
+#' plot(pp, n_draws = 30)
 bdeb_prior_predictive <- function(model, n_draws = 500, dt = 0.5,
                                   seed = NULL) {
 	if (!inherits(model, "bdeb_model")) {
