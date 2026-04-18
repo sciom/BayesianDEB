@@ -1,6 +1,6 @@
 # =============================================================
 # Simulate example datasets for BayesianDEB package
-# Based on BDEB book case studies (Ch. 20-21)
+# Based on DEB parameter values from the AmP collection
 # =============================================================
 
 set.seed(42)

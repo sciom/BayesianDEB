@@ -1,0 +1,243 @@
+BayesianDEB v0.1.1
+This is posterior version 1.6.1
+
+Attaching package: ‘posterior’
+
+The following objects are masked from ‘package:stats’:
+
+    mad, sd, var
+
+The following objects are masked from ‘package:base’:
+
+    %in%, match
+
+=== Prior 90% CI widths ===
+       p_Am.95%         p_M.95%       kappa.95%           v.95%         E_G.95% 
+         8.2787          0.6779          0.6551          0.4153        741.2152 
+    sigma_L.95%       L_inf.95% growth_rate.95% 
+         0.0947         23.6298          0.0008 
+
+=== Fitting models ===
+ℹ Compiling Stan model: 'bdeb_individual_growth'
+ℹ Running MCMC (4 chains, 2000 iterations each)
+Running MCMC with 4 parallel chains...
+
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: ode_bdf_tol: ode parameters and data is inf, but must be finite! (in '/tmp/RtmpJLMfkd/model-44d84b8c97a3.stan', line 88, column 4 to line 91, column 46)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 4 Exception: normal_lpdf: Scale parameter is 0, but must be positive! (in '/tmp/RtmpJLMfkd/model-44d84b8c97a3.stan', line 111, column 4 to column 35)
+Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 4 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 4 
+Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 4 Exception: normal_lpdf: Scale parameter is 0, but must be positive! (in '/tmp/RtmpJLMfkd/model-44d84b8c97a3.stan', line 111, column 4 to column 35)
+Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 4 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 4 
+Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 4 Exception: normal_lpdf: Scale parameter is 0, but must be positive! (in '/tmp/RtmpJLMfkd/model-44d84b8c97a3.stan', line 111, column 4 to column 35)
+Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 4 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 4 
+Chain 4 finished in 14.1 seconds.
+Chain 1 finished in 14.8 seconds.
+Chain 3 finished in 17.2 seconds.
+Chain 2 finished in 18.6 seconds.
+
+All 4 chains finished successfully.
+Mean chain execution time: 16.2 seconds.
+Total execution time: 18.8 seconds.
+
+N_obs =  5: done
+ℹ Compiling Stan model: 'bdeb_individual_growth'
+ℹ Running MCMC (4 chains, 2000 iterations each)
+Running MCMC with 4 parallel chains...
+
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: ode_bdf_tol: ode parameters and data is inf, but must be finite! (in '/tmp/RtmpJLMfkd/model-44d84b8c97a3.stan', line 88, column 4 to line 91, column 46)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 4 Exception: normal_lpdf: Scale parameter is 0, but must be positive! (in '/tmp/RtmpJLMfkd/model-44d84b8c97a3.stan', line 111, column 4 to column 35)
+Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 4 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 4 
+Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 4 Exception: normal_lpdf: Scale parameter is 0, but must be positive! (in '/tmp/RtmpJLMfkd/model-44d84b8c97a3.stan', line 111, column 4 to column 35)
+Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 4 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 4 
+Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 4 Exception: ode_bdf_tol: ode parameters and data is inf, but must be finite! (in '/tmp/RtmpJLMfkd/model-44d84b8c97a3.stan', line 88, column 4 to line 91, column 46)
+Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 4 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 4 
+Chain 2 finished in 13.3 seconds.
+Chain 3 finished in 14.6 seconds.
+Chain 1 finished in 14.9 seconds.
+Chain 4 finished in 15.1 seconds.
+
+All 4 chains finished successfully.
+Mean chain execution time: 14.5 seconds.
+Total execution time: 15.2 seconds.
+
+N_obs =  9: done
+ℹ Compiling Stan model: 'bdeb_individual_growth'
+ℹ Running MCMC (4 chains, 2000 iterations each)
+Running MCMC with 4 parallel chains...
+
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: ode_bdf_tol: ode parameters and data is inf, but must be finite! (in '/tmp/RtmpJLMfkd/model-44d84b8c97a3.stan', line 88, column 4 to line 91, column 46)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 4 Exception: normal_lpdf: Scale parameter is 0, but must be positive! (in '/tmp/RtmpJLMfkd/model-44d84b8c97a3.stan', line 111, column 4 to column 35)
+Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 4 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 4 
+Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 4 Exception: normal_lpdf: Scale parameter is 0, but must be positive! (in '/tmp/RtmpJLMfkd/model-44d84b8c97a3.stan', line 111, column 4 to column 35)
+Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 4 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 4 
+Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 4 Exception: ode_bdf_tol: ode parameters and data is inf, but must be finite! (in '/tmp/RtmpJLMfkd/model-44d84b8c97a3.stan', line 88, column 4 to line 91, column 46)
+Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 4 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 4 
+Chain 3 finished in 19.0 seconds.
+Chain 1 finished in 19.8 seconds.
+Chain 4 finished in 20.2 seconds.
+Chain 2 finished in 20.6 seconds.
+
+All 4 chains finished successfully.
+Mean chain execution time: 19.9 seconds.
+Total execution time: 20.7 seconds.
+
+N_obs = 13: done
+ℹ Compiling Stan model: 'bdeb_individual_growth'
+ℹ Running MCMC (4 chains, 2000 iterations each)
+Running MCMC with 4 parallel chains...
+
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: ode_bdf_tol: ode parameters and data is inf, but must be finite! (in '/tmp/RtmpJLMfkd/model-44d84b8c97a3.stan', line 88, column 4 to line 91, column 46)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: ode_bdf_tol: ode parameters and data is inf, but must be finite! (in '/tmp/RtmpJLMfkd/model-44d84b8c97a3.stan', line 88, column 4 to line 91, column 46)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 4 Exception: normal_lpdf: Scale parameter is 0, but must be positive! (in '/tmp/RtmpJLMfkd/model-44d84b8c97a3.stan', line 111, column 4 to column 35)
+Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 4 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 4 
+Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 4 Exception: normal_lpdf: Scale parameter is 0, but must be positive! (in '/tmp/RtmpJLMfkd/model-44d84b8c97a3.stan', line 111, column 4 to column 35)
+Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 4 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 4 
+Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 4 Exception: ode_bdf_tol: ode parameters and data is inf, but must be finite! (in '/tmp/RtmpJLMfkd/model-44d84b8c97a3.stan', line 88, column 4 to line 91, column 46)
+Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 4 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 4 
+Chain 4 finished in 21.5 seconds.
+Chain 3 finished in 22.3 seconds.
+Chain 2 finished in 22.4 seconds.
+Chain 1 finished in 24.9 seconds.
+
+All 4 chains finished successfully.
+Mean chain execution time: 22.7 seconds.
+Total execution time: 25.0 seconds.
+
+N_obs = 25: done
+ℹ Compiling Stan model: 'bdeb_individual_growth'
+ℹ Running MCMC (4 chains, 2000 iterations each)
+Running MCMC with 4 parallel chains...
+
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: ode_bdf_tol: ode parameters and data is inf, but must be finite! (in '/tmp/RtmpJLMfkd/model-44d84b8c97a3.stan', line 88, column 4 to line 91, column 46)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 3 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 3 Exception: ode_bdf_tol: ode parameters and data is inf, but must be finite! (in '/tmp/RtmpJLMfkd/model-44d84b8c97a3.stan', line 88, column 4 to line 91, column 46)
+Chain 3 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 3 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 3 
+Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 4 Exception: normal_lpdf: Scale parameter is 0, but must be positive! (in '/tmp/RtmpJLMfkd/model-44d84b8c97a3.stan', line 111, column 4 to column 35)
+Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 4 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 4 
+Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 4 Exception: normal_lpdf: Scale parameter is 0, but must be positive! (in '/tmp/RtmpJLMfkd/model-44d84b8c97a3.stan', line 111, column 4 to column 35)
+Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 4 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 4 
+Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 4 Exception: ode_bdf_tol: ode parameters and data is inf, but must be finite! (in '/tmp/RtmpJLMfkd/model-44d84b8c97a3.stan', line 88, column 4 to line 91, column 46)
+Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 4 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 4 
+Chain 3 finished in 26.4 seconds.
+Chain 2 finished in 26.6 seconds.
+Chain 4 finished in 27.5 seconds.
+Chain 1 finished in 33.8 seconds.
+
+All 4 chains finished successfully.
+Mean chain execution time: 28.6 seconds.
+Total execution time: 34.0 seconds.
+
+N_obs = 37: done
+Warning messages:
+1: Dropping 'draws_df' class as required metadata was removed. 
+2: Dropping 'draws_df' class as required metadata was removed. 
+3: Dropping 'draws_df' class as required metadata was removed. 
+4: Dropping 'draws_df' class as required metadata was removed. 
+5: Dropping 'draws_df' class as required metadata was removed. 
+6: Dropping 'draws_df' class as required metadata was removed. 
+7: Dropping 'draws_df' class as required metadata was removed. 
+8: Dropping 'draws_df' class as required metadata was removed. 
+9: Dropping 'draws_df' class as required metadata was removed. 
+10: Dropping 'draws_df' class as required metadata was removed. 
+
+=== Contraction ratios (1 = fully data-determined, 0 = prior-dominated) ===
+
+Parameter       N= 5 N= 9 N=13 N=25 N=37
+--------------------------------------------- 
+p_Am              NA   NA   NA   NA   NA
+p_M               NA   NA   NA   NA   NA
+kappa             NA   NA   NA   NA   NA
+v                 NA   NA   NA   NA   NA
+E_G               NA   NA   NA   NA   NA
+sigma_L           NA   NA   NA   NA   NA
+L_inf             NA   NA   NA   NA   NA
+growth_rate       NA   NA   NA   NA   NA
+
+=== LaTeX table rows ===
+
+$\pAm$ & NA & NA & NA \\
+$\pM$ & NA & NA & NA \\
+$\kappa$ & NA & NA & NA \\
+$v$ & NA & NA & NA \\
+$\EG$ & NA & NA & NA \\
+$\sigma_L$ & NA & NA & NA \\
+$L_\infty$ & NA & NA & NA \\
+$\dot{r}_B$ & NA & NA & NA \\
+Warning messages:
+1: Removed 40 rows containing missing values or values outside the scale range
+(`geom_line()`). 
+2: Removed 40 rows containing missing values or values outside the scale range
+(`geom_point()`). 
+
+Contraction figure saved to fig_contraction.pdf
+=== DONE ===

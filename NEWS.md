@@ -1,3 +1,24 @@
+# BayesianDEB 0.1.3
+
+New features and data release.
+
+## New features
+* `prior_species()`: species-specific priors from the AmP collection for
+  *E. fetida*, *E. andrei*, *F. candida*, *D. magna*, and *L. rubellus*.
+* `plot(fit, type = "prior_posterior")`: prior vs. posterior density
+  comparison plot.
+
+## New datasets
+* `eisenia_neuhauser`: real *E. fetida* growth data from Neuhauser,
+  Hartenstein & Kaplan (1980), 37 group-mean measurements over 250 days.
+* `eisenia_cd`: real *Eisenia andrei* cadmium toxicity data from
+  Van Gestel et al. (1991), 5 concentration groups over 85 days.
+
+## Documentation
+* Updated DOI to Zenodo 10.5281/zenodo.19500753.
+
+---
+
 # BayesianDEB 0.1.2
 
 ODE solver upgrade and bug fix release.

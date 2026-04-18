@@ -1,0 +1,47 @@
+This is BibTeX, Version 0.99d (TeX Live 2025)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: bayesiandeb.aux
+The style file: jss.bst
+Database file #1: bayesiandeb.bib
+Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
+You've used 26 entries,
+            3215 wiz_defined-function locations,
+            854 strings with 11081 characters,
+and the built_in function-call counts, 31595 in all, are:
+= -- 3200
+> -- 816
+< -- 10
++ -- 310
+- -- 279
+* -- 2422
+:= -- 3694
+add.period$ -- 129
+call.type$ -- 26
+change.case$ -- 201
+chr.to.int$ -- 27
+cite$ -- 26
+duplicate$ -- 3274
+empty$ -- 2447
+format.name$ -- 355
+if$ -- 6402
+int.to.chr$ -- 1
+int.to.str$ -- 1
+missing$ -- 317
+newline$ -- 166
+num.names$ -- 106
+pop$ -- 1580
+preamble$ -- 1
+purify$ -- 196
+quote$ -- 0
+skip$ -- 492
+stack$ -- 0
+substring$ -- 3517
+swap$ -- 762
+text.length$ -- 1
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 225
+warning$ -- 0
+while$ -- 215
+width$ -- 0
+write$ -- 397

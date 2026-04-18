@@ -44,6 +44,8 @@
 #'   \item Perform posterior predictive checks with [bdeb_ppc()]
 #'     (Gelman et al., 2013, Ch. 6).
 #'   \item Compute derived quantities with [bdeb_derived()].
+#'   \item Compare models via [bdeb_loo()] (individual and
+#'     growth_repro models only).
 #'   \item Iterate: revise priors or model structure as needed.
 #' }
 #'

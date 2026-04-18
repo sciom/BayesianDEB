@@ -152,7 +152,8 @@ plot_dose_response(fit_tox)
 
 ## Prior Specification
 
-BayesianDEB follows the BDEB book (Ch. 6) recommendations:
+BayesianDEB follows the prior recommendations of Kooijman (2010) and
+the AmP collection (Marques et al., 2018):
 
 - **Positive rate parameters** (p_Am, p_M, v, E_G): Log-normal priors
 - **Allocation fraction** (kappa): Beta prior
