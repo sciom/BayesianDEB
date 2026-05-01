@@ -1,3 +1,15 @@
+# BayesianDEB 0.2.0 (in development)
+
+## Planned changes
+* S3 class system overhaul (bdeb_diagnostics, bdeb_prediction, bdeb_data, bdeb_model, bdeb_prior).
+* lm-style methods on bdeb_fit (confint, residuals, fitted, ...).
+* bdeb_summary() deprecated in favour of summary().
+* bdeb_derived() converted to S3 generic.
+* Vignettes use conditional cmdstanr execution.
+* Stan ODE solver max_num_steps raised to 1e5.
+* JSS replication package reorganised.
+---
+
 # BayesianDEB 0.1.4
 
 CRAN-review compliance release.  Addresses reviewer feedback on the use
