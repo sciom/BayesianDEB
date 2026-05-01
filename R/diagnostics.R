@@ -19,18 +19,20 @@
 #'     summaries may be unreliable.}
 #' }
 #'
+#' Returns a `bdeb_diagnostics` S3 object.  The object has dedicated
+#' [print()][print.bdeb_diagnostics],
+#' [summary()][summary.bdeb_diagnostics] and
+#' [plot()][plot.bdeb_diagnostics] methods.  When called interactively
+#' the print method is invoked automatically; assign the result
+#' (`d <- bdeb_diagnose(fit)`) to suppress output.
+#'
 #' @param fit A [bdeb_fit()] object.
 #' @param pars Character vector of parameter names to report.  Default:
 #'   all model parameters (excluding generated quantities such as
 #'   `log_lik`, `L_rep`, and `lp__`).
-#' @param verbose Logical; if `TRUE` (default) the diagnostic messages
-#'   and parameter summary table are printed via `cli` functions and
-#'   [message()].  All output is suppressible with
-#'   [suppressMessages()].  Set to `FALSE` for a silent run (the
-#'   invisible return value is unchanged).
-#' @return Invisibly returns a list with components `n_divergent`,
-#'   `n_max_treedepth`, `ebfmi`, and `summary` (a
-#'   [posterior::summarise_draws()] tibble).
+#' @return An object of class `bdeb_diagnostics` with components
+#'   `n_divergent`, `n_max_treedepth`, `ebfmi`, `summary` (a
+#'   [posterior::summarise_draws()] tibble), `pars`, and `model_type`.
 #'
 #' @references
 #' Vehtari, A., Gelman, A., Simpson, D., Carpenter, B. and
@@ -41,49 +43,19 @@
 #' Betancourt, M. (2016). Diagnosing biased inference with divergences.
 #' Stan case study. \url{https://mc-stan.org/users/documentation/case-studies/divergences_and_bias.html}
 #'
+#' @seealso [print.bdeb_diagnostics()], [summary.bdeb_diagnostics()],
+#'   [plot.bdeb_diagnostics()]
 #' @export
-bdeb_diagnose <- function(fit, pars = NULL, verbose = TRUE) {
+bdeb_diagnose <- function(fit, pars = NULL) {
 	if (!inherits(fit, "bdeb_fit")) {
 		cli::cli_abort("{.arg fit} must be a {.cls bdeb_fit} object.")
 	}
 
-	if (verbose) cli::cli_h2("BDEB Diagnostics")
-
-	# --- CmdStan diagnostics ---
 	diag <- fit$fit$diagnostic_summary(quiet = TRUE)
 
-	n_div  <- sum(diag$num_divergent)
-	n_tree <- sum(diag$num_max_treedepth)
-	ebfmi  <- diag$ebfmi
-
-	if (verbose) {
-		if (n_div > 0) {
-			cli::cli_alert_danger("Divergent transitions: {n_div}")
-			cli::cli_alert_info("Consider: increase adapt_delta, reparameterise, or tighten priors.")
-		} else {
-			cli::cli_alert_success("No divergent transitions.")
-		}
-
-		if (n_tree > 0) {
-			cli::cli_alert_warning("Max treedepth saturated: {n_tree} times.")
-			cli::cli_alert_info("Consider: increase max_treedepth.")
-		} else {
-			cli::cli_alert_success("Treedepth OK.")
-		}
-
-		low_ebfmi <- which(ebfmi < 0.3)
-		if (length(low_ebfmi) > 0) {
-			cli::cli_alert_warning("Low E-BFMI for chain(s): {low_ebfmi}")
-		} else {
-			cli::cli_alert_success("E-BFMI OK (all > 0.3).")
-		}
-	}
-
-	# --- Parameter-level diagnostics ---
 	draws <- posterior::as_draws_df(fit$fit$draws())
 
 	if (is.null(pars)) {
-		# Get model parameter names (exclude log_lik, *_rep, lp__)
 		all_vars <- posterior::variables(draws)
 		pars <- all_vars[!grepl("^(log_lik|L_rep|R_rep|lp__|p_Am_new)", all_vars)]
 	}
@@ -98,39 +70,166 @@ bdeb_diagnose <- function(fit, pars = NULL, verbose = TRUE) {
 		"ess_tail"
 	)
 
-	if (verbose) {
-		cli::cli_h3("Parameter Summary")
+	out <- list(
+		n_divergent     = sum(diag$num_divergent),
+		n_max_treedepth = sum(diag$num_max_treedepth),
+		ebfmi           = diag$ebfmi,
+		summary         = summ,
+		pars            = pars,
+		model_type      = fit$model$type
+	)
+	structure(out, class = "bdeb_diagnostics")
+}
 
-		# Check for problematic Rhat
-		bad_rhat <- summ$variable[!is.na(summ$rhat) & summ$rhat > 1.01]
-		if (length(bad_rhat) > 0) {
-			cli::cli_alert_danger("R-hat > 1.01 for: {paste(bad_rhat, collapse = ', ')}")
-		} else {
-			cli::cli_alert_success("All R-hat < 1.01.")
-		}
+#' Print a BDEB Diagnostics Report
+#'
+#' Default printing for [bdeb_diagnose()] output.  Displays divergence /
+#' treedepth / E-BFMI alerts, R-hat and ESS warnings, and the full
+#' parameter summary table.  Output uses [cli] alerts and is therefore
+#' silenceable via [cli::cli_inform()] sinks.
+#'
+#' @param x A `bdeb_diagnostics` object.
+#' @param ... Unused.
+#' @return The input object, invisibly.
+#' @export
+print.bdeb_diagnostics <- function(x, ...) {
+	cli::cli_h2("BDEB Diagnostics ({x$model_type})")
 
-		# Check for low ESS
-		low_ess <- summ$variable[!is.na(summ$ess_bulk) & summ$ess_bulk < 400]
-		if (length(low_ess) > 0) {
-			cli::cli_alert_warning("Low bulk ESS (<400) for: {paste(low_ess, collapse = ', ')}")
-		} else {
-			cli::cli_alert_success("Bulk ESS adequate (>400) for all parameters.")
-		}
-
-		# Route the summary table through message() so it can be
-		# silenced with suppressMessages() — CRAN requirement.
-		tbl_lines <- utils::capture.output(
-			print(as.data.frame(summ), digits = 3, row.names = FALSE)
-		)
-		cli::cli_verbatim(tbl_lines)
+	if (x$n_divergent > 0) {
+		cli::cli_alert_danger("Divergent transitions: {x$n_divergent}")
+		cli::cli_alert_info("Consider: increase adapt_delta, reparameterise, or tighten priors.")
+	} else {
+		cli::cli_alert_success("No divergent transitions.")
 	}
 
-	invisible(list(
-		n_divergent    = n_div,
-		n_max_treedepth = n_tree,
-		ebfmi          = ebfmi,
-		summary        = summ
-	))
+	if (x$n_max_treedepth > 0) {
+		cli::cli_alert_warning("Max treedepth saturated: {x$n_max_treedepth} times.")
+		cli::cli_alert_info("Consider: increase max_treedepth.")
+	} else {
+		cli::cli_alert_success("Treedepth OK.")
+	}
+
+	low_ebfmi <- which(x$ebfmi < 0.3)
+	if (length(low_ebfmi) > 0) {
+		cli::cli_alert_warning("Low E-BFMI for chain(s): {low_ebfmi}")
+	} else {
+		cli::cli_alert_success("E-BFMI OK (all > 0.3).")
+	}
+
+	cli::cli_h3("Parameter Summary")
+
+	bad_rhat <- x$summary$variable[!is.na(x$summary$rhat) & x$summary$rhat > 1.01]
+	if (length(bad_rhat) > 0) {
+		cli::cli_alert_danger("R-hat > 1.01 for: {paste(bad_rhat, collapse = ', ')}")
+	} else {
+		cli::cli_alert_success("All R-hat < 1.01.")
+	}
+
+	low_ess <- x$summary$variable[!is.na(x$summary$ess_bulk) & x$summary$ess_bulk < 400]
+	if (length(low_ess) > 0) {
+		cli::cli_alert_warning("Low bulk ESS (<400) for: {paste(low_ess, collapse = ', ')}")
+	} else {
+		cli::cli_alert_success("Bulk ESS adequate (>400) for all parameters.")
+	}
+
+	tbl_lines <- utils::capture.output(
+		print(as.data.frame(x$summary), digits = 3, row.names = FALSE)
+	)
+	cli::cli_verbatim(tbl_lines)
+
+	invisible(x)
+}
+
+#' Compact Summary of a BDEB Diagnostics Report
+#'
+#' Returns counts of problematic parameters (divergences, treedepth
+#' saturations, low-EBFMI chains, R-hat > 1.01, ESS-bulk < 400) suitable
+#' for a one-line health check or programmatic gating.
+#'
+#' @param object A `bdeb_diagnostics` object.
+#' @param ... Unused.
+#' @return An object of class `summary.bdeb_diagnostics` (a list).
+#' @export
+summary.bdeb_diagnostics <- function(object, ...) {
+	bad_rhat <- object$summary$variable[
+		!is.na(object$summary$rhat) & object$summary$rhat > 1.01]
+	low_ess <- object$summary$variable[
+		!is.na(object$summary$ess_bulk) & object$summary$ess_bulk < 400]
+	low_ebfmi <- which(object$ebfmi < 0.3)
+
+	out <- list(
+		model_type      = object$model_type,
+		n_pars          = length(object$pars),
+		n_divergent     = object$n_divergent,
+		n_max_treedepth = object$n_max_treedepth,
+		n_low_ebfmi     = length(low_ebfmi),
+		n_bad_rhat      = length(bad_rhat),
+		n_low_ess       = length(low_ess),
+		bad_rhat        = bad_rhat,
+		low_ess         = low_ess,
+		table           = object$summary
+	)
+	structure(out, class = "summary.bdeb_diagnostics")
+}
+
+#' @export
+print.summary.bdeb_diagnostics <- function(x, ...) {
+	cli::cli_h2("BDEB Diagnostics summary ({x$model_type})")
+	cli::cli_li("Parameters monitored: {.val {x$n_pars}}")
+	cli::cli_li("Divergent transitions: {.val {x$n_divergent}}")
+	cli::cli_li("Treedepth saturations: {.val {x$n_max_treedepth}}")
+	cli::cli_li("Chains with low E-BFMI: {.val {x$n_low_ebfmi}}")
+	cli::cli_li("Parameters with R-hat > 1.01: {.val {x$n_bad_rhat}}")
+	cli::cli_li("Parameters with ESS-bulk < 400: {.val {x$n_low_ess}}")
+	invisible(x)
+}
+
+#' Plot Convergence Diagnostics
+#'
+#' Visualises the per-parameter R-hat or ESS-bulk values from a
+#' [bdeb_diagnose()] object.  A dashed red reference line is drawn at the
+#' Vehtari et al. (2021) threshold (R-hat = 1.01, ESS-bulk = 400).
+#'
+#' @param x A `bdeb_diagnostics` object.
+#' @param type One of `"rhat"` (default) or `"ess"`.
+#' @param ... Unused.
+#' @return A [ggplot2::ggplot] object.
+#' @export
+plot.bdeb_diagnostics <- function(x, type = c("rhat", "ess"), ...) {
+	type <- match.arg(type)
+	df <- as.data.frame(x$summary)
+
+	if (type == "rhat") {
+		ggplot2::ggplot(
+			df,
+			ggplot2::aes(x = .data$rhat,
+			             y = stats::reorder(.data$variable, .data$rhat))
+		) +
+			ggplot2::geom_point(size = 2) +
+			ggplot2::geom_vline(xintercept = 1.01,
+			                     linetype = "dashed", colour = "red") +
+			ggplot2::labs(
+				x = expression(hat(R)), y = NULL,
+				title = "Convergence: split-Rhat",
+				subtitle = "Dashed line at 1.01 (Vehtari et al., 2021)"
+			) +
+			ggplot2::theme_minimal()
+	} else {
+		ggplot2::ggplot(
+			df,
+			ggplot2::aes(x = .data$ess_bulk,
+			             y = stats::reorder(.data$variable, .data$ess_bulk))
+		) +
+			ggplot2::geom_point(size = 2) +
+			ggplot2::geom_vline(xintercept = 400,
+			                     linetype = "dashed", colour = "red") +
+			ggplot2::labs(
+				x = "ESS-bulk", y = NULL,
+				title = "Effective sample size (bulk)",
+				subtitle = "Dashed line at 400"
+			) +
+			ggplot2::theme_minimal()
+	}
 }
 
 #' Posterior Summary for BDEB Parameters

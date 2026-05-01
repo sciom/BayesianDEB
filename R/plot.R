@@ -120,7 +120,11 @@ plot_trajectory_individual <- function(fit, n_draws) {
 		cli::cli_abort("No {.var L_hat} variables found in posterior draws.")
 	}
 
-	L_hat <- as.matrix(draws[, L_hat_vars])
+	# Use as_draws_matrix to strip metadata columns and avoid the
+	# "Dropping draws_df class" warning from base subsetting.
+	L_hat <- posterior::as_draws_matrix(
+		posterior::subset_draws(draws, variable = L_hat_vars)
+	)
 	n_total <- nrow(L_hat)
 	idx <- sort(sample.int(n_total, min(n_draws, n_total)))
 

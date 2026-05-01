@@ -10,32 +10,28 @@ test_that("bdeb_diagnose rejects non-bdeb_fit", {
   expect_error(bdeb_diagnose("fit"), "bdeb_fit")
 })
 
-test_that("bdeb_diagnose works with mock fit", {
+test_that("bdeb_diagnose returns bdeb_diagnostics S3 object", {
   fit <- mock_bdeb_fit(n_draws = 100, type = "individual")
   result <- bdeb_diagnose(fit)
 
-  expect_type(result, "list")
-  expect_true("n_divergent" %in% names(result))
-  expect_true("n_max_treedepth" %in% names(result))
-  expect_true("ebfmi" %in% names(result))
-  expect_true("summary" %in% names(result))
-
+  expect_s3_class(result, "bdeb_diagnostics")
+  expect_named(
+    result,
+    c("n_divergent", "n_max_treedepth", "ebfmi",
+      "summary", "pars", "model_type")
+  )
   expect_equal(result$n_divergent, 0)
   expect_equal(result$n_max_treedepth, 0)
-})
-
-test_that("bdeb_diagnose returns invisible", {
-  fit <- mock_bdeb_fit(n_draws = 50)
-  expect_invisible(bdeb_diagnose(fit))
+  expect_equal(result$model_type, "individual")
 })
 
 test_that("bdeb_diagnose with specific pars", {
   fit <- mock_bdeb_fit(n_draws = 100)
   result <- bdeb_diagnose(fit, pars = c("p_Am", "kappa"))
 
-  # Summary should only have 2 parameters
   expect_equal(nrow(result$summary), 2)
   expect_true(all(result$summary$variable %in% c("p_Am", "kappa")))
+  expect_setequal(result$pars, c("p_Am", "kappa"))
 })
 
 test_that("bdeb_diagnose summary has correct columns", {
@@ -48,6 +44,40 @@ test_that("bdeb_diagnose summary has correct columns", {
   expect_true("rhat" %in% names(s))
   expect_true("ess_bulk" %in% names(s))
   expect_true("ess_tail" %in% names(s))
+})
+
+test_that("print.bdeb_diagnostics returns invisibly", {
+  fit <- mock_bdeb_fit(n_draws = 100)
+  d <- bdeb_diagnose(fit)
+  expect_invisible(print(d))
+  # cli alerts go to stderr, not stdout; capture all to verify content
+  out <- testthat::capture_messages(print(d))
+  expect_match(paste(out, collapse = ""), "BDEB Diagnostics")
+})
+
+test_that("summary.bdeb_diagnostics returns counts object", {
+  fit <- mock_bdeb_fit(n_draws = 100)
+  d <- bdeb_diagnose(fit)
+  s <- summary(d)
+  expect_s3_class(s, "summary.bdeb_diagnostics")
+  expect_named(
+    s,
+    c("model_type", "n_pars", "n_divergent", "n_max_treedepth",
+      "n_low_ebfmi", "n_bad_rhat", "n_low_ess",
+      "bad_rhat", "low_ess", "table")
+  )
+  expect_type(s$n_divergent, "integer")
+  expect_type(s$n_bad_rhat, "integer")
+  expect_invisible(print(s))
+})
+
+test_that("plot.bdeb_diagnostics returns ggplot for both types", {
+  skip_if_not_installed("ggplot2")
+  fit <- mock_bdeb_fit(n_draws = 100)
+  d <- bdeb_diagnose(fit)
+  expect_s3_class(plot(d, type = "rhat"), "ggplot")
+  expect_s3_class(plot(d, type = "ess"), "ggplot")
+  expect_error(plot(d, type = "nonsense"))
 })
 
 
