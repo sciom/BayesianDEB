@@ -135,7 +135,7 @@ test_that("E2E mock individual: fit -> diagnose -> summary -> derived -> ppc -> 
   diag <- suppressWarnings(bdeb_diagnose(fit))
   expect_equal(diag$n_divergent, 0)
 
-  s <- suppressWarnings(bdeb_summary(fit, pars = c("p_Am", "kappa")))
+  s <- summary(fit, pars = c("p_Am", "kappa"))
   expect_equal(nrow(s), 2)
 
   d <- bdeb_derived(fit, quantities = c("L_m", "L_inf", "k_M", "g", "growth_rate"))

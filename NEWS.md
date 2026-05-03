@@ -1,12 +1,31 @@
 # BayesianDEB 0.2.0 (in development)
 
-## Planned changes
-* S3 class system overhaul (bdeb_diagnostics, bdeb_prediction, bdeb_data, bdeb_model, bdeb_prior).
-* lm-style methods on bdeb_fit (confint, residuals, fitted, ...).
-* bdeb_summary() deprecated in favour of summary().
-* bdeb_derived() converted to S3 generic.
-* Vignettes use conditional cmdstanr execution.
-* Stan ODE solver max_num_steps raised to 1e5.
+## New features and class system
+* `bdeb_diagnose()` now returns a `bdeb_diagnostics` S3 object with
+  `print()`, `summary()`, and `plot()` methods (`type = "rhat"` or
+  `"ess"`).
+* `bdeb_predict()` results gain `print()` and `summary()` methods
+  (the latter returns a tidy `time / lower / median / upper`
+  data frame).
+* `summary()` is now the primary posterior-summary API on a
+  `bdeb_fit` object: it accepts `pars` and `prob` arguments and
+  returns a `posterior::draws_summary`, mirroring
+  `summary.lm()`.
+
+## Deprecations
+* `bdeb_summary()` is deprecated; use `summary(fit)` on a
+  `bdeb_fit` object instead.  The wrapper still works but
+  emits a deprecation warning and will be removed in a future
+  release.
+
+## Planned for 0.2.0
+* Further S3 class system overhaul (`bdeb_data`, `bdeb_model`,
+  `bdeb_prior`).
+* `bdeb_derived()` converted to S3 generic.
+* lm-style methods on `bdeb_fit` (`confint`, `residuals`,
+  `fitted`, `nobs`, `vcov`, `logLik`).
+* Vignettes use conditional `cmdstanr` execution.
+* Stan ODE solver `max_num_steps` raised to 1e5.
 * JSS replication package reorganised.
 ---
 

@@ -222,10 +222,46 @@ print.bdeb_fit <- function(x, ...) {
 	invisible(x)
 }
 
-#' @return A `posterior::draws_summary` data frame (see [bdeb_summary()]).
+#' Posterior Summary for a BDEB Fit
+#'
+#' Returns a tidy summary table of posterior draws for model parameters
+#' (and optionally derived quantities), analogous to
+#' [stats::summary.lm()] for frequentist fits.
+#'
+#' @param object A [bdeb_fit()] object.
+#' @param pars Character vector of parameter names.  Default: all model
+#'   parameters (excludes `log_lik`, `L_hat`, `L_rep`, `R_hat`, `R_rep`,
+#'   `lp__`, and the internal `p_Am_new`).
+#' @param prob Probability for the central credible interval. Default
+#'   0.90 (5th/95th percentiles).
+#' @param ... Ignored.
+#' @return A `posterior::draws_summary` data frame with columns
+#'   `variable`, `mean`, `sd`, `median`, two quantile columns named
+#'   by their percentile (e.g. `"5%"` / `"95%"` for `prob = 0.90`),
+#'   `rhat`, `ess_bulk`, and `ess_tail`.
 #' @export
-summary.bdeb_fit <- function(object, ...) {
-	bdeb_summary(object, ...)
+summary.bdeb_fit <- function(object, pars = NULL, prob = 0.90, ...) {
+	if (!inherits(object, "bdeb_fit")) {
+		cli::cli_abort("{.arg object} must be a {.cls bdeb_fit} object.")
+	}
+
+	draws <- posterior::as_draws_df(object$fit$draws())
+
+	if (is.null(pars)) {
+		all_vars <- posterior::variables(draws)
+		pars <- all_vars[!grepl("^(log_lik|L_hat|L_rep|R_hat|R_rep|lp__|p_Am_new)", all_vars)]
+	}
+
+	alpha <- (1 - prob) / 2
+	posterior::summarise_draws(
+		posterior::subset_draws(draws, variable = pars),
+		"mean", "sd", "median",
+		"lower" = ~ quantile(.x, alpha),
+		"upper" = ~ quantile(.x, 1 - alpha),
+		"rhat",
+		"ess_bulk",
+		"ess_tail"
+	)
 }
 
 #' Extract Point Estimates from a BDEB Fit

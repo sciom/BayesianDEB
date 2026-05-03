@@ -1,5 +1,6 @@
 # ===========================================================
-# Tests: diagnostics.R  (bdeb_diagnose, bdeb_summary, bdeb_derived)
+# Tests: diagnostics.R  (bdeb_diagnose, bdeb_derived) +
+#                     summary.bdeb_fit and the deprecated bdeb_summary()
 # ===========================================================
 
 # --- bdeb_diagnose ---
@@ -105,16 +106,16 @@ test_that("bdeb_loo works for individual model", {
 })
 
 
-# --- bdeb_summary ---
+# --- summary.bdeb_fit ---
 
-test_that("bdeb_summary rejects non-bdeb_fit", {
-  expect_error(bdeb_summary(list()), "bdeb_fit")
-  expect_error(bdeb_summary(42), "bdeb_fit")
+test_that("summary.bdeb_fit rejects non-bdeb_fit via direct dispatch", {
+  expect_error(summary.bdeb_fit(list()), "bdeb_fit")
+  expect_error(summary.bdeb_fit(42), "bdeb_fit")
 })
 
-test_that("bdeb_summary works with mock fit", {
+test_that("summary.bdeb_fit works with mock fit", {
   fit <- mock_bdeb_fit(n_draws = 100)
-  s <- bdeb_summary(fit)
+  s <- summary(fit)
 
   expect_s3_class(s, "draws_summary")
   expect_true(nrow(s) > 0)
@@ -122,21 +123,21 @@ test_that("bdeb_summary works with mock fit", {
   expect_true("rhat" %in% names(s))
 })
 
-test_that("bdeb_summary filters by pars", {
+test_that("summary.bdeb_fit filters by pars", {
   fit <- mock_bdeb_fit(n_draws = 100)
-  s <- bdeb_summary(fit, pars = c("p_Am", "p_M", "kappa"))
+  s <- summary(fit, pars = c("p_Am", "p_M", "kappa"))
 
   expect_equal(nrow(s), 3)
   expect_true(all(s$variable %in% c("p_Am", "p_M", "kappa")))
 })
 
-test_that("bdeb_summary respects prob argument", {
+test_that("summary.bdeb_fit respects prob argument", {
   fit <- mock_bdeb_fit(n_draws = 200)
 
-  s90 <- suppressWarnings(bdeb_summary(fit, pars = "p_Am", prob = 0.90))
-  s50 <- suppressWarnings(bdeb_summary(fit, pars = "p_Am", prob = 0.50))
+  s90 <- summary(fit, pars = "p_Am", prob = 0.90)
+  s50 <- summary(fit, pars = "p_Am", prob = 0.50)
 
-  # summarise_draws names quantile columns by percentile (e.g. "5%", "95%")
+  # summarise_draws names quantile columns by percentile ("5%", "95%")
   s90_df <- as.data.frame(s90)
   s50_df <- as.data.frame(s50)
 
@@ -145,12 +146,36 @@ test_that("bdeb_summary respects prob argument", {
   expect_gt(width90, width50)
 })
 
-test_that("bdeb_summary excludes log_lik and lp__ by default", {
+test_that("summary.bdeb_fit excludes log_lik and lp__ by default", {
   fit <- mock_bdeb_fit(n_draws = 100)
-  s <- bdeb_summary(fit)
+  s <- summary(fit)
 
   expect_false(any(grepl("^log_lik", s$variable)))
   expect_false(any(grepl("^lp__", s$variable)))
+})
+
+
+# --- bdeb_summary (deprecated wrapper) ---
+
+test_that("bdeb_summary still rejects non-bdeb_fit", {
+  expect_error(bdeb_summary(list()), "bdeb_fit")
+  expect_error(bdeb_summary(42),     "bdeb_fit")
+})
+
+test_that("bdeb_summary issues a deprecation warning", {
+  fit <- mock_bdeb_fit(n_draws = 50)
+  # Use capture_warnings so the upstream "ESS has been capped"
+  # warning from posterior does not leak into the testthat reporter.
+  warns <- testthat::capture_warnings(bdeb_summary(fit))
+  expect_true(any(grepl("deprecated", warns)))
+})
+
+test_that("bdeb_summary forwards to summary.bdeb_fit", {
+  fit <- mock_bdeb_fit(n_draws = 50)
+  s_direct <- summary(fit, pars = c("p_Am", "kappa"))
+  s_wrap   <- suppressWarnings(bdeb_summary(fit, pars = c("p_Am", "kappa")))
+  # Compare numerical content (ignore differences in attributes)
+  expect_equal(as.data.frame(s_direct), as.data.frame(s_wrap))
 })
 
 

@@ -52,7 +52,7 @@ test_that("coef.bdeb_fit type='mean' differs from 'median'", {
   expect_false(identical(cc_med, cc_mean))
 })
 
-test_that("summary.bdeb_fit dispatches to bdeb_summary", {
+test_that("summary.bdeb_fit returns a draws_summary", {
   fit <- mock_bdeb_fit(n_draws = 50, type = "individual")
   s <- summary(fit)
   expect_s3_class(s, "draws_summary")

@@ -217,7 +217,7 @@ plot(fit1, type = "pairs",
 ### Step 5: Posterior summary
 
 ```{r ind-summary}
-bdeb_summary(fit1,
+summary(fit1,
   pars = c("p_Am", "p_M", "kappa", "v", "E_G", "sigma_L"),
   prob = 0.95)
 ```
@@ -373,7 +373,7 @@ plot(fit_h, type = "posterior",
 ### Population-level results
 
 ```{r hier-pop}
-bdeb_summary(fit_h,
+summary(fit_h,
   pars = c("mu_log_p_Am", "sigma_log_p_Am",
            "p_M", "kappa", "v", "E_G", "sigma_L"),
   prob = 0.95)
@@ -388,11 +388,11 @@ partial pooling — a principled compromise between complete pooling
 independently).
 
 ```{r hier-shrinkage, fig.cap="Individual-level $\\{p_{Am}\\}$ estimates (points: posterior means; bars: 90% CI) compared to the population mean (dashed red line).  Shrinkage toward the mean is visible for individuals with noisier data."}
-ind_summary <- bdeb_summary(fit_h,
+ind_summary <- summary(fit_h,
   pars = paste0("p_Am_ind[", 1:21, "]"),
   prob = 0.90)
 
-pop_summary <- bdeb_summary(fit_h, pars = "mu_log_p_Am")
+pop_summary <- summary(fit_h, pars = "mu_log_p_Am")
 pop_mean_pAm <- exp(as.data.frame(pop_summary)$mean)
 
 ind_df <- as.data.frame(ind_summary)
@@ -415,14 +415,14 @@ distribution — useful for predicting the performance of an unobserved
 individual from the same population:
 
 ```{r hier-new}
-bdeb_summary(fit_h, pars = "p_Am_new", prob = 0.95)
+summary(fit_h, pars = "p_Am_new", prob = 0.95)
 ```
 
 ### Individual vs hierarchical: comparison
 
 ```{r compare}
-s_ind  <- bdeb_summary(fit1, pars = c("p_Am", "p_M", "kappa"), prob = 0.90)
-s_hier <- bdeb_summary(fit_h, pars = c("p_M", "kappa"), prob = 0.90)
+s_ind  <- summary(fit1, pars = c("p_Am", "p_M", "kappa"), prob = 0.90)
+s_hier <- summary(fit_h, pars = c("p_M", "kappa"), prob = 0.90)
 
 cat("=== Individual model (id = 5, n = 1) ===\n")
 print(as.data.frame(s_ind), digits = 3, row.names = FALSE)
@@ -565,7 +565,7 @@ plot(fit_tox, type = "pairs", pars = c("z_w", "b_w", "k_d"))
 ## Parameter estimates
 
 ```{r debtox-summary}
-bdeb_summary(fit_tox,
+summary(fit_tox,
   pars = c("p_Am", "p_M", "kappa", "v", "E_G",
            "k_d", "z_w", "b_w", "sigma_L"),
   prob = 0.95)
@@ -622,10 +622,10 @@ fit_tox2 <- bdeb_fit(mod_tox2, chains = 4, adapt_delta = 0.95,
                      threads_per_chain = 2, seed = 78)
 
 cat("=== Original: z_w ~ LogNormal(2.5, 1.0) ===\n")
-bdeb_summary(fit_tox,  pars = c("z_w", "b_w"), prob = 0.95)
+summary(fit_tox,  pars = c("z_w", "b_w"), prob = 0.95)
 
 cat("\n=== Tighter:  z_w ~ LogNormal(3.0, 0.3) ===\n")
-bdeb_summary(fit_tox2, pars = c("z_w", "b_w"), prob = 0.95)
+summary(fit_tox2, pars = c("z_w", "b_w"), prob = 0.95)
 ```
 
 If the posteriors agree despite different priors, the **data are

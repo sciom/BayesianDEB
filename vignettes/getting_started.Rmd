@@ -120,7 +120,7 @@ fit_hier <- bdeb_fit(mod_hier, chains = 4, adapt_delta = 0.9,
                      threads_per_chain = 4)  # within-chain parallelism
 
 bdeb_diagnose(fit_hier)
-bdeb_summary(fit_hier, pars = c("mu_log_p_Am", "sigma_log_p_Am", "p_M", "kappa"))
+summary(fit_hier, pars = c("mu_log_p_Am", "sigma_log_p_Am", "p_M", "kappa"))
 ```
 
 ## Example: DEBtox Model

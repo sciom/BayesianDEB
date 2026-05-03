@@ -232,41 +232,32 @@ plot.bdeb_diagnostics <- function(x, type = c("rhat", "ess"), ...) {
 	}
 }
 
-#' Posterior Summary for BDEB Parameters
+#' Posterior Summary for BDEB Parameters (deprecated)
 #'
-#' Returns a tidy summary table of posterior draws for model parameters
-#' and optionally derived quantities.
+#' @description
+#' `bdeb_summary()` is deprecated as of BayesianDEB 0.2.0.  Call
+#' [summary()] on a [bdeb_fit()] object instead; the two are
+#' equivalent.  This wrapper will be removed in a future release.
 #'
 #' @param fit A [bdeb_fit()] object.
-#' @param pars Character vector of parameter names. Default: all model
-#'   parameters.
-#' @param prob Probability for credible intervals. Default 0.90 (5th/95th
-#'   percentiles).
+#' @param pars Character vector of parameter names.  Forwarded to
+#'   the [summary()] method on `bdeb_fit`.
+#' @param prob Probability for the central credible interval.  Forwarded
+#'   to the [summary()] method on `bdeb_fit`.
 #' @param ... Ignored.
 #' @return A `posterior::draws_summary` data frame.
+#' @keywords internal
 #' @export
 bdeb_summary <- function(fit, pars = NULL, prob = 0.90, ...) {
 	if (!inherits(fit, "bdeb_fit")) {
 		cli::cli_abort("{.arg fit} must be a {.cls bdeb_fit} object.")
 	}
-
-	draws <- posterior::as_draws_df(fit$fit$draws())
-
-	if (is.null(pars)) {
-		all_vars <- posterior::variables(draws)
-		pars <- all_vars[!grepl("^(log_lik|L_hat|L_rep|R_hat|R_rep|lp__|p_Am_new)", all_vars)]
-	}
-
-	alpha <- (1 - prob) / 2
-	posterior::summarise_draws(
-		posterior::subset_draws(draws, variable = pars),
-		"mean", "sd", "median",
-		"lower" = ~ quantile(.x, alpha),
-		"upper" = ~ quantile(.x, 1 - alpha),
-		"rhat",
-		"ess_bulk",
-		"ess_tail"
+	.Deprecated(
+		new = "summary",
+		package = "BayesianDEB",
+		msg = "`bdeb_summary()` is deprecated; use `summary(fit)` instead."
 	)
+	summary(fit, pars = pars, prob = prob, ...)
 }
 
 #' LOO Cross-Validation for Model Comparison
