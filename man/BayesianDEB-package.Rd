@@ -97,7 +97,8 @@ results, use the Stan-based functions.}
 \code{bdeb_diagnose()}, \code{bdeb_derived()},
 \code{bdeb_ppc()}, \code{bdeb_predict()}, \code{bdeb_loo()}, \code{bdeb_ec50()},
 \code{bdeb_tox()}, \code{bdeb_prior_predictive()}, \code{plot_dose_response()},
-\code{summary()}, \code{coef()}, all prior and observation model
+\code{summary()}, \code{coef()}, \code{confint()}, \code{fitted()}, \code{residuals()},
+\code{nobs()}, \code{vcov()}, \code{logLik()}, all prior and observation model
 constructors, \code{arrhenius()}, \code{deb_fluxes()},
 \code{repro_to_intervals()}, \code{bdeb_session_info()}.}
 \item{Deprecated}{\code{bdeb_summary()} (use \code{summary()} on a

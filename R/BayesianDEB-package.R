@@ -111,7 +111,8 @@
 #'     `bdeb_diagnose()`, `bdeb_derived()`,
 #'     `bdeb_ppc()`, `bdeb_predict()`, `bdeb_loo()`, `bdeb_ec50()`,
 #'     `bdeb_tox()`, `bdeb_prior_predictive()`, `plot_dose_response()`,
-#'     `summary()`, `coef()`, all prior and observation model
+#'     `summary()`, `coef()`, `confint()`, `fitted()`, `residuals()`,
+#'     `nobs()`, `vcov()`, `logLik()`, all prior and observation model
 #'     constructors, `arrhenius()`, `deb_fluxes()`,
 #'     `repro_to_intervals()`, `bdeb_session_info()`.}
 #'   \item{Deprecated}{`bdeb_summary()` (use `summary()` on a

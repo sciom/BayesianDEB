@@ -15,6 +15,13 @@
   (`bdeb_derived.bdeb_fit`).  Existing calls are unchanged; the
   dispatch enables future support for derived quantities on
   prior-only or simulated objects.
+* New `lm`-style methods on `bdeb_fit`: `confint()` (posterior
+  credible intervals), `fitted()` (posterior median/mean of
+  \eqn{\hat{L}_i}), `residuals()` (observed minus fitted),
+  `nobs()` (observation count), `vcov()` (posterior covariance
+  of model parameters), and `logLik()` (log-pointwise predictive
+  density, lppd).  `fitted()`, `residuals()`, and `logLik()` are
+  available for `"individual"` and `"growth_repro"` only.
 
 ## Deprecations
 * `bdeb_summary()` is deprecated; use `summary(fit)` on a
@@ -25,8 +32,6 @@
 ## Planned for 0.2.0
 * Further S3 class system overhaul (`bdeb_data`, `bdeb_model`,
   `bdeb_prior`).
-* lm-style methods on `bdeb_fit` (`confint`, `residuals`,
-  `fitted`, `nobs`, `vcov`, `logLik`).
 * Vignettes use conditional `cmdstanr` execution.
 * Stan ODE solver `max_num_steps` raised to 1e5.
 * JSS replication package reorganised.

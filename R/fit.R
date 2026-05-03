@@ -285,3 +285,225 @@ coef.bdeb_fit <- function(object, type = c("median", "mean"), ...) {
 	names(vals) <- pars
 	vals
 }
+
+# Internal: drop posterior metadata columns ('.chain', '.iteration',
+# '.draw') from a matrix obtained via as.matrix() on a draws_df.
+.bdeb_strip_meta <- function(M) {
+	M[, !colnames(M) %in% c(".chain", ".iteration", ".draw"), drop = FALSE]
+}
+
+# Internal: names of model parameters (i.e. excluding log_lik, L_hat,
+# L_rep, R_hat, R_rep, lp__, and the internal p_Am_new).
+.bdeb_par_names <- function(draws) {
+	all_vars <- posterior::variables(draws)
+	all_vars[!grepl("^(log_lik|L_hat|L_rep|R_hat|R_rep|lp__|p_Am_new)", all_vars)]
+}
+
+#' Posterior Credible Intervals for BDEB Model Parameters
+#'
+#' Bayesian counterpart to [stats::confint()]: returns the posterior
+#' central credible interval for each model parameter.
+#'
+#' @param object A [bdeb_fit()] object.
+#' @param parm Character vector of parameter names.  Default: all model
+#'   parameters.
+#' @param level Probability mass of the credible interval.  Default 0.95.
+#' @param ... Ignored.
+#' @return A matrix with one row per parameter and two columns named by
+#'   their percentile (e.g. `"2.5%"`, `"97.5%"` for `level = 0.95`).
+#' @export
+confint.bdeb_fit <- function(object, parm = NULL, level = 0.95, ...) {
+	if (!inherits(object, "bdeb_fit")) {
+		cli::cli_abort("{.arg object} must be a {.cls bdeb_fit} object.")
+	}
+	if (length(level) != 1L || !is.numeric(level) ||
+	    level <= 0 || level >= 1) {
+		cli::cli_abort("{.arg level} must be a single numeric in (0, 1).")
+	}
+
+	draws <- posterior::as_draws_df(object$fit$draws())
+	pars <- .bdeb_par_names(draws)
+	if (!is.null(parm)) {
+		missing <- setdiff(parm, pars)
+		if (length(missing) > 0) {
+			cli::cli_abort("Unknown parameter{?s}: {.val {missing}}.")
+		}
+		pars <- parm
+	}
+
+	alpha <- (1 - level) / 2
+	pcts <- c(alpha, 1 - alpha)
+	col_labels <- paste0(format(100 * pcts, trim = TRUE), "%")
+
+	out <- vapply(pars, function(p) {
+		stats::quantile(draws[[p]], probs = pcts, names = FALSE)
+	}, numeric(2))
+	out <- t(out)
+	rownames(out) <- pars
+	colnames(out) <- col_labels
+	out
+}
+
+#' Number of Observations Used in a BDEB Fit
+#'
+#' Returns the total count of growth (and, where relevant, reproduction)
+#' observations that contributed to the likelihood.  Matches
+#' [stats::nobs()] in spirit.
+#'
+#' @param object A [bdeb_fit()] object.
+#' @param ... Ignored.
+#' @return Integer scalar: total number of observations.
+#' @export
+nobs.bdeb_fit <- function(object, ...) {
+	if (!inherits(object, "bdeb_fit")) {
+		cli::cli_abort("{.arg object} must be a {.cls bdeb_fit} object.")
+	}
+	dat <- object$model$data
+	n <- 0L
+	if (!is.null(dat$growth))       n <- n + nrow(dat$growth)
+	if (!is.null(dat$reproduction)) n <- n + nrow(dat$reproduction)
+	as.integer(n)
+}
+
+#' Fitted Values from a BDEB Fit
+#'
+#' Posterior point estimate (median or mean) of the latent length
+#' \eqn{\hat{L}_i} at each observation.  Bayesian counterpart of
+#' [stats::fitted()].
+#'
+#' Currently supported for `"individual"` and `"growth_repro"` models.
+#' For `"hierarchical"` and `"debtox"` use [bdeb_predict()] instead.
+#'
+#' @param object A [bdeb_fit()] object.
+#' @param type One of `"median"` (default) or `"mean"`.
+#' @param ... Ignored.
+#' @return Named numeric vector of fitted values, one per observation.
+#' @export
+fitted.bdeb_fit <- function(object, type = c("median", "mean"), ...) {
+	if (!inherits(object, "bdeb_fit")) {
+		cli::cli_abort("{.arg object} must be a {.cls bdeb_fit} object.")
+	}
+	if (!object$model$type %in% c("individual", "growth_repro")) {
+		cli::cli_abort(c(
+			"{.fn fitted} is not available for {.val {object$model$type}} models.",
+			"i" = "Use {.fn bdeb_predict} for trajectory predictions."
+		))
+	}
+	type <- match.arg(type)
+	draws <- posterior::as_draws_df(object$fit$draws())
+	all_vars <- posterior::variables(draws)
+	L_hat_vars <- grep("^L_hat\\[", all_vars, value = TRUE)
+	if (length(L_hat_vars) == 0L) {
+		cli::cli_abort("No {.var L_hat} variables found in the fit.")
+	}
+	fn <- if (type == "median") stats::median else mean
+	vals <- vapply(L_hat_vars, function(p) fn(draws[[p]]), numeric(1))
+	names(vals) <- L_hat_vars
+	vals
+}
+
+#' Residuals from a BDEB Fit
+#'
+#' Observed minus fitted length for each observation, using the posterior
+#' point estimate from [fitted()].  Bayesian counterpart of
+#' [stats::residuals()].
+#'
+#' Currently supported for `"individual"` and `"growth_repro"` models.
+#'
+#' @param object A [bdeb_fit()] object.
+#' @param type Currently only `"response"` is supported (raw residuals).
+#' @param ... Ignored.
+#' @return Named numeric vector of residuals.
+#' @export
+residuals.bdeb_fit <- function(object, type = "response", ...) {
+	if (!inherits(object, "bdeb_fit")) {
+		cli::cli_abort("{.arg object} must be a {.cls bdeb_fit} object.")
+	}
+	type <- match.arg(type, choices = "response")
+	fits <- fitted(object)
+	L_obs <- as.vector(object$model$stan_data$L_obs)
+	if (length(L_obs) != length(fits)) {
+		cli::cli_abort(c(
+			"Length mismatch: {length(L_obs)} observations vs {length(fits)} fitted values.",
+			"i" = "Cannot compute residuals for this model layout."
+		))
+	}
+	out <- L_obs - fits
+	names(out) <- names(fits)
+	out
+}
+
+#' Posterior Covariance Matrix of BDEB Model Parameters
+#'
+#' Computes the empirical covariance matrix of the posterior draws for
+#' all model parameters.  Bayesian counterpart of [stats::vcov()].
+#'
+#' @param object A [bdeb_fit()] object.
+#' @param ... Ignored.
+#' @return A symmetric numeric matrix with model parameters on rows
+#'   and columns.
+#' @export
+vcov.bdeb_fit <- function(object, ...) {
+	if (!inherits(object, "bdeb_fit")) {
+		cli::cli_abort("{.arg object} must be a {.cls bdeb_fit} object.")
+	}
+	draws <- posterior::as_draws_df(object$fit$draws())
+	pars <- .bdeb_par_names(draws)
+	M <- as.matrix(posterior::subset_draws(draws, variable = pars))
+	M <- .bdeb_strip_meta(M)
+	stats::cov(M)
+}
+
+#' Log-Likelihood of a BDEB Fit
+#'
+#' Computes the log-pointwise predictive density (lppd):
+#' \deqn{\mathrm{lppd} = \sum_{i=1}^{N} \log\!\left(
+#'   \frac{1}{S} \sum_{s=1}^{S} \exp(\log p(y_i \mid \theta^{(s)}))
+#' \right),}
+#' the Bayesian analogue of [stats::logLik()].  This is the natural
+#' point summary of model fit reported by `bdeb_loo()` (which adds
+#' Pareto-smoothed importance sampling for cross-validation).
+#'
+#' Requires the Stan model to store per-observation `log_lik` in
+#' `generated quantities`.  Currently available for `"individual"` and
+#' `"growth_repro"` models; `"hierarchical"` and `"debtox"` compute the
+#' likelihood inside `reduce_sum` and do not expose individual terms.
+#'
+#' @param object A [bdeb_fit()] object.
+#' @param ... Ignored.
+#' @return A `logLik` object with attributes `df` (number of model
+#'   parameters) and `nobs` (number of observations).
+#' @export
+logLik.bdeb_fit <- function(object, ...) {
+	if (!inherits(object, "bdeb_fit")) {
+		cli::cli_abort("{.arg object} must be a {.cls bdeb_fit} object.")
+	}
+	if (object$model$type %in% c("hierarchical", "debtox")) {
+		cli::cli_abort(c(
+			"{.fn logLik} is not available for {.val {object$model$type}} models.",
+			"i" = "Per-observation {.var log_lik} is not stored in generated quantities."
+		))
+	}
+	draws <- posterior::as_draws_df(object$fit$draws())
+	all_vars <- posterior::variables(draws)
+	ll_vars <- grep("^log_lik\\[", all_vars, value = TRUE)
+	if (length(ll_vars) == 0L) {
+		cli::cli_abort("No {.var log_lik} variables found in the fit.")
+	}
+
+	ll <- as.matrix(posterior::subset_draws(draws, variable = ll_vars))
+	ll <- .bdeb_strip_meta(ll)
+	# Numerically stable lppd per observation.
+	pointwise <- apply(ll, 2, function(x) {
+		mx <- max(x)
+		mx + log(mean(exp(x - mx)))
+	})
+
+	pars <- .bdeb_par_names(draws)
+	structure(
+		sum(pointwise),
+		df    = length(pars),
+		nobs  = length(ll_vars),
+		class = "logLik"
+	)
+}
