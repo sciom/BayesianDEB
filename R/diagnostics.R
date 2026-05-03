@@ -402,7 +402,8 @@ bdeb_loo <- function(fit, endpoint = c("all", "growth", "reproduction"), ...) {
 #' With \eqn{\delta_M \approx 0.24}, the physical maximum length would
 #' be \eqn{L_m / \delta_M \approx 31} mm, consistent with observations.
 #'
-#' @param fit A [bdeb_fit()] object.
+#' @param object A [bdeb_fit()] object.
+#' @param ... Additional arguments passed to methods.
 #' @param quantities Character vector of quantities to compute.  One or
 #'   more of `"L_m"`, `"L_inf"`, `"k_M"`, `"growth_rate"`, `"g"`.
 #' @param f Scaled functional response \eqn{f \in (0,1]} for computing
@@ -421,14 +422,23 @@ bdeb_loo <- function(fit, endpoint = c("all", "growth", "reproduction"), ...) {
 #' the basis of dynamic energy budget parameters. *PLOS Computational
 #' Biology*, 14(5), e1006100. \doi{10.1371/journal.pcbi.1006100}
 #' @export
-bdeb_derived <- function(fit,
-                         quantities = c("L_inf", "k_M", "growth_rate"),
-                         f = 1.0) {
-	if (!inherits(fit, "bdeb_fit")) {
-		cli::cli_abort("{.arg fit} must be a {.cls bdeb_fit} object.")
-	}
+bdeb_derived <- function(object, ...) {
+	UseMethod("bdeb_derived")
+}
 
-	draws <- posterior::as_draws_df(fit$fit$draws())
+#' @rdname bdeb_derived
+#' @export
+bdeb_derived.default <- function(object, ...) {
+	cli::cli_abort("{.arg object} must be a {.cls bdeb_fit} object.")
+}
+
+#' @rdname bdeb_derived
+#' @export
+bdeb_derived.bdeb_fit <- function(object,
+                                  quantities = c("L_inf", "k_M", "growth_rate"),
+                                  f = 1.0,
+                                  ...) {
+	draws <- posterior::as_draws_df(object$fit$draws())
 
 	result <- data.frame(.draw = seq_len(nrow(draws)))
 

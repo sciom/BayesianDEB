@@ -2,12 +2,20 @@
 % Please edit documentation in R/diagnostics.R
 \name{bdeb_derived}
 \alias{bdeb_derived}
+\alias{bdeb_derived.default}
+\alias{bdeb_derived.bdeb_fit}
 \title{Compute Derived Biological Quantities from the Posterior}
 \usage{
-bdeb_derived(fit, quantities = c("L_inf", "k_M", "growth_rate"), f = 1)
+bdeb_derived(object, ...)
+
+\method{bdeb_derived}{default}(object, ...)
+
+\method{bdeb_derived}{bdeb_fit}(object, quantities = c("L_inf", "k_M", "growth_rate"), f = 1, ...)
 }
 \arguments{
-\item{fit}{A \code{\link[=bdeb_fit]{bdeb_fit()}} object.}
+\item{object}{A \code{\link[=bdeb_fit]{bdeb_fit()}} object.}
+
+\item{...}{Additional arguments passed to methods.}
 
 \item{quantities}{Character vector of quantities to compute.  One or
 more of \code{"L_m"}, \code{"L_inf"}, \code{"k_M"}, \code{"growth_rate"}, \code{"g"}.}

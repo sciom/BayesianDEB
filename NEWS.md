@@ -11,6 +11,10 @@
   `bdeb_fit` object: it accepts `pars` and `prob` arguments and
   returns a `posterior::draws_summary`, mirroring
   `summary.lm()`.
+* `bdeb_derived()` is now an S3 generic with a `bdeb_fit` method
+  (`bdeb_derived.bdeb_fit`).  Existing calls are unchanged; the
+  dispatch enables future support for derived quantities on
+  prior-only or simulated objects.
 
 ## Deprecations
 * `bdeb_summary()` is deprecated; use `summary(fit)` on a
@@ -21,7 +25,6 @@
 ## Planned for 0.2.0
 * Further S3 class system overhaul (`bdeb_data`, `bdeb_model`,
   `bdeb_prior`).
-* `bdeb_derived()` converted to S3 generic.
 * lm-style methods on `bdeb_fit` (`confint`, `residuals`,
   `fitted`, `nobs`, `vcov`, `logLik`).
 * Vignettes use conditional `cmdstanr` execution.

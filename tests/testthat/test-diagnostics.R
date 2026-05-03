@@ -181,6 +181,25 @@ test_that("bdeb_summary forwards to summary.bdeb_fit", {
 
 # --- bdeb_derived ---
 
+test_that("bdeb_derived is an S3 generic", {
+  # Generic signature should be (object, ...) — first param is `object`
+  # rather than `fit` to avoid R's partial argument matching with `f =`.
+  expect_named(formals(bdeb_derived), c("object", "..."))
+  # bdeb_fit and default methods are registered
+  expect_true("bdeb_derived.bdeb_fit" %in% as.character(methods("bdeb_derived")))
+  expect_true("bdeb_derived.default" %in% as.character(methods("bdeb_derived")))
+})
+
+test_that("bdeb_derived dispatches correctly when f is named", {
+  # Regression: `f` partial-matched the previous `fit` parameter and
+  # silently sent calls to .default.  With `object` as first arg, this
+  # must work end-to-end.
+  fit <- mock_bdeb_fit(n_draws = 50)
+  d <- bdeb_derived(fit, quantities = "L_inf", f = 0.5)
+  expect_s3_class(d, "draws_df")
+  expect_true("L_inf" %in% names(d))
+})
+
 test_that("bdeb_derived rejects non-bdeb_fit", {
   expect_error(bdeb_derived(list()), "bdeb_fit")
   expect_error(bdeb_derived(NULL), "bdeb_fit")
