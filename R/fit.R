@@ -41,9 +41,40 @@
 #'   (single ODE solve, nothing to distribute).
 #' @param refresh How often to print sampling progress (iterations).
 #'   Default 200.  Set to 0 for silent operation.
-#' @param ... Additional arguments forwarded to `CmdStanModel$sample()`.
-#' @return A `bdeb_fit` object containing the `CmdStanMCMC` result,
-#'   the model specification, and sampling metadata.
+#' @param algorithm One of `"sampling"` (default; full HMC via NUTS) or
+#'   `"variational"` (mean-field automatic differentiation variational
+#'   inference, ADVI).  ADVI is **substantially faster** but yields an
+#'   *approximation* of the posterior, not an exact draw.  Use it for
+#'   illustrative or exploratory work; **always use the default
+#'   `"sampling"` for publication-grade inference**.  When
+#'   `algorithm = "variational"`, the arguments `chains`,
+#'   `iter_warmup`, `iter_sampling`, `adapt_delta`, `max_treedepth`,
+#'   and `parallel_chains` are ignored; ADVI-specific defaults are
+#'   used instead (1000 output samples).  Diagnostics that depend on
+#'   chain mixing (R-hat, divergences, treedepth) are not defined for
+#'   ADVI fits, and [bdeb_diagnose()] will refuse to run on them.
+#' @param ... Additional arguments forwarded to `CmdStanModel$sample()`
+#'   (or `CmdStanModel$variational()` when `algorithm = "variational"`).
+#' @return A `bdeb_fit` object containing the `CmdStanMCMC` (or
+#'   `CmdStanVB`) result, the model specification, and sampling
+#'   metadata.  The list element `algorithm` records which inference
+#'   engine was used.
+#'
+#' @section Notes on Stan informational messages:
+#' During warmup it is normal for Stan to emit informational messages
+#' such as "Informational Message: The current Metropolis proposal is
+#' about to be rejected because of the following issue(s)" or
+#' occasional ODE solver warnings.  These are emitted whenever the
+#' leapfrog integrator probes a region of parameter space where the
+#' DEB ODE is stiff or numerically extreme; the proposal is then
+#' rejected and the chain continues.  As of version 0.2.0 the bundled
+#' Stan models call \code{ode_bdf_tol} with \code{max_num_steps = 1e5}
+#' (raised from \code{1e4} in 0.1.x) which substantially reduces these
+#' messages but does not eliminate them in pathological priors or with
+#' very few warmup iterations.  These messages are **benign** as long
+#' as [bdeb_diagnose()] reports no divergent transitions, no max
+#' treedepth saturation, and adequate \eqn{\hat{R}}/ESS for all
+#' parameters.
 #'
 #' @references
 #' Hoffman, M.D. and Gelman, A. (2014). The No-U-Turn Sampler:
@@ -84,11 +115,13 @@ bdeb_fit <- function(model,
                      parallel_chains = NULL,
                      threads_per_chain = NULL,
                      refresh = 200,
+                     algorithm = c("sampling", "variational"),
                      ...) {
 
 	if (!inherits(model, "bdeb_model")) {
 		cli::cli_abort("{.arg model} must be a {.cls bdeb_model} object.")
 	}
+	algorithm <- match.arg(algorithm)
 	if (!is.numeric(chains) || chains < 1)
 		cli::cli_abort("{.arg chains} must be >= 1.")
 	if (!is.numeric(iter_warmup) || iter_warmup < 0)
@@ -148,48 +181,72 @@ bdeb_fit <- function(model,
 		}
 	)
 
-	# Sample
-	if (use_threads) {
+	# --- Branch on algorithm ---
+	if (algorithm == "variational") {
 		cli::cli_alert_info(
-			"Running MCMC ({chains} chains, {iter_sampling} iter, {threads_per_chain} threads/chain)"
+			"Running variational inference (ADVI, mean-field; approximation, NOT exact MCMC)."
+		)
+		vb_args <- list(
+			data    = model$stan_data,
+			seed    = seed,
+			refresh = refresh,
+			...
+		)
+		fit <- tryCatch(
+			do.call(stan_mod$variational, vb_args),
+			error = function(e) {
+				cli::cli_abort(c(
+					"x" = "Variational inference (ADVI) failed.",
+					"i" = "Try {.code algorithm = \"sampling\"} or check the model.",
+					"x" = conditionMessage(e)
+				))
+			}
 		)
 	} else {
-		cli::cli_alert_info("Running MCMC ({chains} chains, {iter_sampling} iterations each)")
-	}
-
-	sample_args <- list(
-		data            = model$stan_data,
-		chains          = chains,
-		parallel_chains = parallel_chains,
-		iter_warmup     = iter_warmup,
-		iter_sampling   = iter_sampling,
-		adapt_delta     = adapt_delta,
-		max_treedepth   = max_treedepth,
-		seed            = seed,
-		refresh         = refresh,
-		...
-	)
-
-	if (use_threads) {
-		sample_args$threads_per_chain <- as.integer(threads_per_chain)
-	}
-
-	fit <- tryCatch(
-		do.call(stan_mod$sample, sample_args),
-		error = function(e) {
-			cli::cli_abort(c(
-				"x" = "MCMC sampling failed.",
-				"i" = "Try increasing {.arg adapt_delta} or checking initial values.",
-				"x" = conditionMessage(e)
-			))
+		# Full HMC via NUTS
+		if (use_threads) {
+			cli::cli_alert_info(
+				"Running MCMC ({chains} chains, {iter_sampling} iter, {threads_per_chain} threads/chain)"
+			)
+		} else {
+			cli::cli_alert_info("Running MCMC ({chains} chains, {iter_sampling} iterations each)")
 		}
-	)
+
+		sample_args <- list(
+			data            = model$stan_data,
+			chains          = chains,
+			parallel_chains = parallel_chains,
+			iter_warmup     = iter_warmup,
+			iter_sampling   = iter_sampling,
+			adapt_delta     = adapt_delta,
+			max_treedepth   = max_treedepth,
+			seed            = seed,
+			refresh         = refresh,
+			...
+		)
+
+		if (use_threads) {
+			sample_args$threads_per_chain <- as.integer(threads_per_chain)
+		}
+
+		fit <- tryCatch(
+			do.call(stan_mod$sample, sample_args),
+			error = function(e) {
+				cli::cli_abort(c(
+					"x" = "MCMC sampling failed.",
+					"i" = "Try increasing {.arg adapt_delta} or checking initial values.",
+					"x" = conditionMessage(e)
+				))
+			}
+		)
+	}
 
 	# Construct result with reproducibility metadata
 	out <- list(
 		fit               = fit,
 		model             = model,
 		stan_model        = stan_mod,
+		algorithm         = algorithm,
 		chains            = as.integer(chains),
 		iter_warmup       = as.integer(iter_warmup),
 		iter_sampling     = as.integer(iter_sampling),
@@ -216,6 +273,17 @@ bdeb_fit <- function(model,
 print.bdeb_fit <- function(x, ...) {
 	cli::cli_h2("BDEB Fit")
 	cli::cli_alert_info("Model type: {x$model$type}")
+	algo <- if (is.null(x$algorithm)) "sampling" else x$algorithm
+	if (identical(algo, "variational")) {
+		cli::cli_alert_warning(
+			"Algorithm: variational (ADVI) -- approximate posterior; not for publication."
+		)
+		cli::cli_alert_info(
+			"Use {.code algorithm = \"sampling\"} for publication-grade inference."
+		)
+		return(invisible(x))
+	}
+	cli::cli_alert_info("Algorithm: sampling (NUTS)")
 	cli::cli_alert_info("Chains: {x$chains}, Warmup: {x$iter_warmup}, Sampling: {x$iter_sampling}")
 
 	# Quick diagnostics

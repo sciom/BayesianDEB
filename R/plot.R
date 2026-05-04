@@ -97,15 +97,29 @@ plot_trace <- function(draws, pars, ...) {
 
 #' @keywords internal
 plot_posterior <- function(draws, pars, ...) {
-	bayesplot::mcmc_dens_overlay(draws, pars = pars, ...) +
+	# Use single-chain density when only one chain is available
+	# (e.g. variational fits); otherwise overlay per-chain densities.
+	n_chains <- tryCatch(posterior::nchains(draws), error = function(e) 1L)
+	plot_fn <- if (isTRUE(n_chains > 1L)) {
+		bayesplot::mcmc_dens_overlay
+	} else {
+		bayesplot::mcmc_dens
+	}
+	plot_fn(draws, pars = pars, ...) +
 		ggplot2::theme_bw() +
 		ggplot2::labs(title = "Posterior Densities")
 }
 
 #' @keywords internal
 plot_pairs <- function(draws, pars, ...) {
-	bayesplot::mcmc_pairs(draws, pars = pars, ...) +
-		ggplot2::labs(title = "Posterior Pairs")
+	if (is.null(pars) || length(pars) < 2L) {
+		cli::cli_abort(
+			"{.arg pars} must be a character vector of length >= 2 for {.code type = \"pairs\"}."
+		)
+	}
+	# bayesplot::mcmc_pairs() returns a bayesplot_grid (gtable), which
+	# does not support `+ ggplot2::labs()`.  Return as-is.
+	bayesplot::mcmc_pairs(draws, pars = pars, ...)
 }
 
 # --- Trajectory: dispatcher ---

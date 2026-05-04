@@ -64,6 +64,15 @@ bdeb_diagnose <- function(fit, pars = NULL) {
 		cli::cli_abort("{.arg pars} must be a character vector or NULL.")
 	}
 
+	algo <- if (is.null(fit$algorithm)) "sampling" else fit$algorithm
+	if (!identical(algo, "sampling")) {
+		cli::cli_abort(c(
+			"x" = "{.fn bdeb_diagnose} requires a sampling (NUTS) fit.",
+			"i" = "This fit was produced with {.code algorithm = {.val {algo}}}, which does not provide R-hat, divergent transitions, or treedepth diagnostics.",
+			"i" = "Re-fit with {.code algorithm = \"sampling\"} for full diagnostics."
+		))
+	}
+
 	diag <- fit$fit$diagnostic_summary(quiet = TRUE)
 
 	draws <- posterior::as_draws_df(fit$fit$draws())
@@ -343,6 +352,14 @@ bdeb_summary <- function(fit, pars = NULL, prob = 0.90, ...) {
 bdeb_loo <- function(fit, endpoint = c("all", "growth", "reproduction"), ...) {
 	if (!inherits(fit, "bdeb_fit")) {
 		cli::cli_abort("{.arg fit} must be a {.cls bdeb_fit} object.")
+	}
+
+	algo <- if (is.null(fit$algorithm)) "sampling" else fit$algorithm
+	if (!identical(algo, "sampling")) {
+		cli::cli_abort(c(
+			"x" = "{.fn bdeb_loo} requires a sampling (NUTS) fit; PSIS-LOO is not defined for variational approximations.",
+			"i" = "Re-fit with {.code algorithm = \"sampling\"} for cross-validation."
+		))
 	}
 
 	if (!requireNamespace("loo", quietly = TRUE)) {
