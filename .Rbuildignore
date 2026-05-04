@@ -18,6 +18,8 @@
 ^BayesianDEB_.*\.tar\.gz$
 ^MANUSCRIPT_JSS$
 ^MANUSCRIPT_JSS/
+^replication$
+^replication/
 ^CITATION\.cff$
 ^texput\.log$
 ^ZaNastavak
