@@ -29,3 +29,9 @@ Returns a tidy summary table of posterior draws for model parameters
 (and optionally derived quantities), analogous to
 \code{\link[stats:summary.lm]{stats::summary.lm()}} for frequentist fits.
 }
+\examples{
+\dontrun{
+fit <- bdeb_fit(mod)
+summary(fit, pars = c("p_Am", "kappa"), prob = 0.95)
+}
+}

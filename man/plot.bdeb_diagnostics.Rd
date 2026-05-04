@@ -21,3 +21,9 @@ Visualises the per-parameter R-hat or ESS-bulk values from a
 \code{\link[=bdeb_diagnose]{bdeb_diagnose()}} object.  A dashed red reference line is drawn at the
 Vehtari et al. (2021) threshold (R-hat = 1.01, ESS-bulk = 400).
 }
+\examples{
+\dontrun{
+fit <- bdeb_fit(mod)
+plot(bdeb_diagnose(fit), type = "ess")
+}
+}

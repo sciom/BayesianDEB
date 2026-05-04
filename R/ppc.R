@@ -37,6 +37,14 @@
 #' and Rubin, D.B. (2013). *Bayesian Data Analysis*. 3rd edition.
 #' Chapman & Hall/CRC. (Chapter 6: Model checking.)
 #' @export
+#' @examples
+#' \dontrun{
+#' data(eisenia_growth)
+#' dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
+#' fit <- bdeb_fit(bdeb_model(dat, type = "individual"))
+#' ppc <- bdeb_ppc(fit, type = "growth")
+#' plot(ppc)
+#' }
 bdeb_ppc <- function(fit, type = c("growth", "reproduction", "all")) {
 	if (!inherits(fit, "bdeb_fit")) {
 		cli::cli_abort("{.arg fit} must be a {.cls bdeb_fit} object.")
@@ -154,6 +162,18 @@ bdeb_prior_predictive <- function(model, n_draws = 500, dt = 0.5,
 	if (!inherits(model, "bdeb_model")) {
 		cli::cli_abort("{.arg model} must be a {.cls bdeb_model} object.")
 	}
+	if (!is.numeric(n_draws) || length(n_draws) != 1L ||
+	    !is.finite(n_draws) || n_draws < 1) {
+		cli::cli_abort("{.arg n_draws} must be a positive scalar (>= 1).")
+	}
+	if (!is.numeric(dt) || length(dt) != 1L ||
+	    !is.finite(dt) || dt <= 0) {
+		cli::cli_abort("{.arg dt} must be a positive scalar.")
+	}
+	if (!is.null(seed) && (!is.numeric(seed) || length(seed) != 1L ||
+	                       !is.finite(seed))) {
+		cli::cli_abort("{.arg seed} must be a finite scalar or NULL.")
+	}
 
 	if (!is.null(seed)) set.seed(seed)
 
@@ -246,6 +266,10 @@ plot.bdeb_prior_predictive <- function(x, n_draws = 100, ...) {
 		)
 }
 
+#' Print a BDEB Posterior Predictive Check
+#'
+#' @param x A [bdeb_ppc()] object.
+#' @param ... Ignored.
 #' @return The input object, invisibly.
 #' @export
 print.bdeb_ppc <- function(x, ...) {
@@ -286,6 +310,14 @@ print.bdeb_ppc <- function(x, ...) {
 #' @return A `bdeb_prediction` object with components `t` (time vector),
 #'   `L_hat` (matrix: draws x time points), `n_draws`, `model_type`.
 #' @export
+#' @examples
+#' \dontrun{
+#' data(eisenia_growth)
+#' dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
+#' fit <- bdeb_fit(bdeb_model(dat, type = "individual"))
+#' pred <- predict(fit, n_draws = 200)
+#' summary(pred); plot(pred)
+#' }
 predict.bdeb_fit <- function(object, newdata = NULL, n_draws = 200,
                              dt = 0.5, seed = NULL, ...) {
 	bdeb_predict(object, newdata = newdata, n_draws = n_draws, dt = dt,
@@ -301,6 +333,18 @@ bdeb_predict <- function(fit, newdata = NULL, n_draws = 200, dt = 0.5,
                          seed = NULL) {
 	if (!inherits(fit, "bdeb_fit")) {
 		cli::cli_abort("{.arg fit} must be a {.cls bdeb_fit} object.")
+	}
+	if (!is.numeric(n_draws) || length(n_draws) != 1L ||
+	    !is.finite(n_draws) || n_draws < 1) {
+		cli::cli_abort("{.arg n_draws} must be a positive scalar (>= 1).")
+	}
+	if (!is.numeric(dt) || length(dt) != 1L ||
+	    !is.finite(dt) || dt <= 0) {
+		cli::cli_abort("{.arg dt} must be a positive scalar.")
+	}
+	if (!is.null(seed) && (!is.numeric(seed) || length(seed) != 1L ||
+	                       !is.finite(seed))) {
+		cli::cli_abort("{.arg seed} must be a finite scalar or NULL.")
 	}
 
 	draws <- posterior::as_draws_df(fit$fit$draws())
@@ -416,6 +460,11 @@ bdeb_predict <- function(fit, newdata = NULL, n_draws = 200, dt = 0.5,
 #' @param ... Unused.
 #' @return The input object, invisibly.
 #' @export
+#' @examples
+#' \dontrun{
+#' fit <- bdeb_fit(mod)
+#' print(predict(fit))
+#' }
 print.bdeb_prediction <- function(x, ...) {
 	cli::cli_h2("BDEB Prediction")
 	cli::cli_li("Model type: {.val {x$model_type}}")
@@ -440,6 +489,11 @@ print.bdeb_prediction <- function(x, ...) {
 #' @return A data frame with columns `time`, `lower`, `median`, `upper`.
 #'   Carries class `summary.bdeb_prediction` and attribute `prob`.
 #' @export
+#' @examples
+#' \dontrun{
+#' fit <- bdeb_fit(mod)
+#' summary(predict(fit), prob = 0.95)
+#' }
 summary.bdeb_prediction <- function(object, prob = 0.90, ...) {
 	if (!is.numeric(prob) || length(prob) != 1L || prob <= 0 || prob >= 1) {
 		cli::cli_abort("{.arg prob} must be a single number in (0, 1).")
@@ -486,6 +540,11 @@ print.summary.bdeb_prediction <- function(x, n = 10, ...) {
 #' @param ... Unused.
 #' @return A [ggplot2::ggplot] object.
 #' @export
+#' @examples
+#' \dontrun{
+#' fit <- bdeb_fit(mod)
+#' plot(predict(fit), n_draws = 50)
+#' }
 plot.bdeb_prediction <- function(x, n_draws = 100, ...) {
 	n_total <- nrow(x$L_hat)
 	idx <- sort(sample.int(n_total, min(n_draws, n_total)))

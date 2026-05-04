@@ -46,3 +46,12 @@ draws under new environmental conditions or extended time horizons.
 The Euler integrator is an \strong{approximation} — for quantitative
 results at the original data conditions, prefer \code{newdata = NULL}.
 }
+\examples{
+\dontrun{
+data(eisenia_growth)
+dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
+fit <- bdeb_fit(bdeb_model(dat, type = "individual"))
+pred <- predict(fit, n_draws = 200)
+summary(pred); plot(pred)
+}
+}

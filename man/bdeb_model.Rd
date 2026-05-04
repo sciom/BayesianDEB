@@ -77,6 +77,13 @@ The \eqn{\mathrm{EC}_{50}} is computed analytically as
 \eqn{z_w + 0.5/b_w}.}
 }
 }
+\examples{
+df <- data.frame(id = 1, time = 0:5, length = seq(0.1, 0.6, by = 0.1))
+dat <- bdeb_data(growth = df)
+mod <- bdeb_model(dat, type = "individual")
+print(mod)
+summary(mod)
+}
 \references{
 Kooijman, S.A.L.M. (2010). \emph{Dynamic Energy Budget Theory for Metabolic
 Organisation}. 3rd edition. Cambridge University Press.

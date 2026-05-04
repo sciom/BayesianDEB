@@ -24,3 +24,9 @@ point estimate from \code{\link[=fitted]{fitted()}}.  Bayesian counterpart of
 \details{
 Currently supported for \code{"individual"} and \code{"growth_repro"} models.
 }
+\examples{
+\dontrun{
+fit <- bdeb_fit(mod)
+residuals(fit)
+}
+}

@@ -87,6 +87,14 @@ With \eqn{\delta_M \approx 0.24}, the physical maximum length would
 be \eqn{L_m / \delta_M \approx 31} mm, consistent with observations.
 }
 
+\examples{
+\dontrun{
+data(eisenia_growth)
+dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
+fit <- bdeb_fit(bdeb_model(dat, type = "individual"))
+bdeb_derived(fit, quantities = c("L_inf", "k_M"))
+}
+}
 \references{
 Kooijman, S.A.L.M. (2010). \emph{Dynamic Energy Budget Theory for Metabolic
 Organisation}. 3rd edition. Cambridge University Press.

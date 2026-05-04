@@ -20,3 +20,9 @@ A \link[ggplot2:ggplot]{ggplot2::ggplot} object.
 Overlays a sample of the posterior trajectory draws stored in a
 \code{bdeb_prediction} object.
 }
+\examples{
+\dontrun{
+fit <- bdeb_fit(mod)
+plot(predict(fit), n_draws = 50)
+}
+}

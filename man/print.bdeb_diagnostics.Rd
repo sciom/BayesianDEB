@@ -20,3 +20,9 @@ treedepth / E-BFMI alerts, R-hat and ESS warnings, and the full
 parameter summary table.  Output uses \link[cli:cli]{cli::cli} alerts and is therefore
 silenceable via \code{\link[cli:cli_abort]{cli::cli_inform()}} sinks.
 }
+\examples{
+\dontrun{
+fit <- bdeb_fit(mod)
+print(bdeb_diagnose(fit))
+}
+}

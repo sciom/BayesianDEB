@@ -25,6 +25,14 @@ NULL
 #' @param ... Additional arguments passed to bayesplot functions.
 #' @return A ggplot2 object.
 #' @export
+#' @examples
+#' \dontrun{
+#' data(eisenia_growth)
+#' dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
+#' fit <- bdeb_fit(bdeb_model(dat, type = "individual"))
+#' plot(fit, type = "trace")
+#' plot(fit, type = "trajectory", n_draws = 50)
+#' }
 plot.bdeb_fit <- function(x, type = c("trace", "posterior", "pairs",
                                        "trajectory", "prior_posterior"),
                           pars = NULL, n_draws = 100, seed = NULL, ...) {
@@ -52,6 +60,11 @@ plot.bdeb_fit <- function(x, type = c("trace", "posterior", "pairs",
 #' @param ... Ignored.
 #' @return A ggplot2 object.
 #' @export
+#' @examples
+#' \dontrun{
+#' fit <- bdeb_fit(mod)
+#' plot(bdeb_ppc(fit, type = "growth"))
+#' }
 plot.bdeb_ppc <- function(x, n_draws = 50, ...) {
 	if (!is.null(x$growth)) {
 		plot_ppc_growth(x$growth, n_draws)

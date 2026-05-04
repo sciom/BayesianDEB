@@ -46,8 +46,15 @@ bdeb_data <- function(growth = NULL,
 	if (is.null(growth) && is.null(reproduction)) {
 		cli::cli_abort("At least one of {.arg growth} or {.arg reproduction} must be provided.")
 	}
-	if (!is.numeric(f_food) || length(f_food) != 1 || f_food < 0 || f_food > 1) {
-		cli::cli_abort("{.arg f_food} must be a scalar in [0, 1].")
+	if (!is.null(growth) && !is.data.frame(growth)) {
+		cli::cli_abort("{.arg growth} must be a data frame or NULL.")
+	}
+	if (!is.null(reproduction) && !is.data.frame(reproduction)) {
+		cli::cli_abort("{.arg reproduction} must be a data frame or NULL.")
+	}
+	if (!is.numeric(f_food) || length(f_food) != 1 ||
+	    !is.finite(f_food) || f_food < 0 || f_food > 1) {
+		cli::cli_abort("{.arg f_food} must be a finite scalar in [0, 1].")
 	}
 
 	out <- list(
@@ -85,6 +92,10 @@ bdeb_data <- function(growth = NULL,
 	structure(out, class = "bdeb_data")
 }
 
+#' Print a BDEB Data Object
+#'
+#' @param x A [bdeb_data()] object.
+#' @param ... Ignored.
 #' @return The input object, invisibly.
 #' @export
 print.bdeb_data <- function(x, ...) {
@@ -105,6 +116,174 @@ print.bdeb_data <- function(x, ...) {
 		cli::cli_alert("Concentration groups: {length(unique(x$concentration))}")
 	}
 	invisible(x)
+}
+
+#' Summary of a BDEB Data Object
+#'
+#' Returns a compact list of summary statistics describing a
+#' [bdeb_data()] object: number of observations, number of unique
+#' individuals, time range, presence of growth/reproduction endpoints,
+#' the functional response, and (for DEBtox data) the unique
+#' concentration levels.
+#'
+#' @param object A [bdeb_data()] object.
+#' @param ... Ignored.
+#' @return An object of class `summary.bdeb_data` (a list).
+#' @export
+#' @examples
+#' df <- data.frame(id = 1, time = 0:5, length = seq(0.1, 0.6, by = 0.1))
+#' dat <- bdeb_data(growth = df)
+#' summary(dat)
+summary.bdeb_data <- function(object, ...) {
+	if (!inherits(object, "bdeb_data")) {
+		cli::cli_abort("{.arg object} must be a {.cls bdeb_data} object.")
+	}
+
+	n_growth <- if (!is.null(object$growth)) nrow(object$growth) else 0L
+	n_repro  <- if (!is.null(object$reproduction)) nrow(object$reproduction) else 0L
+
+	t_range <- NULL
+	if (!is.null(object$growth)) {
+		t_range <- range(object$growth$time, na.rm = TRUE)
+	} else if (!is.null(object$reproduction)) {
+		t_range <- range(c(object$reproduction$t_start,
+		                   object$reproduction$t_end), na.rm = TRUE)
+	}
+
+	out <- list(
+		n_obs_growth     = n_growth,
+		n_obs_repro      = n_repro,
+		n_individuals    = object$n_ind,
+		ids              = object$ids,
+		time_range       = t_range,
+		has_growth       = !is.null(object$growth),
+		has_reproduction = !is.null(object$reproduction),
+		f_food           = object$f_food,
+		endpoints        = object$endpoints
+	)
+
+	if (!is.null(object$concentration)) {
+		conc <- if (is.data.frame(object$concentration)) {
+			object$concentration$concentration
+		} else {
+			as.numeric(object$concentration)
+		}
+		out$conc_levels <- sort(unique(conc))
+	}
+
+	structure(out, class = "summary.bdeb_data")
+}
+
+#' @rdname summary.bdeb_data
+#' @param x A `summary.bdeb_data` object.
+#' @export
+print.summary.bdeb_data <- function(x, ...) {
+	cli::cli_h2("BDEB Data Summary")
+	cli::cli_li("Individuals: {.val {x$n_individuals}}")
+	if (x$has_growth) {
+		cli::cli_li("Growth observations: {.val {x$n_obs_growth}}")
+	}
+	if (x$has_reproduction) {
+		cli::cli_li("Reproduction records: {.val {x$n_obs_repro}}")
+	}
+	if (!is.null(x$time_range)) {
+		cli::cli_li(
+			"Time range: [{format(x$time_range[1], digits = 3)}, {format(x$time_range[2], digits = 3)}]"
+		)
+	}
+	cli::cli_li("Functional response (f): {.val {x$f_food}}")
+	if (!is.null(x$conc_levels)) {
+		cli::cli_li(
+			"Concentration levels: {paste(x$conc_levels, collapse = ', ')}"
+		)
+	}
+	invisible(x)
+}
+
+#' Plot a BDEB Data Object
+#'
+#' Visualises the contents of a [bdeb_data()] object.  Growth data are
+#' shown as observed length versus time, with one trace per individual.
+#' Reproduction data are shown as interval counts versus interval
+#' midpoint.  When concentration information is available (DEBtox
+#' setups) individuals are coloured by group.
+#'
+#' @param x A [bdeb_data()] object.
+#' @param endpoint Which endpoint to plot: `"growth"` or
+#'   `"reproduction"`.  Default `NULL`, which prefers growth when both
+#'   are present.
+#' @param ... Ignored.
+#' @return A [ggplot2::ggplot] object.
+#' @export
+#' @examples
+#' df <- data.frame(id = 1, time = 0:5, length = seq(0.1, 0.6, by = 0.1))
+#' dat <- bdeb_data(growth = df)
+#' plot(dat)
+plot.bdeb_data <- function(x, endpoint = NULL, ...) {
+	if (!inherits(x, "bdeb_data")) {
+		cli::cli_abort("{.arg x} must be a {.cls bdeb_data} object.")
+	}
+
+	if (is.null(endpoint)) {
+		endpoint <- if (!is.null(x$growth)) "growth" else "reproduction"
+	}
+	endpoint <- match.arg(endpoint, c("growth", "reproduction"))
+
+	if (endpoint == "growth") {
+		if (is.null(x$growth)) {
+			cli::cli_abort("No growth data to plot.")
+		}
+		df <- x$growth
+		df$id <- factor(df$id)
+
+		if (!is.null(x$concentration) && !("concentration" %in% names(df))) {
+			conc <- x$concentration
+			if (is.data.frame(conc)) {
+				df <- merge(df, conc, by = "id", all.x = TRUE)
+			} else {
+				df$concentration <- conc[match(as.character(df$id),
+				                               names(conc))]
+			}
+		}
+
+		p <- ggplot2::ggplot(df,
+		                    ggplot2::aes(x = .data$time,
+		                                 y = .data$length,
+		                                 group = .data$id))
+
+		if ("concentration" %in% names(df) &&
+		    any(!is.na(df$concentration))) {
+			p <- p + ggplot2::aes(colour = factor(.data$concentration)) +
+				ggplot2::labs(colour = "C_w")
+		}
+
+		p +
+			ggplot2::geom_point() +
+			ggplot2::geom_line(alpha = 0.4) +
+			ggplot2::theme_bw() +
+			ggplot2::labs(
+				title = "BDEB growth data",
+				x = "Time", y = "Structural length"
+			)
+	} else {
+		if (is.null(x$reproduction)) {
+			cli::cli_abort("No reproduction data to plot.")
+		}
+		df <- x$reproduction
+		df$id <- factor(df$id)
+		df$t_mid <- 0.5 * (df$t_start + df$t_end)
+
+		ggplot2::ggplot(df,
+		                ggplot2::aes(x = .data$t_mid, y = .data$count,
+		                             group = .data$id)) +
+			ggplot2::geom_point() +
+			ggplot2::geom_line(alpha = 0.4) +
+			ggplot2::theme_bw() +
+			ggplot2::labs(
+				title = "BDEB reproduction data",
+				x = "Interval midpoint", y = "Offspring count"
+			)
+	}
 }
 
 # --- Internal validation helpers ---
@@ -160,6 +339,13 @@ validate_repro <- function(df) {
 #' @param df Data frame with columns: `id`, `time`, `cumulative`.
 #' @return Data frame with columns: `id`, `t_start`, `t_end`, `count`.
 #' @export
+#' @examples
+#' cumul <- data.frame(
+#'   id = rep(1, 5),
+#'   time = c(0, 7, 14, 21, 28),
+#'   cumulative = c(0, 10, 30, 60, 100)
+#' )
+#' repro_to_intervals(cumul)
 repro_to_intervals <- function(df) {
 	required <- c("id", "time", "cumulative")
 	missing <- setdiff(required, names(df))

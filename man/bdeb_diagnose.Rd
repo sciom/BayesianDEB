@@ -46,6 +46,17 @@ Returns a \code{bdeb_diagnostics} S3 object.  The object has dedicated
 the print method is invoked automatically; assign the result
 (\code{d <- bdeb_diagnose(fit)}) to suppress output.
 }
+\examples{
+\dontrun{
+data(eisenia_growth)
+dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
+fit <- bdeb_fit(bdeb_model(dat, type = "individual"),
+                chains = 2, iter_warmup = 200, iter_sampling = 200)
+d <- bdeb_diagnose(fit)
+summary(d)
+plot(d, type = "rhat")
+}
+}
 \references{
 Vehtari, A., Gelman, A., Simpson, D., Carpenter, B. and
 Bürkner, P.-C. (2021). Rank-normalization, folding, and localization:

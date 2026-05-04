@@ -24,3 +24,9 @@ their percentile (e.g. \code{"2.5\%"}, \code{"97.5\%"} for \code{level = 0.95}).
 Bayesian counterpart to \code{\link[stats:confint]{stats::confint()}}: returns the posterior
 central credible interval for each model parameter.
 }
+\examples{
+\dontrun{
+fit <- bdeb_fit(mod)
+confint(fit, level = 0.90)
+}
+}

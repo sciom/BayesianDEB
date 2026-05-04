@@ -41,3 +41,12 @@ A ggplot2 object.
 \description{
 Plot a BDEB Fit
 }
+\examples{
+\dontrun{
+data(eisenia_growth)
+dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
+fit <- bdeb_fit(bdeb_model(dat, type = "individual"))
+plot(fit, type = "trace")
+plot(fit, type = "trajectory", n_draws = 50)
+}
+}

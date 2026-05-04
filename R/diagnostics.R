@@ -46,9 +46,22 @@
 #' @seealso [print.bdeb_diagnostics()], [summary.bdeb_diagnostics()],
 #'   [plot.bdeb_diagnostics()]
 #' @export
+#' @examples
+#' \dontrun{
+#' data(eisenia_growth)
+#' dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
+#' fit <- bdeb_fit(bdeb_model(dat, type = "individual"),
+#'                 chains = 2, iter_warmup = 200, iter_sampling = 200)
+#' d <- bdeb_diagnose(fit)
+#' summary(d)
+#' plot(d, type = "rhat")
+#' }
 bdeb_diagnose <- function(fit, pars = NULL) {
 	if (!inherits(fit, "bdeb_fit")) {
 		cli::cli_abort("{.arg fit} must be a {.cls bdeb_fit} object.")
+	}
+	if (!is.null(pars) && !is.character(pars)) {
+		cli::cli_abort("{.arg pars} must be a character vector or NULL.")
 	}
 
 	diag <- fit$fit$diagnostic_summary(quiet = TRUE)
@@ -92,6 +105,11 @@ bdeb_diagnose <- function(fit, pars = NULL) {
 #' @param ... Unused.
 #' @return The input object, invisibly.
 #' @export
+#' @examples
+#' \dontrun{
+#' fit <- bdeb_fit(mod)
+#' print(bdeb_diagnose(fit))
+#' }
 print.bdeb_diagnostics <- function(x, ...) {
 	cli::cli_h2("BDEB Diagnostics ({x$model_type})")
 
@@ -150,6 +168,11 @@ print.bdeb_diagnostics <- function(x, ...) {
 #' @param ... Unused.
 #' @return An object of class `summary.bdeb_diagnostics` (a list).
 #' @export
+#' @examples
+#' \dontrun{
+#' fit <- bdeb_fit(mod)
+#' summary(bdeb_diagnose(fit))
+#' }
 summary.bdeb_diagnostics <- function(object, ...) {
 	bad_rhat <- object$summary$variable[
 		!is.na(object$summary$rhat) & object$summary$rhat > 1.01]
@@ -195,6 +218,11 @@ print.summary.bdeb_diagnostics <- function(x, ...) {
 #' @param ... Unused.
 #' @return A [ggplot2::ggplot] object.
 #' @export
+#' @examples
+#' \dontrun{
+#' fit <- bdeb_fit(mod)
+#' plot(bdeb_diagnose(fit), type = "ess")
+#' }
 plot.bdeb_diagnostics <- function(x, type = c("rhat", "ess"), ...) {
 	type <- match.arg(type)
 	df <- as.data.frame(x$summary)
@@ -248,6 +276,11 @@ plot.bdeb_diagnostics <- function(x, type = c("rhat", "ess"), ...) {
 #' @return A `posterior::draws_summary` data frame.
 #' @keywords internal
 #' @export
+#' @examples
+#' \dontrun{
+#' fit <- bdeb_fit(mod)
+#' bdeb_summary(fit)  # equivalent to summary(fit); deprecated
+#' }
 bdeb_summary <- function(fit, pars = NULL, prob = 0.90, ...) {
 	if (!inherits(fit, "bdeb_fit")) {
 		cli::cli_abort("{.arg fit} must be a {.cls bdeb_fit} object.")
@@ -300,6 +333,13 @@ bdeb_summary <- function(fit, pars = NULL, prob = 0.90, ...) {
 #' *Statistics and Computing*, 27(5), 1413--1432.
 #' \doi{10.1007/s11222-016-9696-4}
 #' @export
+#' @examples
+#' \dontrun{
+#' data(eisenia_growth)
+#' dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
+#' fit <- bdeb_fit(bdeb_model(dat, type = "individual"))
+#' bdeb_loo(fit)
+#' }
 bdeb_loo <- function(fit, endpoint = c("all", "growth", "reproduction"), ...) {
 	if (!inherits(fit, "bdeb_fit")) {
 		cli::cli_abort("{.arg fit} must be a {.cls bdeb_fit} object.")
@@ -422,6 +462,13 @@ bdeb_loo <- function(fit, endpoint = c("all", "growth", "reproduction"), ...) {
 #' the basis of dynamic energy budget parameters. *PLOS Computational
 #' Biology*, 14(5), e1006100. \doi{10.1371/journal.pcbi.1006100}
 #' @export
+#' @examples
+#' \dontrun{
+#' data(eisenia_growth)
+#' dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
+#' fit <- bdeb_fit(bdeb_model(dat, type = "individual"))
+#' bdeb_derived(fit, quantities = c("L_inf", "k_M"))
+#' }
 bdeb_derived <- function(object, ...) {
 	UseMethod("bdeb_derived")
 }

@@ -56,14 +56,23 @@
 #' *Bayesian Analysis*, 16(2), 667--718. \doi{10.1214/20-BA1221}
 #' @export
 #' @examples
-#' # \dontrun{} because bdeb_fit() requires the external CmdStan toolchain
-#' # (not on CRAN) and a single fit takes > 30 seconds (Stan compilation
-#' # + MCMC).  Users can run this manually after `cmdstanr::install_cmdstan()`.
-#' \dontrun{
-#' data(eisenia_growth)
-#' dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
-#' mod <- bdeb_model(dat, type = "individual")
-#' fit <- bdeb_fit(mod, chains = 2, iter_sampling = 500)
+#' # bdeb_fit() requires the external CmdStan toolchain (Suggests:
+#' # cmdstanr) and a fresh fit takes > 30 seconds (Stan compilation
+#' # plus MCMC).  The example is wrapped in \donttest{} and gated on
+#' # cmdstanr availability so that R CMD check skips it on CRAN's
+#' # toolchain-free workers but power users can run it after
+#' # cmdstanr::install_cmdstan().
+#' \donttest{
+#' if (requireNamespace("cmdstanr", quietly = TRUE) &&
+#'     nzchar(tryCatch(cmdstanr::cmdstan_path(),
+#'                     error = function(e) ""))) {
+#'   data(eisenia_growth)
+#'   dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
+#'   mod <- bdeb_model(dat, type = "individual")
+#'   fit <- bdeb_fit(mod, chains = 1, iter_warmup = 200,
+#'                   iter_sampling = 200, refresh = 0)
+#'   print(fit)
+#' }
 #' }
 bdeb_fit <- function(model,
                      chains = 4,
@@ -198,6 +207,10 @@ bdeb_fit <- function(model,
 	structure(out, class = "bdeb_fit")
 }
 
+#' Print a BDEB Fit
+#'
+#' @param x A [bdeb_fit()] object.
+#' @param ... Ignored.
 #' @return The input object, invisibly.
 #' @export
 print.bdeb_fit <- function(x, ...) {
@@ -240,9 +253,21 @@ print.bdeb_fit <- function(x, ...) {
 #'   by their percentile (e.g. `"5%"` / `"95%"` for `prob = 0.90`),
 #'   `rhat`, `ess_bulk`, and `ess_tail`.
 #' @export
+#' @examples
+#' \dontrun{
+#' fit <- bdeb_fit(mod)
+#' summary(fit, pars = c("p_Am", "kappa"), prob = 0.95)
+#' }
 summary.bdeb_fit <- function(object, pars = NULL, prob = 0.90, ...) {
 	if (!inherits(object, "bdeb_fit")) {
 		cli::cli_abort("{.arg object} must be a {.cls bdeb_fit} object.")
+	}
+	if (!is.null(pars) && !is.character(pars)) {
+		cli::cli_abort("{.arg pars} must be a character vector or NULL.")
+	}
+	if (!is.numeric(prob) || length(prob) != 1L ||
+	    !is.finite(prob) || prob <= 0 || prob >= 1) {
+		cli::cli_abort("{.arg prob} must be a single number in (0, 1).")
 	}
 
 	draws <- posterior::as_draws_df(object$fit$draws())
@@ -274,6 +299,11 @@ summary.bdeb_fit <- function(object, pars = NULL, prob = 0.90, ...) {
 #' @param ... Ignored.
 #' @return Named numeric vector of point estimates.
 #' @export
+#' @examples
+#' \dontrun{
+#' fit <- bdeb_fit(mod)
+#' coef(fit)
+#' }
 coef.bdeb_fit <- function(object, type = c("median", "mean"), ...) {
 	type <- match.arg(type)
 	draws <- posterior::as_draws_df(object$fit$draws())
@@ -312,6 +342,11 @@ coef.bdeb_fit <- function(object, type = c("median", "mean"), ...) {
 #' @return A matrix with one row per parameter and two columns named by
 #'   their percentile (e.g. `"2.5%"`, `"97.5%"` for `level = 0.95`).
 #' @export
+#' @examples
+#' \dontrun{
+#' fit <- bdeb_fit(mod)
+#' confint(fit, level = 0.90)
+#' }
 confint.bdeb_fit <- function(object, parm = NULL, level = 0.95, ...) {
 	if (!inherits(object, "bdeb_fit")) {
 		cli::cli_abort("{.arg object} must be a {.cls bdeb_fit} object.")
@@ -354,6 +389,11 @@ confint.bdeb_fit <- function(object, parm = NULL, level = 0.95, ...) {
 #' @param ... Ignored.
 #' @return Integer scalar: total number of observations.
 #' @export
+#' @examples
+#' \dontrun{
+#' fit <- bdeb_fit(mod)
+#' nobs(fit)
+#' }
 nobs.bdeb_fit <- function(object, ...) {
 	if (!inherits(object, "bdeb_fit")) {
 		cli::cli_abort("{.arg object} must be a {.cls bdeb_fit} object.")
@@ -379,6 +419,11 @@ nobs.bdeb_fit <- function(object, ...) {
 #' @param ... Ignored.
 #' @return Named numeric vector of fitted values, one per observation.
 #' @export
+#' @examples
+#' \dontrun{
+#' fit <- bdeb_fit(mod)
+#' fitted(fit)
+#' }
 fitted.bdeb_fit <- function(object, type = c("median", "mean"), ...) {
 	if (!inherits(object, "bdeb_fit")) {
 		cli::cli_abort("{.arg object} must be a {.cls bdeb_fit} object.")
@@ -415,6 +460,11 @@ fitted.bdeb_fit <- function(object, type = c("median", "mean"), ...) {
 #' @param ... Ignored.
 #' @return Named numeric vector of residuals.
 #' @export
+#' @examples
+#' \dontrun{
+#' fit <- bdeb_fit(mod)
+#' residuals(fit)
+#' }
 residuals.bdeb_fit <- function(object, type = "response", ...) {
 	if (!inherits(object, "bdeb_fit")) {
 		cli::cli_abort("{.arg object} must be a {.cls bdeb_fit} object.")
@@ -443,6 +493,11 @@ residuals.bdeb_fit <- function(object, type = "response", ...) {
 #' @return A symmetric numeric matrix with model parameters on rows
 #'   and columns.
 #' @export
+#' @examples
+#' \dontrun{
+#' fit <- bdeb_fit(mod)
+#' vcov(fit)
+#' }
 vcov.bdeb_fit <- function(object, ...) {
 	if (!inherits(object, "bdeb_fit")) {
 		cli::cli_abort("{.arg object} must be a {.cls bdeb_fit} object.")
@@ -474,6 +529,11 @@ vcov.bdeb_fit <- function(object, ...) {
 #' @return A `logLik` object with attributes `df` (number of model
 #'   parameters) and `nobs` (number of observations).
 #' @export
+#' @examples
+#' \dontrun{
+#' fit <- bdeb_fit(mod)
+#' logLik(fit)
+#' }
 logLik.bdeb_fit <- function(object, ...) {
 	if (!inherits(object, "bdeb_fit")) {
 		cli::cli_abort("{.arg object} must be a {.cls bdeb_fit} object.")

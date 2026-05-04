@@ -21,3 +21,9 @@ Carries class \code{summary.bdeb_prediction} and attribute \code{prob}.
 Reduces the matrix of posterior trajectory draws stored in a
 \code{bdeb_prediction} object to per-time-point credible intervals.
 }
+\examples{
+\dontrun{
+fit <- bdeb_fit(mod)
+summary(predict(fit), prob = 0.95)
+}
+}

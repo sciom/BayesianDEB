@@ -25,4 +25,10 @@ A \code{posterior::draws_summary} data frame.
 \code{\link[cmdstanr:fit-method-summary]{cmdstanr::summary()}} on a \code{\link[=bdeb_fit]{bdeb_fit()}} object instead; the two are
 equivalent.  This wrapper will be removed in a future release.
 }
+\examples{
+\dontrun{
+fit <- bdeb_fit(mod)
+bdeb_summary(fit)  # equivalent to summary(fit); deprecated
+}
+}
 \keyword{internal}

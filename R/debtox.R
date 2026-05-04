@@ -106,6 +106,15 @@ bdeb_tox <- function(data,
 #'   - `summary`: mean, median, sd, lower, upper
 #'   - `NEC`: posterior summary of the no-effect concentration
 #' @export
+#' @examples
+#' \dontrun{
+#' data(debtox_growth)
+#' dat <- bdeb_data(growth = debtox_growth,
+#'                  concentration = c("1" = 0, "11" = 20,
+#'                                   "21" = 80, "31" = 200))
+#' fit <- bdeb_fit(bdeb_tox(dat, stress = "assimilation"))
+#' bdeb_ec50(fit, prob = 0.95)
+#' }
 bdeb_ec50 <- function(fit, prob = 0.90, verbose = TRUE) {
 	if (!inherits(fit, "bdeb_fit")) {
 		cli::cli_abort("{.arg fit} must be a {.cls bdeb_fit} object.")
@@ -113,6 +122,14 @@ bdeb_ec50 <- function(fit, prob = 0.90, verbose = TRUE) {
 
 	if (fit$model$type != "debtox") {
 		cli::cli_abort("EC50 extraction requires a DEBtox model fit.")
+	}
+
+	if (!is.numeric(prob) || length(prob) != 1L ||
+	    !is.finite(prob) || prob <= 0 || prob >= 1) {
+		cli::cli_abort("{.arg prob} must be a single number in (0, 1).")
+	}
+	if (!is.logical(verbose) || length(verbose) != 1L || is.na(verbose)) {
+		cli::cli_abort("{.arg verbose} must be a single logical.")
 	}
 
 	draws <- posterior::as_draws_df(fit$fit$draws())
@@ -199,11 +216,36 @@ bdeb_ec50 <- function(fit, prob = 0.90, verbose = TRUE) {
 #'   Default `NULL`.
 #' @return A ggplot2 object.
 #' @export
+#' @examples
+#' \dontrun{
+#' data(debtox_growth)
+#' dat <- bdeb_data(growth = debtox_growth,
+#'                  concentration = c("1" = 0, "11" = 20,
+#'                                   "21" = 80, "31" = 200))
+#' fit <- bdeb_fit(bdeb_tox(dat, stress = "assimilation"))
+#' plot_dose_response(fit, n_draws = 50)
+#' }
 plot_dose_response <- function(fit, endpoint = "growth", n_draws = 100,
                                n_conc = 50, dt = 1.0, t_end = NULL,
                                seed = NULL) {
 	if (!inherits(fit, "bdeb_fit") || fit$model$type != "debtox") {
 		cli::cli_abort("Requires a fitted DEBtox model.")
+	}
+	if (!is.numeric(n_draws) || length(n_draws) != 1L ||
+	    !is.finite(n_draws) || n_draws < 1) {
+		cli::cli_abort("{.arg n_draws} must be a positive scalar (>= 1).")
+	}
+	if (!is.numeric(n_conc) || length(n_conc) != 1L ||
+	    !is.finite(n_conc) || n_conc < 2) {
+		cli::cli_abort("{.arg n_conc} must be a scalar >= 2.")
+	}
+	if (!is.numeric(dt) || length(dt) != 1L ||
+	    !is.finite(dt) || dt <= 0) {
+		cli::cli_abort("{.arg dt} must be a positive scalar.")
+	}
+	if (!is.null(t_end) && (!is.numeric(t_end) || length(t_end) != 1L ||
+	                        !is.finite(t_end) || t_end <= 0)) {
+		cli::cli_abort("{.arg t_end} must be a positive scalar or NULL.")
 	}
 
 	draws <- posterior::as_draws_df(fit$fit$draws())

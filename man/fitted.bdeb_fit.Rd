@@ -25,3 +25,9 @@ Posterior point estimate (median or mean) of the latent length
 Currently supported for \code{"individual"} and \code{"growth_repro"} models.
 For \code{"hierarchical"} and \code{"debtox"} use \code{\link[=bdeb_predict]{bdeb_predict()}} instead.
 }
+\examples{
+\dontrun{
+fit <- bdeb_fit(mod)
+fitted(fit)
+}
+}

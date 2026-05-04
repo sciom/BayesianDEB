@@ -129,4 +129,5 @@
 #'
 #' @name BayesianDEB-package
 #' @aliases BayesianDEB
+#' @importFrom stats nobs fitted
 NULL

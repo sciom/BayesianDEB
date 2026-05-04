@@ -79,14 +79,23 @@ values can matter; the non-centred parameterisation used in
 \code{bdeb_hierarchical_growth.stan} should suffice in most cases.
 }
 \examples{
-# \dontrun{} because bdeb_fit() requires the external CmdStan toolchain
-# (not on CRAN) and a single fit takes > 30 seconds (Stan compilation
-# + MCMC).  Users can run this manually after `cmdstanr::install_cmdstan()`.
-\dontrun{
-data(eisenia_growth)
-dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
-mod <- bdeb_model(dat, type = "individual")
-fit <- bdeb_fit(mod, chains = 2, iter_sampling = 500)
+# bdeb_fit() requires the external CmdStan toolchain (Suggests:
+# cmdstanr) and a fresh fit takes > 30 seconds (Stan compilation
+# plus MCMC).  The example is wrapped in \donttest{} and gated on
+# cmdstanr availability so that R CMD check skips it on CRAN's
+# toolchain-free workers but power users can run it after
+# cmdstanr::install_cmdstan().
+\donttest{
+if (requireNamespace("cmdstanr", quietly = TRUE) &&
+    nzchar(tryCatch(cmdstanr::cmdstan_path(),
+                    error = function(e) ""))) {
+  data(eisenia_growth)
+  dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
+  mod <- bdeb_model(dat, type = "individual")
+  fit <- bdeb_fit(mod, chains = 1, iter_warmup = 200,
+                  iter_sampling = 200, refresh = 0)
+  print(fit)
+}
 }
 }
 \references{

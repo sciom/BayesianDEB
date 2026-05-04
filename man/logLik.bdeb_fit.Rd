@@ -30,3 +30,9 @@ Requires the Stan model to store per-observation \code{log_lik} in
 \code{"growth_repro"} models; \code{"hierarchical"} and \code{"debtox"} compute the
 likelihood inside \code{reduce_sum} and do not expose individual terms.
 }
+\examples{
+\dontrun{
+fit <- bdeb_fit(mod)
+logLik(fit)
+}
+}

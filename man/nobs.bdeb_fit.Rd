@@ -19,3 +19,9 @@ Returns the total count of growth (and, where relevant, reproduction)
 observations that contributed to the likelihood.  Matches
 \code{\link[stats:nobs]{stats::nobs()}} in spirit.
 }
+\examples{
+\dontrun{
+fit <- bdeb_fit(mod)
+nobs(fit)
+}
+}

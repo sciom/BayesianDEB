@@ -19,3 +19,9 @@ Returns counts of problematic parameters (divergences, treedepth
 saturations, low-EBFMI chains, R-hat > 1.01, ESS-bulk < 400) suitable
 for a one-line health check or programmatic gating.
 }
+\examples{
+\dontrun{
+fit <- bdeb_fit(mod)
+summary(bdeb_diagnose(fit))
+}
+}

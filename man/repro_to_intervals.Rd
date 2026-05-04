@@ -21,3 +21,11 @@ R(t_{\mathrm{start}})} so that the negative-binomial likelihood can be
 applied to each counting period.  This function computes the
 first-difference per individual.
 }
+\examples{
+cumul <- data.frame(
+  id = rep(1, 5),
+  time = c(0, 7, 14, 21, 28),
+  cumulative = c(0, 10, 30, 60, 100)
+)
+repro_to_intervals(cumul)
+}

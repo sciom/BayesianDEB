@@ -19,3 +19,9 @@ and columns.
 Computes the empirical covariance matrix of the posterior draws for
 all model parameters.  Bayesian counterpart of \code{\link[stats:vcov]{stats::vcov()}}.
 }
+\examples{
+\dontrun{
+fit <- bdeb_fit(mod)
+vcov(fit)
+}
+}

@@ -17,3 +17,9 @@ The input object, invisibly.
 \description{
 One-line metadata printer for \code{\link[=predict.bdeb_fit]{predict.bdeb_fit()}} output.
 }
+\examples{
+\dontrun{
+fit <- bdeb_fit(mod)
+print(predict(fit))
+}
+}
