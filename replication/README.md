@@ -36,6 +36,11 @@ Rscript 03_case_studies.R
 | `lite` (default) | 2 | 300 | 300 | **~30 min** (4 cores) |
 | `full` | 4 | 1000 | 1000 | **~3 h** (8 cores) |
 
+**Note:** `lite` mode is intended only as a quick API/numerics
+sanity check.  R-hat / divergence diagnostics are expected to
+fail in `lite` for the larger models (hierarchical §5.3, full
+DEBtox §7.2); use `BDEB_MODE=full` for publication-grade results.
+
 All output figures and tables are written to `replication/outputs/`.
 The reproducibility report (BayesianDEB / cmdstanr / CmdStan / R
 versions, Stan model hashes) is written to

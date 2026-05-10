@@ -7,11 +7,17 @@
 #   5.4 DEBtox analysis (Cd toxicity, eisenia_cd dataset)
 # =============================================================
 
-source(file.path(dirname(sys.frame(1)$ofile %||%
-                         normalizePath("00_setup.R", mustWork = FALSE)),
-                 "00_setup.R"))
-
 `%||%` <- function(a, b) if (is.null(a)) b else a
+
+.script_dir <- (function() {
+	args <- commandArgs(trailingOnly = FALSE)
+	m <- grep("^--file=", args, value = TRUE)
+	if (length(m)) return(dirname(normalizePath(sub("^--file=", "", m[1]))))
+	ofile <- tryCatch(sys.frame(1)$ofile, error = function(e) NULL)
+	if (!is.null(ofile)) return(dirname(normalizePath(ofile)))
+	getwd()
+})()
+source(file.path(.script_dir, "00_setup.R"))
 
 
 # -------------------------------------------------------------
