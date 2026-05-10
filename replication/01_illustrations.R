@@ -139,9 +139,10 @@ mod_h <- bdeb_model(dat_all, type = "hierarchical",
 
 fit_h <- bdeb_fit(mod_h,
                   chains        = ITER_CFG$chains,
-                  iter_warmup   = ITER_CFG$warmup,
+                  iter_warmup   = max(ITER_CFG$warmup, 600L),
                   iter_sampling = ITER_CFG$sampling,
-                  adapt_delta   = 0.95,
+                  adapt_delta   = if (BDEB_MODE == "full") 0.95 else 0.99,
+                  max_treedepth = if (BDEB_MODE == "full") 10L else 8L,
                   threads_per_chain = if (BDEB_MODE == "full") 4 else 2,
                   seed = 123, refresh = 0)
 
@@ -177,9 +178,10 @@ mod_cd <- bdeb_tox(dat_cd, stress = "assimilation",
 
 fit_cd <- bdeb_fit(mod_cd,
                    chains        = ITER_CFG$chains,
-                   iter_warmup   = ITER_CFG$warmup,
+                   iter_warmup   = max(ITER_CFG$warmup, 600L),
                    iter_sampling = ITER_CFG$sampling,
-                   adapt_delta   = 0.95, max_treedepth = 12,
+                   adapt_delta   = if (BDEB_MODE == "full") 0.95 else 0.99,
+                   max_treedepth = if (BDEB_MODE == "full") 10L else 8L,
                    seed = 42, refresh = 0)
 
 cat("\n--- Section 5.4: DEBtox posterior (Table 4) ---\n")
