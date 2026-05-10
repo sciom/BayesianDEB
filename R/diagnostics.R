@@ -85,8 +85,8 @@ bdeb_diagnose <- function(fit, pars = NULL) {
 	summ <- posterior::summarise_draws(
 		posterior::subset_draws(draws, variable = pars),
 		"mean", "sd", "median",
-		"q5" = ~ quantile(.x, 0.05),
-		"q95" = ~ quantile(.x, 0.95),
+		"q5" = ~ quantile(.x, 0.05, na.rm = TRUE),
+		"q95" = ~ quantile(.x, 0.95, na.rm = TRUE),
 		"rhat",
 		"ess_bulk",
 		"ess_tail"
