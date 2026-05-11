@@ -2,18 +2,18 @@
 % Please edit documentation in R/diagnostics.R
 \name{bdeb_summary}
 \alias{bdeb_summary}
-\title{Posterior Summary for BDEB Parameters}
+\title{Posterior Summary for BDEB Parameters (deprecated)}
 \usage{
 bdeb_summary(fit, pars = NULL, prob = 0.9, ...)
 }
 \arguments{
 \item{fit}{A \code{\link[=bdeb_fit]{bdeb_fit()}} object.}
 
-\item{pars}{Character vector of parameter names. Default: all model
-parameters.}
+\item{pars}{Character vector of parameter names.  Forwarded to
+the \code{\link[cmdstanr:fit-method-summary]{cmdstanr::summary()}} method on \code{bdeb_fit}.}
 
-\item{prob}{Probability for credible intervals. Default 0.90 (5th/95th
-percentiles).}
+\item{prob}{Probability for the central credible interval.  Forwarded
+to the \code{\link[cmdstanr:fit-method-summary]{cmdstanr::summary()}} method on \code{bdeb_fit}.}
 
 \item{...}{Ignored.}
 }
@@ -21,6 +21,14 @@ percentiles).}
 A \code{posterior::draws_summary} data frame.
 }
 \description{
-Returns a tidy summary table of posterior draws for model parameters
-and optionally derived quantities.
+\code{bdeb_summary()} is deprecated as of BayesianDEB 0.2.0.  Call
+\code{\link[cmdstanr:fit-method-summary]{cmdstanr::summary()}} on a \code{\link[=bdeb_fit]{bdeb_fit()}} object instead; the two are
+equivalent.  This wrapper will be removed in a future release.
 }
+\examples{
+\dontrun{
+fit <- bdeb_fit(mod)
+bdeb_summary(fit)  # equivalent to summary(fit); deprecated
+}
+}
+\keyword{internal}

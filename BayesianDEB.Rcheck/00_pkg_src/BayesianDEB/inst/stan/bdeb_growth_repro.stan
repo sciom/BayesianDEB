@@ -80,9 +80,9 @@ data {
   real prior_L0_mu;
   real<lower=0> prior_L0_sd;
   real<lower=0> prior_sigma_L_sd;
-  real<lower=0> prior_k_R_mu;
+  real prior_k_R_mu;
   real<lower=0> prior_k_R_sd;
-  real<lower=0> prior_phi_R_mu;
+  real prior_phi_R_mu;
   real<lower=0> prior_phi_R_sd;
 }
 
@@ -117,7 +117,7 @@ transformed parameters {
     vector[3] x0 = [E0 * V0, V0, 0.0]';
 
     x_sol = ode_bdf_tol(deb_growth_repro_ode, x0, 0.0, t_all,
-                        1e-6, 1e-6, 10000,
+                        1e-6, 1e-6, 100000,
                         p_Am * c_T, p_M * c_T, kappa,
                         v * c_T, E_G, k_J * c_T, E_Hp, f_food);
   }

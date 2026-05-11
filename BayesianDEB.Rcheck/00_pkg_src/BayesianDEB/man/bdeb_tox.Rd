@@ -59,11 +59,12 @@ capture within-group individual variation.  A hierarchical
 DEBtox extension is planned for a future version.
 }
 \examples{
-\dontrun{
-conc <- c("ctrl" = 0, "low" = 5, "mid" = 20, "high" = 100)
-dat <- bdeb_data(growth = growth_df, concentration = conc)
+# R-side specification only (no Stan sampling)
+data(debtox_growth)
+# one replicate per concentration avoids aggregation warning
+dt <- debtox_growth[debtox_growth$id \%in\% c(1, 11, 21, 31), ]
+dat <- bdeb_data(growth = dt, concentration = c(0, 20, 80, 200))
 mod <- bdeb_tox(dat, stress = "assimilation")
-}
 }
 \references{
 Jager, T., Heugens, E.H.W. and Kooijman, S.A.L.M. (2006). Making

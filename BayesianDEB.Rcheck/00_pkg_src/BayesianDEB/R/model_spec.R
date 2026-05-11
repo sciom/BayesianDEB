@@ -40,11 +40,11 @@
 #'   [prior_default()].
 #' @param observation Named list of observation model specs for each endpoint.
 #'   Default: `list(growth = obs_normal(), reproduction = obs_negbinom())`.
-#' @param temperature Optional list with components `T` (observation
+#' @param temperature Optional list with components `T_obs` (observation
 #'   temperature in Kelvin), `T_ref` (reference temperature in K), and
 #'   `T_A` (Arrhenius temperature in K).  If provided, the correction
-#'   factor \eqn{c_T = \exp(T_A/T_{\mathrm{ref}} - T_A/T)} (see
-#'   [arrhenius()]) is applied **inside the Stan ODE** to all rate
+#'   factor \eqn{c_T = \exp(T_A/T_{\mathrm{ref}} - T_A/T_{\mathrm{obs}})}
+#'   (see [arrhenius()]) is applied **inside the Stan ODE** to all rate
 #'   parameters: \eqn{\{p_{Am}\}}, \eqn{[p_M]}, \eqn{v}, \eqn{k_J}
 #'   (growth_repro), \eqn{k_d} (debtox).  Parameters that are **not**
 #'   rates (\eqn{\kappa}, \eqn{[E_G]}, \eqn{z_w}, \eqn{b_w}) are not
@@ -52,7 +52,8 @@
 #'   making results comparable across experiments at different
 #'   temperatures.  The correction is global (single temperature for the
 #'   entire experiment).  If `NULL` (default), no correction is applied
-#'   (\eqn{c_T = 1}).
+#'   (\eqn{c_T = 1}).  The field was renamed from `T` to `T_obs` in
+#'   version 0.1.4 to avoid shadowing R's built-in `T` symbol.
 #' @return A `bdeb_model` object (S3 list).
 #'
 #' @references
@@ -68,6 +69,12 @@
 #' process-based models. *Ecotoxicology*, 15(3), 305--314.
 #' \doi{10.1007/s10646-006-0060-x}
 #'
+#' @examples
+#' df <- data.frame(id = 1, time = 0:5, length = seq(0.1, 0.6, by = 0.1))
+#' dat <- bdeb_data(growth = df)
+#' mod <- bdeb_model(dat, type = "individual")
+#' print(mod)
+#' summary(mod)
 #' @export
 bdeb_model <- function(data,
                        type = c("individual", "growth_repro",
@@ -139,10 +146,10 @@ bdeb_model <- function(data,
 
 	# Validate temperature if provided
 	if (!is.null(temperature)) {
-		required_t <- c("T", "T_ref", "T_A")
+		required_t <- c("T_obs", "T_ref", "T_A")
 		missing_t <- setdiff(required_t, names(temperature))
 		if (length(missing_t) > 0) {
-			cli::cli_abort("Temperature list missing: {.field {missing_t}}. Required: T, T_ref, T_A.")
+			cli::cli_abort("Temperature list missing: {.field {missing_t}}. Required: T_obs, T_ref, T_A.")
 		}
 		for (tn in required_t) {
 			val <- temperature[[tn]]
@@ -183,6 +190,10 @@ bdeb_model <- function(data,
 	structure(out, class = "bdeb_model")
 }
 
+#' Print a BDEB Model Specification
+#'
+#' @param x A [bdeb_model()] object.
+#' @param ... Ignored.
 #' @return The input object, invisibly.
 #' @export
 print.bdeb_model <- function(x, ...) {
@@ -209,10 +220,134 @@ print.bdeb_model <- function(x, ...) {
 
 	if (!is.null(x$temperature)) {
 		cli::cli_h3("Temperature correction")
-		cli::cli_alert("  T = {x$temperature$T} K, T_ref = {x$temperature$T_ref} K, T_A = {x$temperature$T_A} K")
+		cli::cli_alert("  T_obs = {x$temperature$T_obs} K, T_ref = {x$temperature$T_ref} K, T_A = {x$temperature$T_A} K")
 	}
 
 	invisible(x)
+}
+
+#' Summary of a BDEB Model Specification
+#'
+#' Returns a list summarising the structure of a [bdeb_model()] object:
+#' model type, Stan program name, names of model parameters, prior
+#' families, observation models, and (when present) the temperature
+#' correction settings.  Useful for one-glance verification before
+#' calling [bdeb_fit()].
+#'
+#' @param object A [bdeb_model()] object.
+#' @param ... Ignored.
+#' @return An object of class `summary.bdeb_model` (a list).
+#' @export
+summary.bdeb_model <- function(object, ...) {
+	if (!inherits(object, "bdeb_model")) {
+		cli::cli_abort("{.arg object} must be a {.cls bdeb_model} object.")
+	}
+
+	prior_lines <- vapply(names(object$priors), function(nm) {
+		p <- object$priors[[nm]]
+		switch(p$family,
+			lognormal   = sprintf("LogNormal(mu=%g, sigma=%g)", p$mu, p$sigma),
+			normal      = sprintf("Normal(mu=%g, sigma=%g)", p$mu, p$sigma),
+			beta        = sprintf("Beta(a=%g, b=%g)", p$a, p$b),
+			halfnormal  = sprintf("HalfNormal(sigma=%g)", p$sigma),
+			halfcauchy  = sprintf("HalfCauchy(sigma=%g)", p$sigma),
+			exponential = sprintf("Exponential(rate=%g)", p$rate),
+			"unknown"
+		)
+	}, character(1))
+
+	out <- list(
+		type            = object$type,
+		stan_model_name = object$stan_model_name,
+		n_individuals   = object$data$n_ind,
+		endpoints       = object$data$endpoints,
+		par_names       = names(object$priors),
+		priors          = prior_lines,
+		obs_growth      = object$observation$growth$family,
+		obs_repro       = object$observation$reproduction$family,
+		temperature     = object$temperature
+	)
+
+	structure(out, class = "summary.bdeb_model")
+}
+
+#' @rdname summary.bdeb_model
+#' @param x A `summary.bdeb_model` object.
+#' @export
+print.summary.bdeb_model <- function(x, ...) {
+	cli::cli_h2("BDEB Model Summary")
+	cli::cli_li("Type: {.val {x$type}} ({.file {x$stan_model_name}})")
+	cli::cli_li("Individuals: {.val {x$n_individuals}}")
+	cli::cli_li(
+		"Endpoints: {paste(x$endpoints, collapse = ', ')}"
+	)
+	cli::cli_li(
+		"Observation: growth = {.val {x$obs_growth}}, reproduction = {.val {x$obs_repro}}"
+	)
+	cli::cli_h3("Priors ({length(x$par_names)} parameter{?s})")
+	for (nm in x$par_names) {
+		cli::cli_alert("  {nm}: {x$priors[nm]}")
+	}
+	if (!is.null(x$temperature)) {
+		cli::cli_h3("Temperature correction")
+		cli::cli_alert(
+			"  T_obs = {x$temperature$T_obs} K, T_ref = {x$temperature$T_ref} K, T_A = {x$temperature$T_A} K"
+		)
+	}
+	invisible(x)
+}
+
+#' Plot a BDEB Model Specification
+#'
+#' Displays the prior densities for the model parameters as a faceted
+#' panel of curves.  Each parameter prior is drawn between the
+#' \eqn{0.001} and \eqn{0.999} quantiles of its prior distribution; for
+#' bounded supports (Beta, half-normal, half-Cauchy, exponential) the
+#' lower bound is fixed at zero (or a small epsilon for densities that
+#' diverge there).  Useful for sanity-checking prior choices before
+#' calling [bdeb_fit()].
+#'
+#' @param x A [bdeb_model()] object.
+#' @param pars Optional character vector of parameter names to plot.
+#'   Default: all priors in the model.
+#' @param n Number of grid points per density curve. Default 200.
+#' @param ... Ignored.
+#' @return A [ggplot2::ggplot] object.
+#' @export
+#' @examples
+#' df <- data.frame(id = 1, time = 0:5, length = seq(0.1, 0.6, by = 0.1))
+#' dat <- bdeb_data(growth = df)
+#' mod <- bdeb_model(dat, type = "individual")
+#' plot(mod, pars = c("p_Am", "kappa"))
+plot.bdeb_model <- function(x, pars = NULL, n = 200, ...) {
+	if (!inherits(x, "bdeb_model")) {
+		cli::cli_abort("{.arg x} must be a {.cls bdeb_model} object.")
+	}
+	priors <- x$priors
+	if (is.null(pars)) pars <- names(priors)
+	missing <- setdiff(pars, names(priors))
+	if (length(missing) > 0) {
+		cli::cli_abort("Unknown parameter{?s}: {.val {missing}}.")
+	}
+
+	df_list <- lapply(pars, function(nm) {
+		p <- priors[[nm]]
+		grid_df <- prior_density_df(p, n = n)
+		grid_df$parameter <- nm
+		grid_df
+	})
+	df <- do.call(rbind, df_list)
+	df$parameter <- factor(df$parameter, levels = pars)
+
+	ggplot2::ggplot(df,
+	                ggplot2::aes(x = .data$x, y = .data$density)) +
+		ggplot2::geom_line(colour = "steelblue") +
+		ggplot2::facet_wrap(~ parameter, scales = "free") +
+		ggplot2::theme_bw() +
+		ggplot2::labs(
+			title = "BDEB model: prior densities",
+			x = NULL, y = "Density"
+		)
 }
 
 # --- Observation model specs ---
@@ -243,8 +378,8 @@ obs_lognormal <- function() {
 #' @param nu Degrees of freedom. Default 5.
 #' @export
 obs_student_t <- function(nu = 5) {
-	if (!is.numeric(nu) || length(nu) != 1 || nu <= 1)
-		cli::cli_abort("{.arg nu} must be > 1 (degrees of freedom).")
+	if (!is.numeric(nu) || length(nu) != 1 || nu < 1)
+		cli::cli_abort("{.arg nu} must be >= 1 (degrees of freedom).")
 	structure(list(family = "student_t", nu = nu), class = "bdeb_obs")
 }
 

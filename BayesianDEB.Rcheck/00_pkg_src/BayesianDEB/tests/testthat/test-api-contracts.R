@@ -45,7 +45,7 @@ test_that("temperature = NULL produces has_temperature = 0 in stan_data", {
 test_that("temperature with all three fields produces has_temperature = 1", {
   df <- data.frame(id = 1, time = 0:3, length = 1:4 * 0.1)
   dat <- bdeb_data(growth = df)
-  temp <- list(T = 298.15, T_ref = 293.15, T_A = 8000)
+  temp <- list(T_obs = 298.15, T_ref = 293.15, T_A = 8000)
   mod <- bdeb_model(dat, "individual", temperature = temp)
   expect_equal(mod$stan_data$has_temperature, 1L)
   expect_equal(mod$stan_data$T_obs, 298.15)
@@ -57,7 +57,7 @@ test_that("temperature missing T_ref errors with field name", {
   df <- data.frame(id = 1, time = 0:3, length = 1:4 * 0.1)
   dat <- bdeb_data(growth = df)
   expect_error(
-    bdeb_model(dat, "individual", temperature = list(T = 298, T_A = 8000)),
+    bdeb_model(dat, "individual", temperature = list(T_obs = 298, T_A = 8000)),
     "T_ref"
   )
 })
@@ -66,7 +66,7 @@ test_that("temperature missing T_A errors with field name", {
   df <- data.frame(id = 1, time = 0:3, length = 1:4 * 0.1)
   dat <- bdeb_data(growth = df)
   expect_error(
-    bdeb_model(dat, "individual", temperature = list(T = 298, T_ref = 293)),
+    bdeb_model(dat, "individual", temperature = list(T_obs = 298, T_ref = 293)),
     "T_A"
   )
 })
@@ -117,9 +117,10 @@ test_that("prior_halfnormal rejects sigma <= 0", {
   expect_error(prior_halfnormal(sigma = -0.1), "positive")
 })
 
-test_that("obs_student_t rejects nu <= 1", {
-  expect_error(obs_student_t(nu = 1), "nu.*> 1")
-  expect_error(obs_student_t(nu = 0), "nu.*> 1")
+test_that("obs_student_t rejects nu < 1", {
+  expect_no_error(obs_student_t(nu = 1))
+  expect_error(obs_student_t(nu = 0), "nu.*>= 1")
+  expect_error(obs_student_t(nu = -1), "nu.*>= 1")
 })
 
 test_that("bdeb_data rejects f_food outside [0,1]", {
@@ -201,14 +202,14 @@ test_that("bdeb_ec50 on non-debtox model errors", {
 })
 
 
-# --- bdeb_diagnose, bdeb_summary, bdeb_derived: class contracts ---
+# --- bdeb_diagnose, summary, bdeb_derived: class contracts ---
 
 test_that("bdeb_diagnose rejects wrong class", {
   expect_error(bdeb_diagnose(list()), "bdeb_fit")
 })
 
-test_that("bdeb_summary rejects wrong class", {
-  expect_error(bdeb_summary(list()), "bdeb_fit")
+test_that("summary.bdeb_fit rejects wrong class on direct dispatch", {
+  expect_error(summary.bdeb_fit(list()), "bdeb_fit")
 })
 
 test_that("bdeb_derived rejects wrong class", {

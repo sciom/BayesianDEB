@@ -1,5 +1,6 @@
 # ===========================================================
-# Tests: diagnostics.R  (bdeb_diagnose, bdeb_summary, bdeb_derived)
+# Tests: diagnostics.R  (bdeb_diagnose, bdeb_derived) +
+#                     summary.bdeb_fit and the deprecated bdeb_summary()
 # ===========================================================
 
 # --- bdeb_diagnose ---
@@ -10,32 +11,28 @@ test_that("bdeb_diagnose rejects non-bdeb_fit", {
   expect_error(bdeb_diagnose("fit"), "bdeb_fit")
 })
 
-test_that("bdeb_diagnose works with mock fit", {
+test_that("bdeb_diagnose returns bdeb_diagnostics S3 object", {
   fit <- mock_bdeb_fit(n_draws = 100, type = "individual")
   result <- bdeb_diagnose(fit)
 
-  expect_type(result, "list")
-  expect_true("n_divergent" %in% names(result))
-  expect_true("n_max_treedepth" %in% names(result))
-  expect_true("ebfmi" %in% names(result))
-  expect_true("summary" %in% names(result))
-
+  expect_s3_class(result, "bdeb_diagnostics")
+  expect_named(
+    result,
+    c("n_divergent", "n_max_treedepth", "ebfmi",
+      "summary", "pars", "model_type")
+  )
   expect_equal(result$n_divergent, 0)
   expect_equal(result$n_max_treedepth, 0)
-})
-
-test_that("bdeb_diagnose returns invisible", {
-  fit <- mock_bdeb_fit(n_draws = 50)
-  expect_invisible(bdeb_diagnose(fit))
+  expect_equal(result$model_type, "individual")
 })
 
 test_that("bdeb_diagnose with specific pars", {
   fit <- mock_bdeb_fit(n_draws = 100)
   result <- bdeb_diagnose(fit, pars = c("p_Am", "kappa"))
 
-  # Summary should only have 2 parameters
   expect_equal(nrow(result$summary), 2)
   expect_true(all(result$summary$variable %in% c("p_Am", "kappa")))
+  expect_setequal(result$pars, c("p_Am", "kappa"))
 })
 
 test_that("bdeb_diagnose summary has correct columns", {
@@ -48,6 +45,40 @@ test_that("bdeb_diagnose summary has correct columns", {
   expect_true("rhat" %in% names(s))
   expect_true("ess_bulk" %in% names(s))
   expect_true("ess_tail" %in% names(s))
+})
+
+test_that("print.bdeb_diagnostics returns invisibly", {
+  fit <- mock_bdeb_fit(n_draws = 100)
+  d <- bdeb_diagnose(fit)
+  expect_invisible(print(d))
+  # cli alerts go to stderr, not stdout; capture all to verify content
+  out <- testthat::capture_messages(print(d))
+  expect_match(paste(out, collapse = ""), "BDEB Diagnostics")
+})
+
+test_that("summary.bdeb_diagnostics returns counts object", {
+  fit <- mock_bdeb_fit(n_draws = 100)
+  d <- bdeb_diagnose(fit)
+  s <- summary(d)
+  expect_s3_class(s, "summary.bdeb_diagnostics")
+  expect_named(
+    s,
+    c("model_type", "n_pars", "n_divergent", "n_max_treedepth",
+      "n_low_ebfmi", "n_bad_rhat", "n_low_ess",
+      "bad_rhat", "low_ess", "table")
+  )
+  expect_type(s$n_divergent, "integer")
+  expect_type(s$n_bad_rhat, "integer")
+  expect_invisible(print(s))
+})
+
+test_that("plot.bdeb_diagnostics returns ggplot for both types", {
+  skip_if_not_installed("ggplot2")
+  fit <- mock_bdeb_fit(n_draws = 100)
+  d <- bdeb_diagnose(fit)
+  expect_s3_class(plot(d, type = "rhat"), "ggplot")
+  expect_s3_class(plot(d, type = "ess"), "ggplot")
+  expect_error(plot(d, type = "nonsense"))
 })
 
 
@@ -75,16 +106,16 @@ test_that("bdeb_loo works for individual model", {
 })
 
 
-# --- bdeb_summary ---
+# --- summary.bdeb_fit ---
 
-test_that("bdeb_summary rejects non-bdeb_fit", {
-  expect_error(bdeb_summary(list()), "bdeb_fit")
-  expect_error(bdeb_summary(42), "bdeb_fit")
+test_that("summary.bdeb_fit rejects non-bdeb_fit via direct dispatch", {
+  expect_error(summary.bdeb_fit(list()), "bdeb_fit")
+  expect_error(summary.bdeb_fit(42), "bdeb_fit")
 })
 
-test_that("bdeb_summary works with mock fit", {
+test_that("summary.bdeb_fit works with mock fit", {
   fit <- mock_bdeb_fit(n_draws = 100)
-  s <- bdeb_summary(fit)
+  s <- summary(fit)
 
   expect_s3_class(s, "draws_summary")
   expect_true(nrow(s) > 0)
@@ -92,21 +123,21 @@ test_that("bdeb_summary works with mock fit", {
   expect_true("rhat" %in% names(s))
 })
 
-test_that("bdeb_summary filters by pars", {
+test_that("summary.bdeb_fit filters by pars", {
   fit <- mock_bdeb_fit(n_draws = 100)
-  s <- bdeb_summary(fit, pars = c("p_Am", "p_M", "kappa"))
+  s <- summary(fit, pars = c("p_Am", "p_M", "kappa"))
 
   expect_equal(nrow(s), 3)
   expect_true(all(s$variable %in% c("p_Am", "p_M", "kappa")))
 })
 
-test_that("bdeb_summary respects prob argument", {
+test_that("summary.bdeb_fit respects prob argument", {
   fit <- mock_bdeb_fit(n_draws = 200)
 
-  s90 <- suppressWarnings(bdeb_summary(fit, pars = "p_Am", prob = 0.90))
-  s50 <- suppressWarnings(bdeb_summary(fit, pars = "p_Am", prob = 0.50))
+  s90 <- summary(fit, pars = "p_Am", prob = 0.90)
+  s50 <- summary(fit, pars = "p_Am", prob = 0.50)
 
-  # summarise_draws names quantile columns by percentile (e.g. "5%", "95%")
+  # summarise_draws names quantile columns by percentile ("5%", "95%")
   s90_df <- as.data.frame(s90)
   s50_df <- as.data.frame(s50)
 
@@ -115,16 +146,59 @@ test_that("bdeb_summary respects prob argument", {
   expect_gt(width90, width50)
 })
 
-test_that("bdeb_summary excludes log_lik and lp__ by default", {
+test_that("summary.bdeb_fit excludes log_lik and lp__ by default", {
   fit <- mock_bdeb_fit(n_draws = 100)
-  s <- bdeb_summary(fit)
+  s <- summary(fit)
 
   expect_false(any(grepl("^log_lik", s$variable)))
   expect_false(any(grepl("^lp__", s$variable)))
 })
 
 
+# --- bdeb_summary (deprecated wrapper) ---
+
+test_that("bdeb_summary still rejects non-bdeb_fit", {
+  expect_error(bdeb_summary(list()), "bdeb_fit")
+  expect_error(bdeb_summary(42),     "bdeb_fit")
+})
+
+test_that("bdeb_summary issues a deprecation warning", {
+  fit <- mock_bdeb_fit(n_draws = 50)
+  # Use capture_warnings so the upstream "ESS has been capped"
+  # warning from posterior does not leak into the testthat reporter.
+  warns <- testthat::capture_warnings(bdeb_summary(fit))
+  expect_true(any(grepl("deprecated", warns)))
+})
+
+test_that("bdeb_summary forwards to summary.bdeb_fit", {
+  fit <- mock_bdeb_fit(n_draws = 50)
+  s_direct <- summary(fit, pars = c("p_Am", "kappa"))
+  s_wrap   <- suppressWarnings(bdeb_summary(fit, pars = c("p_Am", "kappa")))
+  # Compare numerical content (ignore differences in attributes)
+  expect_equal(as.data.frame(s_direct), as.data.frame(s_wrap))
+})
+
+
 # --- bdeb_derived ---
+
+test_that("bdeb_derived is an S3 generic", {
+  # Generic signature should be (object, ...) — first param is `object`
+  # rather than `fit` to avoid R's partial argument matching with `f =`.
+  expect_named(formals(bdeb_derived), c("object", "..."))
+  # bdeb_fit and default methods are registered
+  expect_true("bdeb_derived.bdeb_fit" %in% as.character(methods("bdeb_derived")))
+  expect_true("bdeb_derived.default" %in% as.character(methods("bdeb_derived")))
+})
+
+test_that("bdeb_derived dispatches correctly when f is named", {
+  # Regression: `f` partial-matched the previous `fit` parameter and
+  # silently sent calls to .default.  With `object` as first arg, this
+  # must work end-to-end.
+  fit <- mock_bdeb_fit(n_draws = 50)
+  d <- bdeb_derived(fit, quantities = "L_inf", f = 0.5)
+  expect_s3_class(d, "draws_df")
+  expect_true("L_inf" %in% names(d))
+})
 
 test_that("bdeb_derived rejects non-bdeb_fit", {
   expect_error(bdeb_derived(list()), "bdeb_fit")

@@ -103,7 +103,7 @@ test_that("E2E temperature: data -> model -> stan_data at 25C", {
   df1 <- eisenia_growth[eisenia_growth$id == 1, ]
 
   dat <- bdeb_data(growth = df1)
-  temp <- list(T = 298.15, T_ref = 293.15, T_A = 8000)
+  temp <- list(T_obs = 298.15, T_ref = 293.15, T_A = 8000)
   mod <- bdeb_model(dat, "individual", temperature = temp)
 
   sd <- mod$stan_data
@@ -135,7 +135,7 @@ test_that("E2E mock individual: fit -> diagnose -> summary -> derived -> ppc -> 
   diag <- suppressWarnings(bdeb_diagnose(fit))
   expect_equal(diag$n_divergent, 0)
 
-  s <- suppressWarnings(bdeb_summary(fit, pars = c("p_Am", "kappa")))
+  s <- summary(fit, pars = c("p_Am", "kappa"))
   expect_equal(nrow(s), 2)
 
   d <- bdeb_derived(fit, quantities = c("L_m", "L_inf", "k_M", "g", "growth_rate"))

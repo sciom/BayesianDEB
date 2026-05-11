@@ -9,11 +9,13 @@ bdeb_loo                LOO Cross-Validation for Model Comparison
 bdeb_model              Specify a BDEB Model
 bdeb_plots              Plot Methods for BDEB Objects
 bdeb_ppc                Posterior Predictive Checks for BDEB Models
+bdeb_prior-methods      Methods for 'bdeb_prior' Objects
 bdeb_prior_predictive   Prior Predictive Check
 bdeb_session_info       Reproducibility Report
-bdeb_summary            Posterior Summary for BDEB Parameters
 bdeb_tox                DEBtox Model Specification
 coef.bdeb_fit           Extract Point Estimates from a BDEB Fit
+confint.bdeb_fit        Posterior Credible Intervals for BDEB Model
+                        Parameters
 deb_fluxes              Compute DEB Energy Fluxes
 deb_simulate            Simulate DEB Growth Trajectory
 debtox_growth           Simulated DEBtox Growth Data
@@ -22,14 +24,38 @@ eisenia_cd              Eisenia andrei Cadmium Toxicity Data (Van
                         Gestel 1991)
 eisenia_growth          Simulated Eisenia fetida Growth Data
 eisenia_neuhauser       Eisenia fetida Growth Data (Neuhauser 1980)
+fitted.bdeb_fit         Fitted Values from a BDEB Fit
 folsomia_repro          Simulated Folsomia candida Reproduction Data
+logLik.bdeb_fit         Log-Likelihood of a BDEB Fit
+nobs.bdeb_fit           Number of Observations Used in a BDEB Fit
 observation_models      Observation Model Specifications
+plot.bdeb_data          Plot a BDEB Data Object
+plot.bdeb_diagnostics   Plot Convergence Diagnostics
 plot.bdeb_fit           Plot a BDEB Fit
+plot.bdeb_model         Plot a BDEB Model Specification
 plot.bdeb_ppc           Plot Posterior Predictive Checks
+plot.bdeb_prediction    Plot Posterior Predictive Trajectories
 plot_dose_response      Plot DEBtox Dose-Response
 predict.bdeb_fit        Predict from a BDEB Fit
+print.bdeb_data         Print a BDEB Data Object
+print.bdeb_diagnostics
+                        Print a BDEB Diagnostics Report
+print.bdeb_fit          Print a BDEB Fit
+print.bdeb_model        Print a BDEB Model Specification
+print.bdeb_ppc          Print a BDEB Posterior Predictive Check
+print.bdeb_prediction   Print a BDEB Prediction
 prior_default           Default Priors for DEB Parameters
 prior_species           Species-Specific Priors from the AmP Collection
 priors                  Prior Distribution Specifications for BDEB
                         Models
 repro_to_intervals      Convert Cumulative Reproduction to Intervals
+residuals.bdeb_fit      Residuals from a BDEB Fit
+summary.bdeb_data       Summary of a BDEB Data Object
+summary.bdeb_diagnostics
+                        Compact Summary of a BDEB Diagnostics Report
+summary.bdeb_fit        Posterior Summary for a BDEB Fit
+summary.bdeb_model      Summary of a BDEB Model Specification
+summary.bdeb_prediction
+                        Tabulate Posterior Predictive Quantiles
+vcov.bdeb_fit           Posterior Covariance Matrix of BDEB Model
+                        Parameters

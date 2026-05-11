@@ -144,10 +144,10 @@ test_that("bdeb_model sets default observation models", {
 test_that("bdeb_model stores temperature correction", {
   df <- data.frame(id = 1, time = 0:5, length = seq(0.1, 0.6, by = 0.1))
   dat <- bdeb_data(growth = df)
-  temp <- list(T = 298.15, T_ref = 293.15, T_A = 8000)
+  temp <- list(T_obs = 298.15, T_ref = 293.15, T_A = 8000)
   mod <- bdeb_model(dat, type = "individual", temperature = temp)
 
-  expect_equal(mod$temperature$T, 298.15)
+  expect_equal(mod$temperature$T_obs, 298.15)
   expect_equal(mod$temperature$T_ref, 293.15)
   expect_equal(mod$temperature$T_A, 8000)
 })
@@ -247,7 +247,7 @@ test_that("bdeb_model growth_repro builds combined time grid", {
 test_that("bdeb_model with temperature adds has_temperature=1 to stan_data", {
   df <- data.frame(id = 1, time = 0:5, length = seq(0.1, 0.6, by = 0.1))
   dat <- bdeb_data(growth = df)
-  temp <- list(T = 298.15, T_ref = 293.15, T_A = 8000)
+  temp <- list(T_obs = 298.15, T_ref = 293.15, T_A = 8000)
   mod <- bdeb_model(dat, type = "individual", temperature = temp)
 
   expect_equal(mod$stan_data$has_temperature, 1L)
@@ -270,9 +270,9 @@ test_that("bdeb_model rejects incomplete temperature specification", {
   df <- data.frame(id = 1, time = 0:5, length = seq(0.1, 0.6, by = 0.1))
   dat <- bdeb_data(growth = df)
 
-  expect_error(bdeb_model(dat, "individual", temperature = list(T = 298)),
+  expect_error(bdeb_model(dat, "individual", temperature = list(T_obs = 298)),
                "T_ref")
-  expect_error(bdeb_model(dat, "individual", temperature = list(T = 298, T_ref = 293)),
+  expect_error(bdeb_model(dat, "individual", temperature = list(T_obs = 298, T_ref = 293)),
                "T_A")
 })
 
@@ -284,7 +284,7 @@ test_that("temperature_to_stan_data produces correct c_T=1 placeholder", {
 })
 
 test_that("temperature works for all model types", {
-  temp <- list(T = 298.15, T_ref = 293.15, T_A = 8000)
+  temp <- list(T_obs = 298.15, T_ref = 293.15, T_A = 8000)
 
   # Individual
   df <- data.frame(id = 1, time = 0:3, length = seq(0.1, 0.4, by = 0.1))

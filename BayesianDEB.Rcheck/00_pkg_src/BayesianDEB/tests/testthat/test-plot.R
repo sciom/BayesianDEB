@@ -22,6 +22,26 @@ test_that("plot.bdeb_fit trajectory returns ggplot", {
   expect_s3_class(p, "ggplot")
 })
 
+test_that("plot.bdeb_fit pairs returns a non-NULL bayesplot grid (C2)", {
+  skip_if_not_installed("gridExtra")
+  fit <- mock_bdeb_fit(n_draws = 50)
+  p <- plot(fit, type = "pairs", pars = c("p_Am", "p_M", "kappa"))
+  expect_false(is.null(p))
+  # bayesplot::mcmc_pairs returns a bayesplot_grid (gtable);
+  # accept either as valid output.
+  expect_true(inherits(p, "bayesplot_grid") ||
+              inherits(p, "gtable") ||
+              inherits(p, "ggplot"))
+})
+
+test_that("plot.bdeb_fit pairs requires >= 2 parameters", {
+  fit <- mock_bdeb_fit(n_draws = 50)
+  # length-1 pars triggers our own validation before reaching bayesplot,
+  # so this test does not require gridExtra.
+  expect_error(plot(fit, type = "pairs", pars = "p_Am"),
+               "pars")
+})
+
 test_that("plot.bdeb_fit uses default pars when NULL", {
   fit <- mock_bdeb_fit(n_draws = 50)
   # Should not error — picks core pars automatically

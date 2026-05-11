@@ -1,7 +1,7 @@
 # BayesianDEB
 
 <!-- badges: start -->
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19443805.svg)](https://doi.org/10.5281/zenodo.19443805)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19443804.svg)](https://doi.org/10.5281/zenodo.19443804)
 <!-- badges: end -->
 
 **BayesianDEB** provides a Bayesian framework for Dynamic Energy Budget
@@ -51,6 +51,7 @@ visualisation.
 | Observation models (normal, lognormal, student-t) | **stable** | Switchable per model via `obs_*()` |
 | Arrhenius temperature correction | **stable** | Global correction on rate parameters |
 | Prior specification | **stable** | 6 families, weakly informative defaults |
+| Species-specific priors (`prior_species()`) | **stable** | Built-in for *E. fetida*, *E. andrei*, *F. candida*, *D. magna*, *L. rubellus* |
 | Derived quantities (L_m, L_inf, k_M, g, r_B) | **stable** | Kooijman (2010) formulas, dimensional tests |
 | EC50 / NEC extraction | **stable** | Analytical, full posterior |
 | Within-chain parallelism (`reduce_sum`) | **stable** | Hierarchical + DEBtox models |
@@ -59,6 +60,7 @@ visualisation.
 | Survival endpoint | planned | Not in current API; will be added in future version |
 | Per-observation temperature (time-varying T) | planned | Currently global only |
 | Multiple stress modes (maintenance, growth cost) | planned | Assimilation stress implemented |
+| Prior-posterior comparison plot | **stable** | `plot(fit, type = "prior_posterior")` |
 | Prior predictive checks | **stable** | `bdeb_prior_predictive()` with plot method |
 | Standalone simulators | **stable** | `deb_simulate()`, `debtox_simulate()` |
 | Maturity dynamics (wider) | planned | Currently post-puberty only |
@@ -142,7 +144,7 @@ If you use BayesianDEB in your work, please cite:
 
 > Hackenberger, B.K., Djerdj, T. and Hackenberger, D.K. (2026).
 > BayesianDEB: Bayesian Dynamic Energy Budget Modelling. R package
-> version 0.1.2. https://github.com/sciom/BayesianDEB
+> version 0.1.3. https://github.com/sciom/BayesianDEB
 
 ## Key references
 

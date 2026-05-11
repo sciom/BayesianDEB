@@ -25,6 +25,14 @@ NULL
 #' @param ... Additional arguments passed to bayesplot functions.
 #' @return A ggplot2 object.
 #' @export
+#' @examples
+#' \dontrun{
+#' data(eisenia_growth)
+#' dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
+#' fit <- bdeb_fit(bdeb_model(dat, type = "individual"))
+#' plot(fit, type = "trace")
+#' plot(fit, type = "trajectory", n_draws = 50)
+#' }
 plot.bdeb_fit <- function(x, type = c("trace", "posterior", "pairs",
                                        "trajectory", "prior_posterior"),
                           pars = NULL, n_draws = 100, seed = NULL, ...) {
@@ -52,6 +60,11 @@ plot.bdeb_fit <- function(x, type = c("trace", "posterior", "pairs",
 #' @param ... Ignored.
 #' @return A ggplot2 object.
 #' @export
+#' @examples
+#' \dontrun{
+#' fit <- bdeb_fit(mod)
+#' plot(bdeb_ppc(fit, type = "growth"))
+#' }
 plot.bdeb_ppc <- function(x, n_draws = 50, ...) {
 	if (!is.null(x$growth)) {
 		plot_ppc_growth(x$growth, n_draws)
@@ -70,13 +83,17 @@ get_core_pars <- function(model_type) {
 		individual   = c("p_Am", "p_M", "kappa", "v", "E_G", "sigma_L"),
 		growth_repro = c("p_Am", "p_M", "kappa", "v", "E_G", "k_J", "sigma_L", "k_R"),
 		hierarchical = c("mu_log_p_Am", "sigma_log_p_Am", "p_M", "kappa", "v", "E_G", "sigma_L"),
-		debtox       = c("p_Am", "p_M", "kappa", "k_d", "z_w", "b_w", "sigma_L"),
+		debtox       = c("p_Am", "p_M", "kappa", "v", "E_G", "k_d", "z_w", "b_w", "sigma_L"),
 		c("p_Am", "p_M", "kappa", "sigma_L")
 	)
 }
 
 #' @keywords internal
 plot_trace <- function(draws, pars, ...) {
+	# Subset to requested pars before bayesplot.  Generated quantities
+	# (e.g. L_rep, log_lik) can contain NaN draws from ODE failures and
+	# bayesplot's prepare_mcmc_array() rejects the whole array up-front.
+	draws <- posterior::subset_draws(draws, variable = pars)
 	bayesplot::mcmc_trace(draws, pars = pars, ...) +
 		ggplot2::theme_bw() +
 		ggplot2::labs(title = "MCMC Trace Plots")
@@ -84,15 +101,31 @@ plot_trace <- function(draws, pars, ...) {
 
 #' @keywords internal
 plot_posterior <- function(draws, pars, ...) {
-	bayesplot::mcmc_dens_overlay(draws, pars = pars, ...) +
+	draws <- posterior::subset_draws(draws, variable = pars)
+	# Use single-chain density when only one chain is available
+	# (e.g. variational fits); otherwise overlay per-chain densities.
+	n_chains <- tryCatch(posterior::nchains(draws), error = function(e) 1L)
+	plot_fn <- if (isTRUE(n_chains > 1L)) {
+		bayesplot::mcmc_dens_overlay
+	} else {
+		bayesplot::mcmc_dens
+	}
+	plot_fn(draws, pars = pars, ...) +
 		ggplot2::theme_bw() +
 		ggplot2::labs(title = "Posterior Densities")
 }
 
 #' @keywords internal
 plot_pairs <- function(draws, pars, ...) {
-	bayesplot::mcmc_pairs(draws, pars = pars, ...) +
-		ggplot2::labs(title = "Posterior Pairs")
+	if (is.null(pars) || length(pars) < 2L) {
+		cli::cli_abort(
+			"{.arg pars} must be a character vector of length >= 2 for {.code type = \"pairs\"}."
+		)
+	}
+	draws <- posterior::subset_draws(draws, variable = pars)
+	# bayesplot::mcmc_pairs() returns a bayesplot_grid (gtable), which
+	# does not support `+ ggplot2::labs()`.  Return as-is.
+	bayesplot::mcmc_pairs(draws, pars = pars, ...)
 }
 
 # --- Trajectory: dispatcher ---
@@ -120,19 +153,27 @@ plot_trajectory_individual <- function(fit, n_draws) {
 		cli::cli_abort("No {.var L_hat} variables found in posterior draws.")
 	}
 
-	L_hat <- as.matrix(draws[, L_hat_vars])
+	# Use as_draws_matrix to strip metadata columns and avoid the
+	# "Dropping draws_df class" warning from base subsetting.
+	L_hat <- posterior::as_draws_matrix(
+		posterior::subset_draws(draws, variable = L_hat_vars)
+	)
 	n_total <- nrow(L_hat)
 	idx <- sort(sample.int(n_total, min(n_draws, n_total)))
 
-	t_obs <- fit$model$stan_data$t_obs
 	L_obs <- fit$model$stan_data$L_obs
 	if (fit$model$type == "growth_repro") {
+		# L_hat is computed at the merged time grid t_all
+		t_hat <- fit$model$stan_data$t_all
 		t_obs <- fit$model$stan_data$t_L
+	} else {
+		t_hat <- fit$model$stan_data$t_obs
+		t_obs <- t_hat
 	}
 
 	traj_list <- lapply(idx, function(i) {
 		data.frame(
-			time   = t_obs[seq_len(ncol(L_hat))],
+			time   = t_hat[seq_len(ncol(L_hat))],
 			length = as.numeric(L_hat[i, ]),
 			draw   = i
 		)

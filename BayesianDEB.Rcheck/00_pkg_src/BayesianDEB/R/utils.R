@@ -12,7 +12,9 @@
 #' 6000--12000 K for ectotherms; Kooijman, 2010, Table 8.1).  At
 #' \eqn{T = T_{\mathrm{ref}}}, the factor is exactly 1.
 #'
-#' @param T Body (or ambient) temperature in Kelvin.
+#' @param temp Body (or ambient) temperature in Kelvin.  Renamed from
+#'   `T` in version 0.1.4 to avoid shadowing R's built-in `T` symbol
+#'   (= `TRUE`); pass positionally or use `temp = ...` explicitly.
 #' @param T_ref Reference temperature in Kelvin (default 293.15 K = 20 °C).
 #' @param T_A Arrhenius temperature in Kelvin (default 8000 K).
 #' @return Numeric correction factor (dimensionless, > 0).
@@ -29,14 +31,14 @@
 #'
 #' # No correction at reference temperature
 #' arrhenius(293.15)  # exactly 1
-arrhenius <- function(T, T_ref = 293.15, T_A = 8000) {
-	if (!is.numeric(T) || any(T <= 0))
-		cli::cli_abort("{.arg T} must be positive (Kelvin).")
+arrhenius <- function(temp, T_ref = 293.15, T_A = 8000) {
+	if (!is.numeric(temp) || any(temp <= 0))
+		cli::cli_abort("{.arg temp} must be positive (Kelvin).")
 	if (!is.numeric(T_ref) || length(T_ref) != 1 || T_ref <= 0)
 		cli::cli_abort("{.arg T_ref} must be a positive scalar (Kelvin).")
 	if (!is.numeric(T_A) || length(T_A) != 1 || T_A < 0)
 		cli::cli_abort("{.arg T_A} must be a non-negative scalar (Kelvin).")
-	exp(T_A / T_ref - T_A / T)
+	exp(T_A / T_ref - T_A / temp)
 }
 
 #' Compute DEB Energy Fluxes
@@ -79,8 +81,29 @@ arrhenius <- function(T, T_ref = 293.15, T_A = 8000) {
 #' Organisation*. 3rd edition. Cambridge University Press, Ch. 2.
 #' \doi{10.1017/CBO9780511805400}
 #' @export
+#' @examples
+#' # Energy fluxes for a 1 cm^3 organism with typical Eisenia parameters
+#' deb_fluxes(E = 1, V = 1, f = 1, p_Am = 5, p_M = 0.5,
+#'   kappa = 0.75, v = 0.2, E_G = 4400)
 deb_fluxes <- function(E, V, f, p_Am, p_M, kappa, v, E_G,
                        k_J = 0, E_Hp = 0) {
+	for (nm in c("E", "V", "f", "p_Am", "p_M", "kappa", "v", "E_G",
+	             "k_J", "E_Hp")) {
+		x <- get(nm)
+		if (!is.numeric(x) || length(x) != 1L || !is.finite(x)) {
+			cli::cli_abort("{.arg {nm}} must be a finite numeric scalar.")
+		}
+	}
+	if (E < 0 || V < 0 || p_Am < 0 || p_M < 0 || v < 0 || E_G < 0 ||
+	    k_J < 0 || E_Hp < 0) {
+		cli::cli_abort("Energy fluxes require non-negative arguments.")
+	}
+	if (f < 0 || f > 1) {
+		cli::cli_abort("{.arg f} must lie in [0, 1].")
+	}
+	if (kappa <= 0 || kappa >= 1) {
+		cli::cli_abort("{.arg kappa} must lie in (0, 1).")
+	}
 	L <- V^(1 / 3)
 	E_m <- p_Am / v  # maximum reserve density [E_m] = {p_Am}/v
 

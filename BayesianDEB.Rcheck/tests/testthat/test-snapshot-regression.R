@@ -93,9 +93,9 @@ test_that("mock_bdeb_fit produces deterministic draws (seed = 42)", {
   expect_equal(as.numeric(d1$kappa), as.numeric(d2$kappa))
 })
 
-test_that("bdeb_summary on fixed mock gives reproducible means", {
+test_that("summary on fixed mock gives reproducible means", {
   fit <- mock_bdeb_fit(n_draws = 200, type = "individual")
-  s <- suppressWarnings(bdeb_summary(fit, pars = c("p_Am", "kappa")))
+  s <- summary(fit, pars = c("p_Am", "kappa"))
   s_df <- as.data.frame(s)
 
   # p_Am: mock draws are rlnorm(., 1.5, 0.1) => mean ~ exp(1.5 + 0.01/2) ~ 4.5

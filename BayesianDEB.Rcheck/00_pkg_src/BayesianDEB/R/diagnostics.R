@@ -19,13 +19,20 @@
 #'     summaries may be unreliable.}
 #' }
 #'
+#' Returns a `bdeb_diagnostics` S3 object.  The object has dedicated
+#' [print()][print.bdeb_diagnostics],
+#' [summary()][summary.bdeb_diagnostics] and
+#' [plot()][plot.bdeb_diagnostics] methods.  When called interactively
+#' the print method is invoked automatically; assign the result
+#' (`d <- bdeb_diagnose(fit)`) to suppress output.
+#'
 #' @param fit A [bdeb_fit()] object.
 #' @param pars Character vector of parameter names to report.  Default:
 #'   all model parameters (excluding generated quantities such as
 #'   `log_lik`, `L_rep`, and `lp__`).
-#' @return Invisibly returns a list with components `n_divergent`,
-#'   `n_max_treedepth`, `ebfmi`, and `summary` (a
-#'   [posterior::summarise_draws()] tibble).
+#' @return An object of class `bdeb_diagnostics` with components
+#'   `n_divergent`, `n_max_treedepth`, `ebfmi`, `summary` (a
+#'   [posterior::summarise_draws()] tibble), `pars`, and `model_type`.
 #'
 #' @references
 #' Vehtari, A., Gelman, A., Simpson, D., Carpenter, B. and
@@ -36,47 +43,41 @@
 #' Betancourt, M. (2016). Diagnosing biased inference with divergences.
 #' Stan case study. \url{https://mc-stan.org/users/documentation/case-studies/divergences_and_bias.html}
 #'
+#' @seealso [print.bdeb_diagnostics()], [summary.bdeb_diagnostics()],
+#'   [plot.bdeb_diagnostics()]
 #' @export
+#' @examples
+#' \dontrun{
+#' data(eisenia_growth)
+#' dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
+#' fit <- bdeb_fit(bdeb_model(dat, type = "individual"),
+#'                 chains = 2, iter_warmup = 200, iter_sampling = 200)
+#' d <- bdeb_diagnose(fit)
+#' summary(d)
+#' plot(d, type = "rhat")
+#' }
 bdeb_diagnose <- function(fit, pars = NULL) {
 	if (!inherits(fit, "bdeb_fit")) {
 		cli::cli_abort("{.arg fit} must be a {.cls bdeb_fit} object.")
 	}
+	if (!is.null(pars) && !is.character(pars)) {
+		cli::cli_abort("{.arg pars} must be a character vector or NULL.")
+	}
 
-	cli::cli_h2("BDEB Diagnostics")
+	algo <- if (is.null(fit$algorithm)) "sampling" else fit$algorithm
+	if (!identical(algo, "sampling")) {
+		cli::cli_abort(c(
+			"x" = "{.fn bdeb_diagnose} requires a sampling (NUTS) fit.",
+			"i" = "This fit was produced with {.code algorithm = {.val {algo}}}, which does not provide R-hat, divergent transitions, or treedepth diagnostics.",
+			"i" = "Re-fit with {.code algorithm = \"sampling\"} for full diagnostics."
+		))
+	}
 
-	# --- CmdStan diagnostics ---
 	diag <- fit$fit$diagnostic_summary(quiet = TRUE)
 
-	n_div  <- sum(diag$num_divergent)
-	n_tree <- sum(diag$num_max_treedepth)
-	ebfmi  <- diag$ebfmi
-
-	if (n_div > 0) {
-		cli::cli_alert_danger("Divergent transitions: {n_div}")
-		cli::cli_alert_info("Consider: increase adapt_delta, reparameterise, or tighten priors.")
-	} else {
-		cli::cli_alert_success("No divergent transitions.")
-	}
-
-	if (n_tree > 0) {
-		cli::cli_alert_warning("Max treedepth saturated: {n_tree} times.")
-		cli::cli_alert_info("Consider: increase max_treedepth.")
-	} else {
-		cli::cli_alert_success("Treedepth OK.")
-	}
-
-	low_ebfmi <- which(ebfmi < 0.3)
-	if (length(low_ebfmi) > 0) {
-		cli::cli_alert_warning("Low E-BFMI for chain(s): {low_ebfmi}")
-	} else {
-		cli::cli_alert_success("E-BFMI OK (all > 0.3).")
-	}
-
-	# --- Parameter-level diagnostics ---
 	draws <- posterior::as_draws_df(fit$fit$draws())
 
 	if (is.null(pars)) {
-		# Get model parameter names (exclude log_lik, *_rep, lp__)
 		all_vars <- posterior::variables(draws)
 		pars <- all_vars[!grepl("^(log_lik|L_rep|R_rep|lp__|p_Am_new)", all_vars)]
 	}
@@ -84,76 +85,221 @@ bdeb_diagnose <- function(fit, pars = NULL) {
 	summ <- posterior::summarise_draws(
 		posterior::subset_draws(draws, variable = pars),
 		"mean", "sd", "median",
-		"q5" = ~ quantile(.x, 0.05),
-		"q95" = ~ quantile(.x, 0.95),
+		"q5" = ~ quantile(.x, 0.05, na.rm = TRUE),
+		"q95" = ~ quantile(.x, 0.95, na.rm = TRUE),
 		"rhat",
 		"ess_bulk",
 		"ess_tail"
 	)
 
+	out <- list(
+		n_divergent     = sum(diag$num_divergent),
+		n_max_treedepth = sum(diag$num_max_treedepth),
+		ebfmi           = diag$ebfmi,
+		summary         = summ,
+		pars            = pars,
+		model_type      = fit$model$type
+	)
+	structure(out, class = "bdeb_diagnostics")
+}
+
+#' Print a BDEB Diagnostics Report
+#'
+#' Default printing for [bdeb_diagnose()] output.  Displays divergence /
+#' treedepth / E-BFMI alerts, R-hat and ESS warnings, and the full
+#' parameter summary table.  Output uses [cli] alerts and is therefore
+#' silenceable via [cli::cli_inform()] sinks.
+#'
+#' @param x A `bdeb_diagnostics` object.
+#' @param ... Unused.
+#' @return The input object, invisibly.
+#' @export
+#' @examples
+#' \dontrun{
+#' fit <- bdeb_fit(mod)
+#' print(bdeb_diagnose(fit))
+#' }
+print.bdeb_diagnostics <- function(x, ...) {
+	cli::cli_h2("BDEB Diagnostics ({x$model_type})")
+
+	if (x$n_divergent > 0) {
+		cli::cli_alert_danger("Divergent transitions: {x$n_divergent}")
+		cli::cli_alert_info("Consider: increase adapt_delta, reparameterise, or tighten priors.")
+	} else {
+		cli::cli_alert_success("No divergent transitions.")
+	}
+
+	if (x$n_max_treedepth > 0) {
+		cli::cli_alert_warning("Max treedepth saturated: {x$n_max_treedepth} times.")
+		cli::cli_alert_info("Consider: increase max_treedepth.")
+	} else {
+		cli::cli_alert_success("Treedepth OK.")
+	}
+
+	low_ebfmi <- which(x$ebfmi < 0.3)
+	if (length(low_ebfmi) > 0) {
+		cli::cli_alert_warning("Low E-BFMI for chain(s): {low_ebfmi}")
+	} else {
+		cli::cli_alert_success("E-BFMI OK (all > 0.3).")
+	}
+
 	cli::cli_h3("Parameter Summary")
 
-	# Check for problematic Rhat
-	bad_rhat <- summ$variable[!is.na(summ$rhat) & summ$rhat > 1.01]
+	bad_rhat <- x$summary$variable[!is.na(x$summary$rhat) & x$summary$rhat > 1.01]
 	if (length(bad_rhat) > 0) {
 		cli::cli_alert_danger("R-hat > 1.01 for: {paste(bad_rhat, collapse = ', ')}")
 	} else {
 		cli::cli_alert_success("All R-hat < 1.01.")
 	}
 
-	# Check for low ESS
-	low_ess <- summ$variable[!is.na(summ$ess_bulk) & summ$ess_bulk < 400]
+	low_ess <- x$summary$variable[!is.na(x$summary$ess_bulk) & x$summary$ess_bulk < 400]
 	if (length(low_ess) > 0) {
 		cli::cli_alert_warning("Low bulk ESS (<400) for: {paste(low_ess, collapse = ', ')}")
 	} else {
 		cli::cli_alert_success("Bulk ESS adequate (>400) for all parameters.")
 	}
 
-	print(as.data.frame(summ), digits = 3, row.names = FALSE)
+	tbl_lines <- utils::capture.output(
+		print(as.data.frame(x$summary), digits = 3, row.names = FALSE)
+	)
+	cli::cli_verbatim(tbl_lines)
 
-	invisible(list(
-		n_divergent    = n_div,
-		n_max_treedepth = n_tree,
-		ebfmi          = ebfmi,
-		summary        = summ
-	))
+	invisible(x)
 }
 
-#' Posterior Summary for BDEB Parameters
+#' Compact Summary of a BDEB Diagnostics Report
 #'
-#' Returns a tidy summary table of posterior draws for model parameters
-#' and optionally derived quantities.
+#' Returns counts of problematic parameters (divergences, treedepth
+#' saturations, low-EBFMI chains, R-hat > 1.01, ESS-bulk < 400) suitable
+#' for a one-line health check or programmatic gating.
+#'
+#' @param object A `bdeb_diagnostics` object.
+#' @param ... Unused.
+#' @return An object of class `summary.bdeb_diagnostics` (a list).
+#' @export
+#' @examples
+#' \dontrun{
+#' fit <- bdeb_fit(mod)
+#' summary(bdeb_diagnose(fit))
+#' }
+summary.bdeb_diagnostics <- function(object, ...) {
+	bad_rhat <- object$summary$variable[
+		!is.na(object$summary$rhat) & object$summary$rhat > 1.01]
+	low_ess <- object$summary$variable[
+		!is.na(object$summary$ess_bulk) & object$summary$ess_bulk < 400]
+	low_ebfmi <- which(object$ebfmi < 0.3)
+
+	out <- list(
+		model_type      = object$model_type,
+		n_pars          = length(object$pars),
+		n_divergent     = object$n_divergent,
+		n_max_treedepth = object$n_max_treedepth,
+		n_low_ebfmi     = length(low_ebfmi),
+		n_bad_rhat      = length(bad_rhat),
+		n_low_ess       = length(low_ess),
+		bad_rhat        = bad_rhat,
+		low_ess         = low_ess,
+		table           = object$summary
+	)
+	structure(out, class = "summary.bdeb_diagnostics")
+}
+
+#' @export
+print.summary.bdeb_diagnostics <- function(x, ...) {
+	cli::cli_h2("BDEB Diagnostics summary ({x$model_type})")
+	cli::cli_li("Parameters monitored: {.val {x$n_pars}}")
+	cli::cli_li("Divergent transitions: {.val {x$n_divergent}}")
+	cli::cli_li("Treedepth saturations: {.val {x$n_max_treedepth}}")
+	cli::cli_li("Chains with low E-BFMI: {.val {x$n_low_ebfmi}}")
+	cli::cli_li("Parameters with R-hat > 1.01: {.val {x$n_bad_rhat}}")
+	cli::cli_li("Parameters with ESS-bulk < 400: {.val {x$n_low_ess}}")
+	invisible(x)
+}
+
+#' Plot Convergence Diagnostics
+#'
+#' Visualises the per-parameter R-hat or ESS-bulk values from a
+#' [bdeb_diagnose()] object.  A dashed red reference line is drawn at the
+#' Vehtari et al. (2021) threshold (R-hat = 1.01, ESS-bulk = 400).
+#'
+#' @param x A `bdeb_diagnostics` object.
+#' @param type One of `"rhat"` (default) or `"ess"`.
+#' @param ... Unused.
+#' @return A [ggplot2::ggplot] object.
+#' @export
+#' @examples
+#' \dontrun{
+#' fit <- bdeb_fit(mod)
+#' plot(bdeb_diagnose(fit), type = "ess")
+#' }
+plot.bdeb_diagnostics <- function(x, type = c("rhat", "ess"), ...) {
+	type <- match.arg(type)
+	df <- as.data.frame(x$summary)
+
+	if (type == "rhat") {
+		ggplot2::ggplot(
+			df,
+			ggplot2::aes(x = .data$rhat,
+			             y = stats::reorder(.data$variable, .data$rhat))
+		) +
+			ggplot2::geom_point(size = 2) +
+			ggplot2::geom_vline(xintercept = 1.01,
+			                     linetype = "dashed", colour = "red") +
+			ggplot2::labs(
+				x = expression(hat(R)), y = NULL,
+				title = "Convergence: split-Rhat",
+				subtitle = "Dashed line at 1.01 (Vehtari et al., 2021)"
+			) +
+			ggplot2::theme_minimal()
+	} else {
+		ggplot2::ggplot(
+			df,
+			ggplot2::aes(x = .data$ess_bulk,
+			             y = stats::reorder(.data$variable, .data$ess_bulk))
+		) +
+			ggplot2::geom_point(size = 2) +
+			ggplot2::geom_vline(xintercept = 400,
+			                     linetype = "dashed", colour = "red") +
+			ggplot2::labs(
+				x = "ESS-bulk", y = NULL,
+				title = "Effective sample size (bulk)",
+				subtitle = "Dashed line at 400"
+			) +
+			ggplot2::theme_minimal()
+	}
+}
+
+#' Posterior Summary for BDEB Parameters (deprecated)
+#'
+#' @description
+#' `bdeb_summary()` is deprecated as of BayesianDEB 0.2.0.  Call
+#' [summary()] on a [bdeb_fit()] object instead; the two are
+#' equivalent.  This wrapper will be removed in a future release.
 #'
 #' @param fit A [bdeb_fit()] object.
-#' @param pars Character vector of parameter names. Default: all model
-#'   parameters.
-#' @param prob Probability for credible intervals. Default 0.90 (5th/95th
-#'   percentiles).
+#' @param pars Character vector of parameter names.  Forwarded to
+#'   the [summary()] method on `bdeb_fit`.
+#' @param prob Probability for the central credible interval.  Forwarded
+#'   to the [summary()] method on `bdeb_fit`.
 #' @param ... Ignored.
 #' @return A `posterior::draws_summary` data frame.
+#' @keywords internal
 #' @export
+#' @examples
+#' \dontrun{
+#' fit <- bdeb_fit(mod)
+#' bdeb_summary(fit)  # equivalent to summary(fit); deprecated
+#' }
 bdeb_summary <- function(fit, pars = NULL, prob = 0.90, ...) {
 	if (!inherits(fit, "bdeb_fit")) {
 		cli::cli_abort("{.arg fit} must be a {.cls bdeb_fit} object.")
 	}
-
-	draws <- posterior::as_draws_df(fit$fit$draws())
-
-	if (is.null(pars)) {
-		all_vars <- posterior::variables(draws)
-		pars <- all_vars[!grepl("^(log_lik|lp__)", all_vars)]
-	}
-
-	alpha <- (1 - prob) / 2
-	posterior::summarise_draws(
-		posterior::subset_draws(draws, variable = pars),
-		"mean", "sd", "median",
-		"lower" = ~ quantile(.x, alpha),
-		"upper" = ~ quantile(.x, 1 - alpha),
-		"rhat",
-		"ess_bulk",
-		"ess_tail"
+	.Deprecated(
+		new = "summary",
+		package = "BayesianDEB",
+		msg = "`bdeb_summary()` is deprecated; use `summary(fit)` instead."
 	)
+	summary(fit, pars = pars, prob = prob, ...)
 }
 
 #' LOO Cross-Validation for Model Comparison
@@ -196,9 +342,24 @@ bdeb_summary <- function(fit, pars = NULL, prob = 0.90, ...) {
 #' *Statistics and Computing*, 27(5), 1413--1432.
 #' \doi{10.1007/s11222-016-9696-4}
 #' @export
+#' @examples
+#' \dontrun{
+#' data(eisenia_growth)
+#' dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
+#' fit <- bdeb_fit(bdeb_model(dat, type = "individual"))
+#' bdeb_loo(fit)
+#' }
 bdeb_loo <- function(fit, endpoint = c("all", "growth", "reproduction"), ...) {
 	if (!inherits(fit, "bdeb_fit")) {
 		cli::cli_abort("{.arg fit} must be a {.cls bdeb_fit} object.")
+	}
+
+	algo <- if (is.null(fit$algorithm)) "sampling" else fit$algorithm
+	if (!identical(algo, "sampling")) {
+		cli::cli_abort(c(
+			"x" = "{.fn bdeb_loo} requires a sampling (NUTS) fit; PSIS-LOO is not defined for variational approximations.",
+			"i" = "Re-fit with {.code algorithm = \"sampling\"} for cross-validation."
+		))
 	}
 
 	if (!requireNamespace("loo", quietly = TRUE)) {
@@ -298,7 +459,8 @@ bdeb_loo <- function(fit, endpoint = c("all", "growth", "reproduction"), ...) {
 #' With \eqn{\delta_M \approx 0.24}, the physical maximum length would
 #' be \eqn{L_m / \delta_M \approx 31} mm, consistent with observations.
 #'
-#' @param fit A [bdeb_fit()] object.
+#' @param object A [bdeb_fit()] object.
+#' @param ... Additional arguments passed to methods.
 #' @param quantities Character vector of quantities to compute.  One or
 #'   more of `"L_m"`, `"L_inf"`, `"k_M"`, `"growth_rate"`, `"g"`.
 #' @param f Scaled functional response \eqn{f \in (0,1]} for computing
@@ -317,14 +479,30 @@ bdeb_loo <- function(fit, endpoint = c("all", "growth", "reproduction"), ...) {
 #' the basis of dynamic energy budget parameters. *PLOS Computational
 #' Biology*, 14(5), e1006100. \doi{10.1371/journal.pcbi.1006100}
 #' @export
-bdeb_derived <- function(fit,
-                         quantities = c("L_inf", "k_M", "growth_rate"),
-                         f = 1.0) {
-	if (!inherits(fit, "bdeb_fit")) {
-		cli::cli_abort("{.arg fit} must be a {.cls bdeb_fit} object.")
-	}
+#' @examples
+#' \dontrun{
+#' data(eisenia_growth)
+#' dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
+#' fit <- bdeb_fit(bdeb_model(dat, type = "individual"))
+#' bdeb_derived(fit, quantities = c("L_inf", "k_M"))
+#' }
+bdeb_derived <- function(object, ...) {
+	UseMethod("bdeb_derived")
+}
 
-	draws <- posterior::as_draws_df(fit$fit$draws())
+#' @rdname bdeb_derived
+#' @export
+bdeb_derived.default <- function(object, ...) {
+	cli::cli_abort("{.arg object} must be a {.cls bdeb_fit} object.")
+}
+
+#' @rdname bdeb_derived
+#' @export
+bdeb_derived.bdeb_fit <- function(object,
+                                  quantities = c("L_inf", "k_M", "growth_rate"),
+                                  f = 1.0,
+                                  ...) {
+	draws <- posterior::as_draws_df(object$fit$draws())
 
 	result <- data.frame(.draw = seq_len(nrow(draws)))
 

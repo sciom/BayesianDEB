@@ -53,6 +53,11 @@ all standard energy fluxes defined by the \eqn{\kappa}-rule
 \item{\eqn{\dot{p}_R}}{Reproduction: \eqn{\max((1-\kappa)\dot{p}_C - \dot{p}_J, 0)}.}
 }
 }
+\examples{
+# Energy fluxes for a 1 cm^3 organism with typical Eisenia parameters
+deb_fluxes(E = 1, V = 1, f = 1, p_Am = 5, p_M = 0.5,
+  kappa = 0.75, v = 0.2, E_G = 4400)
+}
 \references{
 Kooijman, S.A.L.M. (2010). \emph{Dynamic Energy Budget Theory for Metabolic
 Organisation}. 3rd edition. Cambridge University Press, Ch. 2.

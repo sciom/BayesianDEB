@@ -49,11 +49,12 @@
 #' 74--81. \doi{10.1016/j.ecolmodel.2011.11.012}
 #' @export
 #' @examples
-#' \dontrun{
-#' conc <- c("ctrl" = 0, "low" = 5, "mid" = 20, "high" = 100)
-#' dat <- bdeb_data(growth = growth_df, concentration = conc)
+#' # R-side specification only (no Stan sampling)
+#' data(debtox_growth)
+#' # one replicate per concentration avoids aggregation warning
+#' dt <- debtox_growth[debtox_growth$id %in% c(1, 11, 21, 31), ]
+#' dat <- bdeb_data(growth = dt, concentration = c(0, 20, 80, 200))
 #' mod <- bdeb_tox(dat, stress = "assimilation")
-#' }
 bdeb_tox <- function(data,
                      stress = c("assimilation", "maintenance", "growth_cost"),
                      priors = list(),
@@ -96,12 +97,25 @@ bdeb_tox <- function(data,
 #'
 #' @param fit A [bdeb_fit()] object from a DEBtox model.
 #' @param prob Credible interval probability. Default 0.90.
+#' @param verbose Logical; if `TRUE` (default) the summary table is
+#'   printed via [cli::cli_verbatim()] / [message()] and can be
+#'   silenced with [suppressMessages()].  Set to `FALSE` for a silent
+#'   run; the invisible return value is identical.
 #' @return A named list with:
 #'   - `draws`: posterior draws of EC50
 #'   - `summary`: mean, median, sd, lower, upper
 #'   - `NEC`: posterior summary of the no-effect concentration
 #' @export
-bdeb_ec50 <- function(fit, prob = 0.90) {
+#' @examples
+#' \dontrun{
+#' data(debtox_growth)
+#' dat <- bdeb_data(growth = debtox_growth,
+#'                  concentration = c("1" = 0, "11" = 20,
+#'                                   "21" = 80, "31" = 200))
+#' fit <- bdeb_fit(bdeb_tox(dat, stress = "assimilation"))
+#' bdeb_ec50(fit, prob = 0.95)
+#' }
+bdeb_ec50 <- function(fit, prob = 0.90, verbose = TRUE) {
 	if (!inherits(fit, "bdeb_fit")) {
 		cli::cli_abort("{.arg fit} must be a {.cls bdeb_fit} object.")
 	}
@@ -110,11 +124,26 @@ bdeb_ec50 <- function(fit, prob = 0.90) {
 		cli::cli_abort("EC50 extraction requires a DEBtox model fit.")
 	}
 
+	if (!is.numeric(prob) || length(prob) != 1L ||
+	    !is.finite(prob) || prob <= 0 || prob >= 1) {
+		cli::cli_abort("{.arg prob} must be a single number in (0, 1).")
+	}
+	if (!is.logical(verbose) || length(verbose) != 1L || is.na(verbose)) {
+		cli::cli_abort("{.arg verbose} must be a single logical.")
+	}
+
 	draws <- posterior::as_draws_df(fit$fit$draws())
 	alpha <- (1 - prob) / 2
 
 	ec50_draws <- draws$EC50
 	nec_draws  <- draws$NEC
+
+	if (is.null(ec50_draws) || is.null(nec_draws)) {
+		cli::cli_abort(c(
+			"EC50 and/or NEC variables not found in posterior draws.",
+			"i" = "Ensure the model was fitted with {.fn bdeb_tox}."
+		))
+	}
 
 	ec50_summary <- data.frame(
 		parameter = "EC50",
@@ -140,8 +169,14 @@ bdeb_ec50 <- function(fit, prob = 0.90) {
 		NEC     = as.numeric(nec_draws)
 	)
 
-	cli::cli_h3("DEBtox Effect Concentrations")
-	print(result$summary, row.names = FALSE, digits = 3)
+	if (verbose) {
+		cli::cli_h3("DEBtox Effect Concentrations")
+		# Route table through message() (CRAN-suppressible).
+		tbl_lines <- utils::capture.output(
+			print(result$summary, row.names = FALSE, digits = 3)
+		)
+		cli::cli_verbatim(tbl_lines)
+	}
 
 	invisible(result)
 }
@@ -181,11 +216,36 @@ bdeb_ec50 <- function(fit, prob = 0.90) {
 #'   Default `NULL`.
 #' @return A ggplot2 object.
 #' @export
+#' @examples
+#' \dontrun{
+#' data(debtox_growth)
+#' dat <- bdeb_data(growth = debtox_growth,
+#'                  concentration = c("1" = 0, "11" = 20,
+#'                                   "21" = 80, "31" = 200))
+#' fit <- bdeb_fit(bdeb_tox(dat, stress = "assimilation"))
+#' plot_dose_response(fit, n_draws = 50)
+#' }
 plot_dose_response <- function(fit, endpoint = "growth", n_draws = 100,
                                n_conc = 50, dt = 1.0, t_end = NULL,
                                seed = NULL) {
 	if (!inherits(fit, "bdeb_fit") || fit$model$type != "debtox") {
 		cli::cli_abort("Requires a fitted DEBtox model.")
+	}
+	if (!is.numeric(n_draws) || length(n_draws) != 1L ||
+	    !is.finite(n_draws) || n_draws < 1) {
+		cli::cli_abort("{.arg n_draws} must be a positive scalar (>= 1).")
+	}
+	if (!is.numeric(n_conc) || length(n_conc) != 1L ||
+	    !is.finite(n_conc) || n_conc < 2) {
+		cli::cli_abort("{.arg n_conc} must be a scalar >= 2.")
+	}
+	if (!is.numeric(dt) || length(dt) != 1L ||
+	    !is.finite(dt) || dt <= 0) {
+		cli::cli_abort("{.arg dt} must be a positive scalar.")
+	}
+	if (!is.null(t_end) && (!is.numeric(t_end) || length(t_end) != 1L ||
+	                        !is.finite(t_end) || t_end <= 0)) {
+		cli::cli_abort("{.arg t_end} must be a positive scalar or NULL.")
 	}
 
 	draws <- posterior::as_draws_df(fit$fit$draws())
@@ -214,7 +274,12 @@ plot_dose_response <- function(fit, endpoint = "growth", n_draws = 100,
 		vals <- vals[!is.nan(vals)]
 		if (length(vals) > 0) utils::tail(vals, 1) else NA_real_
 	}, numeric(1))
-	ctrl_obs <- obs_final[which.min(C_w)]
+	ctrl_idx <- which.min(C_w)
+	ctrl_obs <- obs_final[ctrl_idx]
+	if (min(C_w) > 0) {
+		cli::cli_warn("No zero-concentration control group found; normalising to lowest concentration ({C_w[ctrl_idx]}).")
+	}
+	if (!is.finite(ctrl_obs) || ctrl_obs < 1e-12) ctrl_obs <- NA_real_
 	obs_df <- data.frame(
 		concentration = C_w,
 		relative      = obs_final / ctrl_obs
@@ -244,6 +309,7 @@ plot_dose_response <- function(fit, endpoint = "growth", n_draws = 100,
 
 		# Normalise to control (C=0) for this draw
 		L_ctrl <- L_final[1]  # c_seq starts at 0
+		if (!is.finite(L_ctrl) || L_ctrl < 1e-12) L_ctrl <- NA_real_
 		data.frame(
 			concentration   = c_seq,
 			relative        = L_final / L_ctrl,

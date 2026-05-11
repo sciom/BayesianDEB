@@ -1,3 +1,133 @@
+# BayesianDEB 0.2.0
+
+JSS revision release.  Comprehensive S3 class system overhaul,
+expanded methods coverage, and reproducible replication package.
+
+## Breaking changes
+* `bdeb_diagnose()` now returns a `bdeb_diagnostics` S3 object.
+  All output goes through `print()`, `summary()`, and `plot()`
+  (`type = "rhat"` or `"ess"`).  Direct list access still works
+  (`n_divergent`, `summary`, ...).
+* `bdeb_summary()` is deprecated; use `summary(fit)` on a
+  `bdeb_fit` object instead.  The wrapper still works but emits
+  a deprecation warning and will be removed in a future release.
+
+## New methods
+* `bdeb_data`: `print()`, `summary()`, `plot()`.
+* `bdeb_model`: `print()`, `summary()`, `plot()`.
+* `bdeb_prior`: `print()`, `summary()`, `plot()`.
+* `bdeb_prediction`: `print()`, `summary()` (the latter returns a
+  tidy `time / lower / median / upper` data frame).
+* `bdeb_diagnostics`: `print()`, `summary()`, `plot()`.
+* `bdeb_fit` (additional `lm`-style methods): `summary()` (now the
+  primary posterior-summary API, accepts `pars` and `prob`),
+  `confint()` (posterior credible intervals), `fitted()` (posterior
+  median/mean of \eqn{\hat{L}_i}), `residuals()` (observed minus
+  fitted), `nobs()` (observation count), `vcov()` (posterior
+  covariance of model parameters), and `logLik()` (log-pointwise
+  predictive density, lppd).  `fitted()`, `residuals()`, and
+  `logLik()` are available for `"individual"` and `"growth_repro"`
+  models only.
+* `bdeb_derived()` is now an S3 generic with a `bdeb_fit` method
+  (`bdeb_derived.bdeb_fit`).  Existing calls are unchanged; the
+  dispatch enables future support for derived quantities on
+  prior-only or simulated objects.
+
+## Bug fixes
+* `bdeb_diagnose()` no longer fails on real-data fits whose
+  generated quantities (`log_lik`, `L_rep`) contain NaN draws
+  from sporadic ODE-solver failures.  The `summarise_draws()`
+  quantile lambdas now pass `na.rm = TRUE`.
+* `plot()` on a `bdeb_fit` (`type = "trace"`, `"posterior"`,
+  `"pairs"`) now subsets draws to the requested parameters
+  before delegating to `bayesplot`.  Without this, NaN draws in
+  unrelated generated quantities caused
+  `bayesplot::prepare_mcmc_array()` to abort with
+  `"NAs not allowed in 'x'"`.
+
+## Stan
+* Increased `ode_bdf_tol` `max_num_steps` from 1e4 to 1e5 in all
+  four Stan models to reduce CVode mxstep messages during warmup.
+
+## Vignettes
+* Conditional execution via `requireNamespace("cmdstanr")`.
+* Fixed `plot(fit, type = "pairs")` returning `NULL`.
+
+## Replication material
+* Reorganised JSS replication material into a single zip with
+  `README`, `data/`, `outputs/`, and `lite`/`full` execution modes.
+* Bundled `curves.txt` locally to remove external dependency.
+
+---
+
+# BayesianDEB 0.1.4
+
+CRAN-review compliance release.  Addresses reviewer feedback on the use
+of `T` as an identifier, which can shadow R's built-in `T` symbol
+(= `TRUE`).
+
+## Breaking changes
+* `arrhenius()`: first argument renamed from `T` to `temp`.  Positional
+  calls are unaffected (`arrhenius(298.15)`).  Code that passed the
+  argument by name (`arrhenius(T = 298.15)`) must be updated to
+  `arrhenius(temp = 298.15)`.
+* `bdeb_model(temperature = ...)`: the list field `T` was renamed to
+  `T_obs` to match the Stan data naming and to remove the `T` shadow.
+  Replace `list(T = 298.15, T_ref = ..., T_A = ...)` with
+  `list(T_obs = 298.15, T_ref = ..., T_A = ...)`.
+
+## CRAN compliance
+* `bdeb_diagnose()` and `bdeb_ec50()` now expose a `verbose = TRUE`
+  argument.  All user-facing output (diagnostic alerts and summary
+  tables) is routed through `cli` / [message()] rather than direct
+  `print()` calls, so it can be silenced with [suppressMessages()] or
+  by passing `verbose = FALSE`.  Return values are unchanged.
+
+## Documentation
+* Updated `R/utils.R`, `R/data_prep.R`, `R/model_spec.R` and
+  `man/arrhenius.Rd`, `man/bdeb_model.Rd`,
+  `man/temperature_to_stan_data.Rd`,
+  `man/build_stan_data_individual.Rd` to reflect the renaming.
+* Case-study vignette updated to use `arrhenius(temp = ...)`.
+* Tests updated for the new `temperature$T_obs` field.
+* `\dontrun{}` replaced with runnable examples for `prior_species()`,
+  `bdeb_tox()` and `bdeb_prior_predictive()` (all execute in < 0.2 s
+  against bundled datasets).  `bdeb_fit()` retains `\dontrun{}`
+  because it requires the external CmdStan toolchain and a single
+  Stan compilation + MCMC run takes > 30 seconds; the Rd comment
+  explains the reason.
+
+## Citation
+* Switched README badge and `CITATION.cff` from the version-specific
+  DOI (`10.5281/zenodo.19500753`, v0.1.3) to the **concept DOI**
+  (`10.5281/zenodo.19443804`), which always resolves to the latest
+  archived version.  The v0.1.4 version DOI is
+  `10.5281/zenodo.19642839` for anyone needing to cite this specific
+  release.
+
+---
+
+# BayesianDEB 0.1.3
+
+New features and data release.
+
+## New features
+* `prior_species()`: species-specific priors from the AmP collection for
+  *E. fetida*, *E. andrei*, *F. candida*, *D. magna*, and *L. rubellus*.
+* `plot(fit, type = "prior_posterior")`: prior vs. posterior density
+  comparison plot.
+
+## New datasets
+* `eisenia_neuhauser`: real *E. fetida* growth data from Neuhauser,
+  Hartenstein & Kaplan (1980), 37 group-mean measurements over 250 days.
+* `eisenia_cd`: real *Eisenia andrei* cadmium toxicity data from
+  Van Gestel et al. (1991), 5 concentration groups over 85 days.
+
+## Documentation
+* Updated DOI to Zenodo 10.5281/zenodo.19500753.
+
+---
+
 # BayesianDEB 0.1.2
 
 ODE solver upgrade and bug fix release.

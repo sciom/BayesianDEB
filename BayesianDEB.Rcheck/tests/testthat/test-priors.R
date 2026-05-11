@@ -164,8 +164,10 @@ test_that("prior_to_stan_data_hierarchical adds hierarchical fields", {
   expect_true("prior_sigma_log_p_Am_rate" %in% names(sd))
   expect_equal(sd$prior_mu_log_p_Am_mu, priors$mu_log_p_Am$mu)
   expect_equal(sd$prior_sigma_log_p_Am_rate, priors$sigma_log_p_Am$rate)
-  # Also includes base priors
-  expect_true("prior_p_Am_mu" %in% names(sd))
+  # Hierarchical model does not use individual p_Am prior
+  expect_false("prior_p_Am_mu" %in% names(sd))
+  # But includes other base priors
+  expect_true("prior_p_M_mu" %in% names(sd))
 })
 
 test_that("prior_to_stan_data_growth_repro adds repro fields", {

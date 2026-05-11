@@ -42,11 +42,11 @@ similar DEB parameters.}
 # Use AmP-calibrated priors for E. fetida
 prior_species("Eisenia_fetida")
 
-# Combine with model specification
-\dontrun{
+# Combine with model specification (R-side, no Stan sampling)
+data(eisenia_growth)
+dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
 mod <- bdeb_model(dat, type = "individual",
   priors = prior_species("Eisenia_fetida"))
-}
 }
 \references{
 Marques, G.M., Augustine, S., Lika, K., Pecquerie, L., Domingos, T.
