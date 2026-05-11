@@ -44,10 +44,6 @@ plot.bdeb_fit <- function(x, type = c("trace", "posterior", "pairs",
 
 	draws <- x$fit$draws()
 
-	if (type %in% c("trace", "posterior", "pairs")) {
-		draws <- drop_na_chains(draws, pars)
-	}
-
 	switch(type,
 		trace     = plot_trace(draws, pars, ...),
 		posterior = plot_posterior(draws, pars, ...),
@@ -55,30 +51,6 @@ plot.bdeb_fit <- function(x, type = c("trace", "posterior", "pairs",
 		trajectory = plot_trajectory(x, n_draws, seed, ...),
 		prior_posterior = plot_prior_posterior(x, pars, ...)
 	)
-}
-
-#' @keywords internal
-drop_na_chains <- function(draws, pars) {
-	avail <- intersect(pars, posterior::variables(draws))
-	if (!length(avail)) return(draws)
-	df <- posterior::as_draws_df(draws)
-	bad <- vapply(sort(unique(df$.chain)), function(ch) {
-		sub <- df[df$.chain == ch, avail, drop = FALSE]
-		any(vapply(sub, function(v) any(is.na(v)), logical(1L)))
-	}, logical(1L))
-	if (any(bad)) {
-		bad_chains <- sort(unique(df$.chain))[bad]
-		cli::cli_warn(c(
-			"!" = "Dropping {length(bad_chains)} chain(s) with NA values in plot parameters: {paste(bad_chains, collapse = ', ')}.",
-			"i" = "Inspect {.fn bdeb_diagnose} for ODE-induced chain failures."
-		))
-		df <- df[!df$.chain %in% bad_chains, , drop = FALSE]
-		if (!nrow(df)) {
-			cli::cli_abort("All chains contain NA values in requested parameters.")
-		}
-		draws <- posterior::as_draws_array(df)
-	}
-	draws
 }
 
 #' Plot Posterior Predictive Checks
@@ -118,6 +90,10 @@ get_core_pars <- function(model_type) {
 
 #' @keywords internal
 plot_trace <- function(draws, pars, ...) {
+	# Subset to requested pars before bayesplot.  Generated quantities
+	# (e.g. L_rep, log_lik) can contain NaN draws from ODE failures and
+	# bayesplot's prepare_mcmc_array() rejects the whole array up-front.
+	draws <- posterior::subset_draws(draws, variable = pars)
 	bayesplot::mcmc_trace(draws, pars = pars, ...) +
 		ggplot2::theme_bw() +
 		ggplot2::labs(title = "MCMC Trace Plots")
@@ -125,6 +101,7 @@ plot_trace <- function(draws, pars, ...) {
 
 #' @keywords internal
 plot_posterior <- function(draws, pars, ...) {
+	draws <- posterior::subset_draws(draws, variable = pars)
 	# Use single-chain density when only one chain is available
 	# (e.g. variational fits); otherwise overlay per-chain densities.
 	n_chains <- tryCatch(posterior::nchains(draws), error = function(e) 1L)
@@ -145,6 +122,7 @@ plot_pairs <- function(draws, pars, ...) {
 			"{.arg pars} must be a character vector of length >= 2 for {.code type = \"pairs\"}."
 		)
 	}
+	draws <- posterior::subset_draws(draws, variable = pars)
 	# bayesplot::mcmc_pairs() returns a bayesplot_grid (gtable), which
 	# does not support `+ ggplot2::labs()`.  Return as-is.
 	bayesplot::mcmc_pairs(draws, pars = pars, ...)
