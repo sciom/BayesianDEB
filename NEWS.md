@@ -1,40 +1,63 @@
-# BayesianDEB 0.2.0 (in development)
+# BayesianDEB 0.2.0
 
-## New features and class system
-* `bdeb_diagnose()` now returns a `bdeb_diagnostics` S3 object with
-  `print()`, `summary()`, and `plot()` methods (`type = "rhat"` or
-  `"ess"`).
-* `bdeb_predict()` results gain `print()` and `summary()` methods
-  (the latter returns a tidy `time / lower / median / upper`
-  data frame).
-* `summary()` is now the primary posterior-summary API on a
-  `bdeb_fit` object: it accepts `pars` and `prob` arguments and
-  returns a `posterior::draws_summary`, mirroring
-  `summary.lm()`.
+JSS revision release.  Comprehensive S3 class system overhaul,
+expanded methods coverage, and reproducible replication package.
+
+## Breaking changes
+* `bdeb_diagnose()` now returns a `bdeb_diagnostics` S3 object.
+  All output goes through `print()`, `summary()`, and `plot()`
+  (`type = "rhat"` or `"ess"`).  Direct list access still works
+  (`n_divergent`, `summary`, ...).
+* `bdeb_summary()` is deprecated; use `summary(fit)` on a
+  `bdeb_fit` object instead.  The wrapper still works but emits
+  a deprecation warning and will be removed in a future release.
+
+## New methods
+* `bdeb_data`: `print()`, `summary()`, `plot()`.
+* `bdeb_model`: `print()`, `summary()`, `plot()`.
+* `bdeb_prior`: `print()`, `summary()`, `plot()`.
+* `bdeb_prediction`: `print()`, `summary()` (the latter returns a
+  tidy `time / lower / median / upper` data frame).
+* `bdeb_diagnostics`: `print()`, `summary()`, `plot()`.
+* `bdeb_fit` (additional `lm`-style methods): `summary()` (now the
+  primary posterior-summary API, accepts `pars` and `prob`),
+  `confint()` (posterior credible intervals), `fitted()` (posterior
+  median/mean of \eqn{\hat{L}_i}), `residuals()` (observed minus
+  fitted), `nobs()` (observation count), `vcov()` (posterior
+  covariance of model parameters), and `logLik()` (log-pointwise
+  predictive density, lppd).  `fitted()`, `residuals()`, and
+  `logLik()` are available for `"individual"` and `"growth_repro"`
+  models only.
 * `bdeb_derived()` is now an S3 generic with a `bdeb_fit` method
   (`bdeb_derived.bdeb_fit`).  Existing calls are unchanged; the
   dispatch enables future support for derived quantities on
   prior-only or simulated objects.
-* New `lm`-style methods on `bdeb_fit`: `confint()` (posterior
-  credible intervals), `fitted()` (posterior median/mean of
-  \eqn{\hat{L}_i}), `residuals()` (observed minus fitted),
-  `nobs()` (observation count), `vcov()` (posterior covariance
-  of model parameters), and `logLik()` (log-pointwise predictive
-  density, lppd).  `fitted()`, `residuals()`, and `logLik()` are
-  available for `"individual"` and `"growth_repro"` only.
 
-## Deprecations
-* `bdeb_summary()` is deprecated; use `summary(fit)` on a
-  `bdeb_fit` object instead.  The wrapper still works but
-  emits a deprecation warning and will be removed in a future
-  release.
+## Bug fixes
+* `bdeb_diagnose()` no longer fails on real-data fits whose
+  generated quantities (`log_lik`, `L_rep`) contain NaN draws
+  from sporadic ODE-solver failures.  The `summarise_draws()`
+  quantile lambdas now pass `na.rm = TRUE`.
+* `plot()` on a `bdeb_fit` (`type = "trace"`, `"posterior"`,
+  `"pairs"`) now subsets draws to the requested parameters
+  before delegating to `bayesplot`.  Without this, NaN draws in
+  unrelated generated quantities caused
+  `bayesplot::prepare_mcmc_array()` to abort with
+  `"NAs not allowed in 'x'"`.
 
-## Planned for 0.2.0
-* Further S3 class system overhaul (`bdeb_data`, `bdeb_model`,
-  `bdeb_prior`).
-* Vignettes use conditional `cmdstanr` execution.
-* Stan ODE solver `max_num_steps` raised to 1e5.
-* JSS replication package reorganised.
+## Stan
+* Increased `ode_bdf_tol` `max_num_steps` from 1e4 to 1e5 in all
+  four Stan models to reduce CVode mxstep messages during warmup.
+
+## Vignettes
+* Conditional execution via `requireNamespace("cmdstanr")`.
+* Fixed `plot(fit, type = "pairs")` returning `NULL`.
+
+## Replication material
+* Reorganised JSS replication material into a single zip with
+  `README`, `data/`, `outputs/`, and `lite`/`full` execution modes.
+* Bundled `curves.txt` locally to remove external dependency.
+
 ---
 
 # BayesianDEB 0.1.4
