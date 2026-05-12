@@ -83,6 +83,7 @@ fit_real <- bdeb_fit(mod_real,
                      iter_warmup   = ITER_CFG$warmup,
                      iter_sampling = ITER_CFG$sampling,
                      adapt_delta   = 0.95, max_treedepth = 12,
+                     init = 0.5,
                      seed = 42, refresh = 0)
 
 cat("\n--- Section 7.1: Diagnostics ---\n")
@@ -177,6 +178,7 @@ if (BDEB_MODE == "full") {
 	                   iter_sampling = ITER_CFG$sampling,
 	                   adapt_delta   = 0.95, max_treedepth = 12,
 	                   threads_per_chain = 2,
+	                   init = 0.5,
 	                   seed = 42, refresh = 0)
 
 	cat("\n--- Section 7.2: Van Gestel DEBtox EC50 ---\n")

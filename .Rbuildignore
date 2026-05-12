@@ -5,6 +5,8 @@
 ^LICENSE\.md$
 ^README\.Rmd$
 ^cran-comments\.md$
+^response_to_editor\.md$
+^BayesianDEB\.Rcheck$
 ^BayesianDEB_manual\.tex$
 ^BayesianDEB_manual\.pdf$
 ^BayesianDEB_prirucnik_hr\.tex$
