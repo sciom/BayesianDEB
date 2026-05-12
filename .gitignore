@@ -27,3 +27,10 @@ texput.log
 
 # Tooling
 .claude/
+
+# LaTeX build artifacts
+response_to_editor.pdf
+response_to_editor.aux
+response_to_editor.log
+response_to_editor.out
+response_to_editor.toc

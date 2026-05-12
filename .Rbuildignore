@@ -6,6 +6,9 @@
 ^README\.Rmd$
 ^cran-comments\.md$
 ^response_to_editor\.md$
+^response_to_editor\.tex$
+^response_to_editor\.pdf$
+^response_to_editor\.(aux|log|out|toc)$
 ^BayesianDEB\.Rcheck$
 ^BayesianDEB_manual\.tex$
 ^BayesianDEB_manual\.pdf$
