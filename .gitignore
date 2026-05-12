@@ -20,5 +20,10 @@ inst/stan/*.exe
 
 # R CMD build / check artifacts
 BayesianDEB_*.tar.gz
+BayesianDEB_replication.zip
 *.Rcheck/
 ..Rcheck/
+texput.log
+
+# Tooling
+.claude/
