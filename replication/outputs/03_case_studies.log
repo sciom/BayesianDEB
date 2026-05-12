@@ -1,0 +1,192 @@
+During startup - Warning messages:
+1: Setting LC_TIME failed, using "C" 
+2: Setting LC_MONETARY failed, using "C" 
+3: Setting LC_PAPER failed, using "C" 
+4: Setting LC_MEASUREMENT failed, using "C" 
+BDEB_MODE = full  (chains = 4, warmup = 1000, sampling = 1000)
+ℹ BayesianDEB version: 0.2.0
+ℹ Output directory:    '/home/adeb/BayesianDEB/replication/outputs'
+
+── Section 7.1: Real-data Eisenia fetida (Neuhauser 1980) ────────────
+
+--- Neuhauser 1980 growth data ---
+Time points: 37 
+Time range : 1 250 days
+Length range: 0.197 1.309 cm
+✔ Saved '/home/adeb/BayesianDEB/replication/outputs/fig_rawdata.pdf'
+ℹ Compiling Stan model: 'bdeb_individual_growth'
+ℹ Running MCMC (4 chains, 1000 iterations each)
+Running MCMC with 4 parallel chains...
+
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: normal_lpdf: Scale parameter is 0, but must be positive! (in '/tmp/Rtmp5I0aJ7/model-238bed228ad9c5.stan', line 111, column 4 to column 35)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 2 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 2 Exception: ode_bdf_tol: ode parameters and data is inf, but must be finite! (in '/tmp/Rtmp5I0aJ7/model-238bed228ad9c5.stan', line 88, column 4 to line 91, column 46)
+Chain 2 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 2 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 2 
+Chain 4 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 4 Exception: ode_bdf_tol: ode parameters and data is inf, but must be finite! (in '/tmp/Rtmp5I0aJ7/model-238bed228ad9c5.stan', line 88, column 4 to line 91, column 46)
+Chain 4 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 4 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 4 
+Chain 1 finished in 129.8 seconds.
+Chain 4 finished in 132.2 seconds.
+Chain 2 finished in 133.3 seconds.
+Chain 3 finished in 139.1 seconds.
+
+All 4 chains finished successfully.
+Mean chain execution time: 133.6 seconds.
+Total execution time: 139.2 seconds.
+
+
+--- Section 7.1: Diagnostics ---
+
+--- Table 6: Real data posterior ---
+  variable    mean      sd  median      5%     95% rhat ess_bulk
+1     p_Am  5.4072 2.07482  5.0006  2.9479  9.1415    1     1882
+2      p_M  0.6612 0.19080  0.6372  0.3919  1.0189    1     1544
+3    kappa  0.8047 0.11540  0.8226  0.5872  0.9583    1     3656
+4        v  1.5632 0.48818  1.4909  0.9010  2.4581    1     1674
+5      E_G 31.3779 8.36626 30.1808 19.5718 47.0889    1     1345
+6  sigma_L  0.0572 0.00761  0.0563  0.0463  0.0707    1     3048
+  ess_tail
+1     2037
+2     2447
+3     2432
+4     2468
+5     1997
+6     2538
+
+--- Derived quantities (real data) ---
+     variable     mean      sd     5%      95%
+1         L_m  6.90331 3.15404 3.5157 12.76110
+2       L_inf  6.90331 3.15404 3.5157 12.76110
+3         k_M  0.02126 0.00369 0.0159  0.02810
+4           g 12.52763 6.03487 5.0153 23.93432
+5 growth_rate  0.00648 0.00132 0.0045  0.00888
+
+--- Posterior correlation (Spearman) ---
+        p_Am   p_M kappa     v  E_G sigma_L
+p_Am    1.00  0.32  0.01  0.28 0.74    0.25
+p_M     0.32  1.00  0.13  0.86 0.80   -0.12
+kappa   0.01  0.13  1.00 -0.33 0.21    0.10
+v       0.28  0.86 -0.33  1.00 0.64   -0.17
+E_G     0.74  0.80  0.21  0.64 1.00    0.10
+sigma_L 0.25 -0.12  0.10 -0.17 0.10    1.00
+✔ Saved '/home/adeb/BayesianDEB/replication/outputs/fig_trace.pdf'
+✔ Saved '/home/adeb/BayesianDEB/replication/outputs/fig_posterior.pdf'
+✔ Saved '/home/adeb/BayesianDEB/replication/outputs/fig_pairs.pdf'
+✔ Saved '/home/adeb/BayesianDEB/replication/outputs/fig_trajectory.pdf'
+✔ Saved '/home/adeb/BayesianDEB/replication/outputs/fig_ppc.pdf'
+✔ Saved '/home/adeb/BayesianDEB/replication/outputs/fig_prior_predictive.pdf'
+✔ Saved '/home/adeb/BayesianDEB/replication/outputs/fig_prior_posterior.pdf'
+
+── Section 7.2: Real-data DEBtox (Van Gestel 1991) ───────────────────
+ℹ Compiling Stan model with threading: 'bdeb_debtox' (2 threads/chain)
+ℹ Running MCMC (4 chains, 1000 iter, 2 threads/chain)
+Running MCMC with 4 parallel chains, with 2 thread(s) per chain...
+
+Chain 1 Rejecting initial value:
+Chain 1   Error evaluating the log probability at the initial value.
+Chain 1 Exception: Exception: CVode(cvodes_mem, t_final, nv_state_, &t_init, CV_NORMAL) failed with error flag -4: 
+Chain 1 Exception: Exception: CVode(cvodes_mem, t_final, nv_state_, &t_init, CV_NORMAL) failed with error flag -4: 
+Chain 1 Convergence test failures occurred too many times during one internal time step or minimum step size was reached. (in '/tmp/Rtmp5I0aJ7/model-238bed2a4b9de7.stan', line 72, column 6 to line 78, column 8) (in '/tmp/Rtmp5I0aJ7/model-238bed2a4b9de7.stan', line 206, column 2 to line 213, column 59)
+Chain 2 Rejecting initial value:
+Chain 2   Error evaluating the log probability at the initial value.
+Chain 2 Exception: Exception: CVode(cvodes_mem, t_final, nv_state_, &t_init, CV_NORMAL) failed with error flag -4: 
+Chain 2 Exception: Exception: CVode(cvodes_mem, t_final, nv_state_, &t_init, CV_NORMAL) failed with error flag -4: 
+Chain 2 Convergence test failures occurred too many times during one internal time step or minimum step size was reached. (in '/tmp/Rtmp5I0aJ7/model-238bed2a4b9de7.stan', line 72, column 6 to line 78, column 8) (in '/tmp/Rtmp5I0aJ7/model-238bed2a4b9de7.stan', line 206, column 2 to line 213, column 59)
+Chain 2 Rejecting initial value:
+Chain 2   Error evaluating the log probability at the initial value.
+Chain 2 Exception: Exception: CVode(cvodes_mem, t_final, nv_state_, &t_init, CV_NORMAL) failed with error flag -4: 
+Chain 2 Exception: Exception: CVode(cvodes_mem, t_final, nv_state_, &t_init, CV_NORMAL) failed with error flag -4: 
+Chain 2 Convergence test failures occurred too many times during one internal time step or minimum step size was reached. (in '/tmp/Rtmp5I0aJ7/model-238bed2a4b9de7.stan', line 72, column 6 to line 78, column 8) (in '/tmp/Rtmp5I0aJ7/model-238bed2a4b9de7.stan', line 206, column 2 to line 213, column 59)
+Chain 2 Rejecting initial value:
+Chain 2   Error evaluating the log probability at the initial value.
+Chain 2 Exception: Exception: CVode(cvodes_mem, t_final, nv_state_, &t_init, CV_NORMAL) failed with error flag -4: 
+Chain 2 Exception: Exception: CVode(cvodes_mem, t_final, nv_state_, &t_init, CV_NORMAL) failed with error flag -4: 
+Chain 2 Convergence test failures occurred too many times during one internal time step or minimum step size was reached. (in '/tmp/Rtmp5I0aJ7/model-238bed2a4b9de7.stan', line 72, column 6 to line 78, column 8) (in '/tmp/Rtmp5I0aJ7/model-238bed2a4b9de7.stan', line 206, column 2 to line 213, column 59)
+Chain 2 Rejecting initial value:
+Chain 2   Error evaluating the log probability at the initial value.
+Chain 2 Exception: Exception: CVode(cvodes_mem, t_final, nv_state_, &t_init, CV_NORMAL) failed with error flag -4: 
+Chain 2 Exception: Exception: CVode(cvodes_mem, t_final, nv_state_, &t_init, CV_NORMAL) failed with error flag -4: 
+Chain 2 Convergence test failures occurred too many times during one internal time step or minimum step size was reached. (in '/tmp/Rtmp5I0aJ7/model-238bed2a4b9de7.stan', line 72, column 6 to line 78, column 8) (in '/tmp/Rtmp5I0aJ7/model-238bed2a4b9de7.stan', line 206, column 2 to line 213, column 59)
+Chain 2 Rejecting initial value:
+Chain 2   Error evaluating the log probability at the initial value.
+Chain 2 Exception: Exception: CVode(cvodes_mem, t_final, nv_state_, &t_init, CV_NORMAL) failed with error flag -4: 
+Chain 2 Exception: Exception: CVode(cvodes_mem, t_final, nv_state_, &t_init, CV_NORMAL) failed with error flag -4: 
+Chain 2 Convergence test failures occurred too many times during one internal time step or minimum step size was reached. (in '/tmp/Rtmp5I0aJ7/model-238bed2a4b9de7.stan', line 72, column 6 to line 78, column 8) (in '/tmp/Rtmp5I0aJ7/model-238bed2a4b9de7.stan', line 206, column 2 to line 213, column 59)
+Chain 3 Rejecting initial value:
+Chain 3   Error evaluating the log probability at the initial value.
+Chain 3 Exception: Exception: CVode(cvodes_mem, t_final, nv_state_, &t_init, CV_NORMAL) failed with error flag -4: 
+Chain 3 Exception: Exception: CVode(cvodes_mem, t_final, nv_state_, &t_init, CV_NORMAL) failed with error flag -4: 
+Chain 3 Convergence test failures occurred too many times during one internal time step or minimum step size was reached. (in '/tmp/Rtmp5I0aJ7/model-238bed2a4b9de7.stan', line 72, column 6 to line 78, column 8) (in '/tmp/Rtmp5I0aJ7/model-238bed2a4b9de7.stan', line 206, column 2 to line 213, column 59)
+Chain 3 Rejecting initial value:
+Chain 3   Error evaluating the log probability at the initial value.
+Chain 3 Exception: Exception: CVode(cvodes_mem, t_final, nv_state_, &t_init, CV_NORMAL) failed with error flag -4: 
+Chain 3 Exception: Exception: CVode(cvodes_mem, t_final, nv_state_, &t_init, CV_NORMAL) failed with error flag -4: 
+Chain 3 Convergence test failures occurred too many times during one internal time step or minimum step size was reached. (in '/tmp/Rtmp5I0aJ7/model-238bed2a4b9de7.stan', line 72, column 6 to line 78, column 8) (in '/tmp/Rtmp5I0aJ7/model-238bed2a4b9de7.stan', line 206, column 2 to line 213, column 59)
+Chain 3 Rejecting initial value:
+Chain 3   Error evaluating the log probability at the initial value.
+Chain 3 Exception: Exception: CVode(cvodes_mem, t_final, nv_state_, &t_init, CV_NORMAL) failed with error flag -4: 
+Chain 3 Exception: Exception: CVode(cvodes_mem, t_final, nv_state_, &t_init, CV_NORMAL) failed with error flag -4: 
+Chain 3 Convergence test failures occurred too many times during one internal time step or minimum step size was reached. (in '/tmp/Rtmp5I0aJ7/model-238bed2a4b9de7.stan', line 72, column 6 to line 78, column 8) (in '/tmp/Rtmp5I0aJ7/model-238bed2a4b9de7.stan', line 206, column 2 to line 213, column 59)
+Chain 3 Rejecting initial value:
+Chain 3   Error evaluating the log probability at the initial value.
+Chain 3 Exception: Exception: CVode(cvodes_mem, t_final, nv_state_, &t_init, CV_NORMAL) failed with error flag -4: 
+Chain 3 Exception: Exception: CVode(cvodes_mem, t_final, nv_state_, &t_init, CV_NORMAL) failed with error flag -4: 
+Chain 3 Convergence test failures occurred too many times during one internal time step or minimum step size was reached. (in '/tmp/Rtmp5I0aJ7/model-238bed2a4b9de7.stan', line 72, column 6 to line 78, column 8) (in '/tmp/Rtmp5I0aJ7/model-238bed2a4b9de7.stan', line 206, column 2 to line 213, column 59)
+Chain 4 Rejecting initial value:
+Chain 4   Error evaluating the log probability at the initial value.
+Chain 4 Exception: Exception: CVode(cvodes_mem, t_final, nv_state_, &t_init, CV_NORMAL) failed with error flag -4: 
+Chain 4 Exception: Exception: CVode(cvodes_mem, t_final, nv_state_, &t_init, CV_NORMAL) failed with error flag -4: 
+Chain 4 Convergence test failures occurred too many times during one internal time step or minimum step size was reached. (in '/tmp/Rtmp5I0aJ7/model-238bed2a4b9de7.stan', line 72, column 6 to line 78, column 8) (in '/tmp/Rtmp5I0aJ7/model-238bed2a4b9de7.stan', line 206, column 2 to line 213, column 59)
+Chain 1 Informational Message: The current Metropolis proposal is about to be rejected because of the following issue:
+Chain 1 Exception: Exception: CVode(cvodes_mem, t_final, nv_state_, &t_init, CV_NORMAL) failed with error flag -1: 
+Chain 1 The solver took mxstep internal steps but could not reach tout. (in '/tmp/Rtmp5I0aJ7/model-238bed2a4b9de7.stan', line 72, column 6 to line 78, column 8) (in '/tmp/Rtmp5I0aJ7/model-238bed2a4b9de7.stan', line 206, column 2 to line 213, column 59)
+Chain 1 If this warning occurs sporadically, such as for highly constrained variable types like covariance matrices, then the sampler is fine,
+Chain 1 but if this warning occurs often then your model may be either severely ill-conditioned or misspecified.
+Chain 1 
+Chain 2 finished in 1288.4 seconds.
+Chain 3 finished in 1564.6 seconds.
+Chain 4 finished in 1886.5 seconds.
+Chain 1 finished in 2111.8 seconds.
+
+All 4 chains finished successfully.
+Mean chain execution time: 1712.8 seconds.
+Total execution time: 2111.9 seconds.
+
+Warning: 9 of 4000 (0.0%) transitions ended with a divergence.
+See https://mc-stan.org/misc/warnings for details.
+
+
+--- Section 7.2: Van Gestel DEBtox EC50 ---
+
+── DEBtox Effect Concentrations 
+ parameter   mean median    sd lower upper
+      EC50 212.83 224.25 47.62 68.93 256.1
+       NEC   8.47   7.65  4.88  2.45  17.5
+    parameter   mean median    sd lower upper
+5%       EC50 212.83 224.25 47.62 68.93 256.1
+5%1       NEC   8.47   7.65  4.88  2.45  17.5
+
+--- Reproducibility report ---
+
+── BayesianDEB Reproducibility Report ──
+
+ℹ R: 4.3.3 (x86_64-pc-linux-gnu)
+ℹ BayesianDEB: 0.2.0
+ℹ cmdstanr: 0.8.0
+ℹ CmdStan: 2.38.0
+ℹ posterior: 1.7.0, loo: 2.9.0
+
+── Fit Configuration 
+→ Model: individual (bdeb_individual_growth)
+→ Chains: 4, Warmup: 1000, Sampling: 1000
+→ adapt_delta: 0.95
+→ Stan model hash: 86ed2b049d6c
+✔ Section 7 case studies: done.
