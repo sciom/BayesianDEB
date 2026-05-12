@@ -3,8 +3,8 @@ message: "If you use this software, please cite it as below."
 type: software
 title: "BayesianDEB: Bayesian Dynamic Energy Budget Modelling"
 version: 0.2.0
-doi: 10.5281/zenodo.19443804
-date-released: "2026-05-11"
+doi: 10.5281/zenodo.20134752
+date-released: "2026-05-12"
 url: "https://github.com/sciom/BayesianDEB"
 repository-code: "https://github.com/sciom/BayesianDEB"
 license: MIT

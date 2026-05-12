@@ -437,7 +437,10 @@ These additions are documented in `NEWS.md` under the 0.2.0 entry.
 The revised submission consists of:
 
 * `BayesianDEB_0.2.0.tar.gz` — the package, passes
-  `R CMD check --as-cran` with **0 errors / 0 warnings / 0 notes**.
+  `R CMD check --as-cran` with **0 errors / 0 warnings / 1 note**
+  (the single NOTE is the informational "unable to verify current
+  time", produced when the host has no network access to the time
+  server; it is unrelated to package contents).
 * `BayesianDEB_replication.zip` — replication material, with
   `README.md`, bundled `curves.txt`, and `lite` / `full` modes.
 * The present document (`response_to_editor.md`).

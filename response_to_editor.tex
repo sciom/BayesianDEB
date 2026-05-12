@@ -3,8 +3,11 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[margin=2.5cm]{geometry}
+\usepackage{amssymb}
 \usepackage{parskip}
+\usepackage{microtype}
 \usepackage{hyperref}
+\usepackage{xurl}
 \usepackage{csquotes}
 \usepackage{enumitem}
 \usepackage{fancyvrb}
@@ -13,8 +16,14 @@
   colorlinks=true,
   linkcolor=black,
   urlcolor=blue,
-  citecolor=blue
+  citecolor=blue,
+  breaklinks=true
 }
+
+\emergencystretch=3em
+\sloppy
+
+\setlist[itemize]{label=$\blacktriangleright$}
 
 \newcommand{\code}[1]{\texttt{#1}}
 \newcommand{\pkg}[1]{\textsf{#1}}
@@ -123,12 +132,12 @@ inspect the output and assess the quality of the results (see, e.g.,
 that make sense for a Bayesian DEB fit:
 
 \begin{itemize}[nosep]
-\item \code{confint()} --- posterior credible intervals.
-\item \code{fitted()} --- posterior median/mean of $\hat{L}_i$.
-\item \code{residuals()} --- observed minus fitted.
-\item \code{nobs()} --- observation count.
-\item \code{vcov()} --- posterior covariance of model parameters.
-\item \code{logLik()} --- log-pointwise predictive density
+\item \code{confint()}: posterior credible intervals.
+\item \code{fitted()}: posterior median/mean of $\hat{L}_i$.
+\item \code{residuals()}: observed minus fitted.
+\item \code{nobs()}: observation count.
+\item \code{vcov()}: posterior covariance of model parameters.
+\item \code{logLik()}: log-pointwise predictive density
   (\code{lppd}).
 \end{itemize}
 
@@ -271,7 +280,7 @@ manuscript. We have:
   \code{00\_setup.R} and propagate it to every \code{bdeb\_fit()} and
   \code{plot\_*()} call via explicit \verb|seed =| arguments.
 \item Recorded the rendering environment in
-  \code{replication/SESSION\_INFO.txt}, captured via
+  \code{replication/outputs/sessionInfo.txt}, captured via
   \code{BayesianDEB::bdeb\_session\_info()} and
   \code{utils::sessionInfo()}.
 \item All manuscript figures and tables are reproduced
@@ -285,7 +294,7 @@ sensitive to floating-point reductions in \code{reduce\_sum}; this is
 documented in \code{replication/README.md}.
 
 \textbf{Reference.} Tasks A3/A4; \code{replication/00\_setup.R},
-\code{replication/SESSION\_INFO.txt}.
+\code{replication/outputs/sessionInfo.txt}.
 
 \subsection{CVode mxstep informational messages}
 
@@ -326,10 +335,10 @@ We have made two changes:
 
 \begin{displayquote}
 ``The replication material contains
-\verb|curves <- read.delim("https://raw.githubusercontent.com/|
-\verb|JeromeMathieuEcology/EGrowth/master/curves.txt")|. This file
-should also be directly included in the replication material to
-reduce the dependency on availability from external unreliable
+\verb|curves <- read.delim(|\allowbreak\verb|"https://raw.githubusercontent.com/|\allowbreak
+\verb|JeromeMathieuEcology/|\allowbreak\verb|EGrowth/master/curves.txt")|.
+This file should also be directly included in the replication material
+to reduce the dependency on availability from external unreliable
 sources.''
 \end{displayquote}
 
@@ -347,7 +356,7 @@ documented in \code{replication/README.md}.
 
 \begin{displayquote}
 ``Running \code{eisenia\_real\_data.R} fails with
-\verb|Error in bdeb_model(): Temperature list missing: T_obs.|''
+\verb|Error in bdeb_model():|\allowbreak{} \verb|Temperature list missing: T_obs.|''
 \end{displayquote}
 
 \textbf{Response.} In package version 0.1.4 we renamed the
@@ -400,7 +409,7 @@ dispatch), \code{replication/README.md}.
 
 \begin{displayquote}
 ``\verb|example("bdeb_model")| warns
-\verb|'bdeb_model' has a help file but no examples|. Since
+\verb|'bdeb_model' has a help file|\allowbreak{} \verb|but no examples|. Since
 \code{bdeb\_model} seems to be one of the main functions of the
 package, it is important that its help page is accompanied with an
 example.''
@@ -528,10 +537,12 @@ entry.
 The revised submission consists of:
 
 \begin{itemize}[nosep]
-\item \code{BayesianDEB\_0.2.0.tar.gz} --- the package, passes
+\item \code{BayesianDEB\_0.2.0.tar.gz}: the package, passes
   \verb|R CMD check --as-cran| with \textbf{0 errors / 0 warnings /
-  0 notes}.
-\item \code{BayesianDEB\_replication.zip} --- replication material,
+  1 note} (the single NOTE is the informational ``unable to verify
+  current time'', produced when the host has no network access to
+  the time server; it is unrelated to package contents).
+\item \code{BayesianDEB\_replication.zip}: replication material,
   with \code{README.md}, bundled \code{curves.txt}, and \code{lite}
   / \code{full} modes.
 \item The present document (\code{response\_to\_editor.tex}).

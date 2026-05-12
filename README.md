@@ -144,7 +144,8 @@ If you use BayesianDEB in your work, please cite:
 
 > Hackenberger, B.K., Djerdj, T. and Hackenberger, D.K. (2026).
 > BayesianDEB: Bayesian Dynamic Energy Budget Modelling. R package
-> version 0.1.3. https://github.com/sciom/BayesianDEB
+> version 0.2.0. doi:10.5281/zenodo.20134752.
+> https://github.com/sciom/BayesianDEB
 
 ## Key references
 
