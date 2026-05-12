@@ -47,6 +47,14 @@ additional error).  Use \code{endpoint = "growth"} or
 \code{endpoint = "reproduction"} to compute LOO for a single endpoint.
 }
 
+\examples{
+\dontrun{
+data(eisenia_growth)
+dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
+fit <- bdeb_fit(bdeb_model(dat, type = "individual"))
+bdeb_loo(fit)
+}
+}
 \references{
 Vehtari, A., Gelman, A. and Gabry, J. (2017). Practical Bayesian
 model evaluation using leave-one-out cross-validation and WAIC.

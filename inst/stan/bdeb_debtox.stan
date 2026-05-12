@@ -71,7 +71,7 @@ functions {
 
       array[N_obs[g]] vector[4] x_sol = ode_bdf_tol(
         deb_tox_ode, x0, 0.0, t_g,
-        1e-6, 1e-6, 10000,
+        1e-5, 1e-8, 1000000,
         p_Am * c_T, p_M * c_T, kappa, v * c_T, E_G,
         k_d * c_T, z_w, b_w,
         f_food, C_w[g]

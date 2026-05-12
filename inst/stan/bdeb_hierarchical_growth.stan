@@ -50,7 +50,7 @@ functions {
 
       array[N_obs[j]] vector[2] x_sol = ode_bdf_tol(
         deb_growth_ode, x0, 0.0, t_ind,
-        1e-6, 1e-6, 10000,
+        1e-5, 1e-8, 1000000,
         p_Am_ind[j] * c_T, p_M * c_T, kappa, v * c_T, E_G, f_food
       );
 

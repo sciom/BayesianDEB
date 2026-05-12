@@ -4,7 +4,7 @@
 \alias{bdeb_diagnose}
 \title{MCMC Convergence Diagnostics}
 \usage{
-bdeb_diagnose(fit, pars = NULL, verbose = TRUE)
+bdeb_diagnose(fit, pars = NULL)
 }
 \arguments{
 \item{fit}{A \code{\link[=bdeb_fit]{bdeb_fit()}} object.}
@@ -12,17 +12,11 @@ bdeb_diagnose(fit, pars = NULL, verbose = TRUE)
 \item{pars}{Character vector of parameter names to report.  Default:
 all model parameters (excluding generated quantities such as
 \code{log_lik}, \code{L_rep}, and \code{lp__}).}
-
-\item{verbose}{Logical; if \code{TRUE} (default) the diagnostic messages
-and parameter summary table are printed via \code{cli} functions and
-\code{\link[=message]{message()}}.  All output is suppressible with
-\code{\link[=suppressMessages]{suppressMessages()}}.  Set to \code{FALSE} for a silent run (the
-invisible return value is unchanged).}
 }
 \value{
-Invisibly returns a list with components \code{n_divergent},
-\code{n_max_treedepth}, \code{ebfmi}, and \code{summary} (a
-\code{\link[posterior:draws_summary]{posterior::summarise_draws()}} tibble).
+An object of class \code{bdeb_diagnostics} with components
+\code{n_divergent}, \code{n_max_treedepth}, \code{ebfmi}, \code{summary} (a
+\code{\link[posterior:draws_summary]{posterior::summarise_draws()}} tibble), \code{pars}, and \code{model_type}.
 }
 \description{
 Reports a comprehensive set of NUTS/HMC diagnostics following the
@@ -44,6 +38,25 @@ tails of the posterior.  Values below 400 suggest that posterior
 summaries may be unreliable.}
 }
 }
+\details{
+Returns a \code{bdeb_diagnostics} S3 object.  The object has dedicated
+\link[=print.bdeb_diagnostics]{print()},
+\link[=summary.bdeb_diagnostics]{summary()} and
+\link[=plot.bdeb_diagnostics]{plot()} methods.  When called interactively
+the print method is invoked automatically; assign the result
+(\code{d <- bdeb_diagnose(fit)}) to suppress output.
+}
+\examples{
+\dontrun{
+data(eisenia_growth)
+dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
+fit <- bdeb_fit(bdeb_model(dat, type = "individual"),
+                chains = 2, iter_warmup = 200, iter_sampling = 200)
+d <- bdeb_diagnose(fit)
+summary(d)
+plot(d, type = "rhat")
+}
+}
 \references{
 Vehtari, A., Gelman, A., Simpson, D., Carpenter, B. and
 Bürkner, P.-C. (2021). Rank-normalization, folding, and localization:
@@ -52,4 +65,8 @@ an improved \eqn{\hat{R}} for assessing convergence of MCMC.
 
 Betancourt, M. (2016). Diagnosing biased inference with divergences.
 Stan case study. \url{https://mc-stan.org/users/documentation/case-studies/divergences_and_bias.html}
+}
+\seealso{
+\code{\link[=print.bdeb_diagnostics]{print.bdeb_diagnostics()}}, \code{\link[=summary.bdeb_diagnostics]{summary.bdeb_diagnostics()}},
+\code{\link[=plot.bdeb_diagnostics]{plot.bdeb_diagnostics()}}
 }

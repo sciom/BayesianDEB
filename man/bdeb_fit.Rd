@@ -15,6 +15,7 @@ bdeb_fit(
   parallel_chains = NULL,
   threads_per_chain = NULL,
   refresh = 200,
+  algorithm = c("sampling", "variational"),
   ...
 )
 }
@@ -56,11 +57,27 @@ Has no effect on \code{"individual"} or \code{"growth_repro"} models
 \item{refresh}{How often to print sampling progress (iterations).
 Default 200.  Set to 0 for silent operation.}
 
-\item{...}{Additional arguments forwarded to \code{CmdStanModel$sample()}.}
+\item{algorithm}{One of \code{"sampling"} (default; full HMC via NUTS) or
+\code{"variational"} (mean-field automatic differentiation variational
+inference, ADVI).  ADVI is \strong{substantially faster} but yields an
+\emph{approximation} of the posterior, not an exact draw.  Use it for
+illustrative or exploratory work; \strong{always use the default
+\code{"sampling"} for publication-grade inference}.  When
+\code{algorithm = "variational"}, the arguments \code{chains},
+\code{iter_warmup}, \code{iter_sampling}, \code{adapt_delta}, \code{max_treedepth},
+and \code{parallel_chains} are ignored; ADVI-specific defaults are
+used instead (1000 output samples).  Diagnostics that depend on
+chain mixing (R-hat, divergences, treedepth) are not defined for
+ADVI fits, and \code{\link[=bdeb_diagnose]{bdeb_diagnose()}} will refuse to run on them.}
+
+\item{...}{Additional arguments forwarded to \code{CmdStanModel$sample()}
+(or \code{CmdStanModel$variational()} when \code{algorithm = "variational"}).}
 }
 \value{
-A \code{bdeb_fit} object containing the \code{CmdStanMCMC} result,
-the model specification, and sampling metadata.
+A \code{bdeb_fit} object containing the \code{CmdStanMCMC} (or
+\code{CmdStanVB}) result, the model specification, and sampling
+metadata.  The list element \code{algorithm} records which inference
+engine was used.
 }
 \description{
 Compiles the bundled Stan program via \pkg{cmdstanr} (which handles
@@ -78,15 +95,42 @@ the maximum treedepth is frequently saturated, increase
 values can matter; the non-centred parameterisation used in
 \code{bdeb_hierarchical_growth.stan} should suffice in most cases.
 }
+\section{Notes on Stan informational messages}{
+
+During warmup it is normal for Stan to emit informational messages
+such as "Informational Message: The current Metropolis proposal is
+about to be rejected because of the following issue(s)" or
+occasional ODE solver warnings.  These are emitted whenever the
+leapfrog integrator probes a region of parameter space where the
+DEB ODE is stiff or numerically extreme; the proposal is then
+rejected and the chain continues.  As of version 0.2.0 the bundled
+Stan models call \code{ode_bdf_tol} with \code{max_num_steps = 1e5}
+(raised from \code{1e4} in 0.1.x) which substantially reduces these
+messages but does not eliminate them in pathological priors or with
+very few warmup iterations.  These messages are \strong{benign} as long
+as \code{\link[=bdeb_diagnose]{bdeb_diagnose()}} reports no divergent transitions, no max
+treedepth saturation, and adequate \eqn{\hat{R}}/ESS for all
+parameters.
+}
+
 \examples{
-# \dontrun{} because bdeb_fit() requires the external CmdStan toolchain
-# (not on CRAN) and a single fit takes > 30 seconds (Stan compilation
-# + MCMC).  Users can run this manually after `cmdstanr::install_cmdstan()`.
-\dontrun{
-data(eisenia_growth)
-dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
-mod <- bdeb_model(dat, type = "individual")
-fit <- bdeb_fit(mod, chains = 2, iter_sampling = 500)
+# bdeb_fit() requires the external CmdStan toolchain (Suggests:
+# cmdstanr) and a fresh fit takes > 30 seconds (Stan compilation
+# plus MCMC).  The example is wrapped in \donttest{} and gated on
+# cmdstanr availability so that R CMD check skips it on CRAN's
+# toolchain-free workers but power users can run it after
+# cmdstanr::install_cmdstan().
+\donttest{
+if (requireNamespace("cmdstanr", quietly = TRUE) &&
+    nzchar(tryCatch(cmdstanr::cmdstan_path(),
+                    error = function(e) ""))) {
+  data(eisenia_growth)
+  dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
+  mod <- bdeb_model(dat, type = "individual")
+  fit <- bdeb_fit(mod, chains = 1, iter_warmup = 200,
+                  iter_sampling = 200, refresh = 0)
+  print(fit)
+}
 }
 }
 \references{

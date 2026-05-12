@@ -90,7 +90,7 @@
 #' The package uses two distinct numerical engines:
 #' \describe{
 #'   \item{Stan inference (exact)}{`bdeb_fit()`, `bdeb_diagnose()`,
-#'     `bdeb_summary()`, `bdeb_ec50()`, `bdeb_loo()`, `bdeb_ppc()`
+#'     `summary()` on a `bdeb_fit`, `bdeb_ec50()`, `bdeb_loo()`, `bdeb_ppc()`
 #'     for individual/growth_repro.  These use Stan's BDF stiff ODE
 #'     solver with adaptive step size and tolerances \eqn{10^{-6}}.
 #'     Posteriors, derived quantities, and log-likelihoods from this
@@ -108,12 +108,15 @@
 #' @section Lifecycle:
 #' \describe{
 #'   \item{Stable}{`bdeb_data()`, `bdeb_model()`, `bdeb_fit()`,
-#'     `bdeb_diagnose()`, `bdeb_summary()`, `bdeb_derived()`,
+#'     `bdeb_diagnose()`, `bdeb_derived()`,
 #'     `bdeb_ppc()`, `bdeb_predict()`, `bdeb_loo()`, `bdeb_ec50()`,
 #'     `bdeb_tox()`, `bdeb_prior_predictive()`, `plot_dose_response()`,
-#'     `coef()`, all prior and observation model constructors,
-#'     `arrhenius()`, `deb_fluxes()`, `repro_to_intervals()`,
-#'     `bdeb_session_info()`.}
+#'     `summary()`, `coef()`, `confint()`, `fitted()`, `residuals()`,
+#'     `nobs()`, `vcov()`, `logLik()`, all prior and observation model
+#'     constructors, `arrhenius()`, `deb_fluxes()`,
+#'     `repro_to_intervals()`, `bdeb_session_info()`.}
+#'   \item{Deprecated}{`bdeb_summary()` (use `summary()` on a
+#'     `bdeb_fit` object instead).}
 #'   \item{Stable models}{`"individual"`, `"growth_repro"`,
 #'     `"hierarchical"`.}
 #'   \item{Beta models}{`"debtox"` (group-level, 1 ODE per concentration;
@@ -126,4 +129,5 @@
 #'
 #' @name BayesianDEB-package
 #' @aliases BayesianDEB
+#' @importFrom stats nobs fitted
 NULL

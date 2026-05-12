@@ -19,3 +19,9 @@ A ggplot2 object.
 \description{
 Plot Posterior Predictive Checks
 }
+\examples{
+\dontrun{
+fit <- bdeb_fit(mod)
+plot(bdeb_ppc(fit, type = "growth"))
+}
+}

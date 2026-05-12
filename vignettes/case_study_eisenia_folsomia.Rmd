@@ -14,14 +14,34 @@ vignette: >
 ---
 
 ```{r setup, include = FALSE}
+HAS_CMDSTAN <- requireNamespace("cmdstanr", quietly = TRUE) &&
+  isTRUE(nzchar(tryCatch(cmdstanr::cmdstan_path(),
+                         error = function(e) "")))
 knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
+  collapse  = TRUE,
+  comment   = "#>",
   fig.width = 7,
   fig.height = 5,
   fig.align = "center",
-  eval = FALSE
+  eval = HAS_CMDSTAN
 )
+library(BayesianDEB)
+```
+
+```{r illustrative-note, eval = HAS_CMDSTAN, echo = FALSE, results = "asis"}
+cat("> **Illustrative settings.** To keep build time within CRAN's",
+    "vignette limits the chunks below use 2 chains × (300 + 300)",
+    "iterations on a 5-individual subset of `eisenia_growth`.",
+    "The publication-grade analysis with 4 chains × (1000 + 1000)",
+    "iterations on all 21 individuals is reproduced by the scripts in the",
+    "replication archive (`BayesianDEB_replication.zip`).\n\n")
+```
+
+```{r asis-warning, eval = !HAS_CMDSTAN, echo = FALSE, results = "asis"}
+cat("> **Note.** This vignette requires `cmdstanr` and a working CmdStan",
+    "installation; the chunks below are not evaluated in the current",
+    "environment.  See `vignette(\"getting_started\", \"BayesianDEB\")`",
+    "for installation instructions.\n")
 ```
 
 # Introduction
@@ -70,7 +90,8 @@ for model fitting.  Data preparation, prior specification, and utility
 functions work without Stan.
 
 ```{r check-stan}
-check_cmdstanr()  # informative error if missing
+# Internal helper; emits an informative error when CmdStan is missing.
+BayesianDEB:::check_cmdstanr()
 ```
 
 
@@ -179,10 +200,10 @@ The model is compiled to C++ and sampled using the No-U-Turn Sampler
 
 ```{r ind-fit}
 fit1 <- bdeb_fit(mod1,
-  chains        = 4,
-  iter_warmup   = 1000,
-  iter_sampling = 2000,
-  adapt_delta   = 0.9,
+  chains        = 2,
+  iter_warmup   = 300,
+  iter_sampling = 300,
+  refresh       = 100,
   seed          = 42
 )
 fit1
@@ -209,7 +230,8 @@ plot(fit1, type = "trace",
      pars = c("p_Am", "p_M", "kappa", "sigma_L"))
 ```
 
-```{r ind-pairs, fig.cap="Bivariate posterior scatter.  Strong correlation between $\\{p_{Am}\\}$ and $[p_M]$ is expected: both control ultimate size $L_\\infty = \\kappa \\{p_{Am}\\} / [p_M]$."}
+```{r ind-pairs, eval = HAS_CMDSTAN && requireNamespace("gridExtra", quietly = TRUE), fig.cap="Bivariate posterior scatter.  Strong correlation between $\\{p_{Am}\\}$ and $[p_M]$ is expected: both control ultimate size $L_\\infty = \\kappa \\{p_{Am}\\} / [p_M]$."}
+# `bayesplot::mcmc_pairs` requires gridExtra (a Suggests of bayesplot).
 plot(fit1, type = "pairs",
      pars = c("p_Am", "p_M", "kappa", "E_G"))
 ```
@@ -217,7 +239,7 @@ plot(fit1, type = "pairs",
 ### Step 5: Posterior summary
 
 ```{r ind-summary}
-bdeb_summary(fit1,
+summary(fit1,
   pars = c("p_Am", "p_M", "kappa", "v", "E_G", "sigma_L"),
   prob = 0.95)
 ```
@@ -313,8 +335,12 @@ across all individuals.
 ### Prepare and specify
 
 ```{r hier-data}
-dat_all <- bdeb_data(growth = eisenia_growth, f_food = 1.0)
-dat_all  # 21 individuals, 273 observations
+# Illustrative subset of 5 individuals; replication archive uses all 21.
+dat_all <- bdeb_data(
+  growth = eisenia_growth[eisenia_growth$id %in% 1:5, ],
+  f_food = 1.0
+)
+dat_all
 ```
 
 ```{r hier-model}
@@ -335,22 +361,21 @@ following the guidance of Gelman (2006) for hierarchical variance
 parameters.  This places most prior mass near zero while allowing
 substantial variation if the data support it.
 
-### Fit with within-chain parallelism
+### Fit
 
-With 21 individuals, each requiring an independent ODE solve per
+With multiple individuals, each requiring an independent ODE solve per
 iteration, the hierarchical model benefits from **within-chain
-parallelism** via Stan's `reduce_sum`.  Setting `threads_per_chain = 4`
-distributes the 21 ODE solves across 4 threads per chain.
+parallelism** via Stan's `reduce_sum` and `threads_per_chain`.  We
+omit threading here because the illustrative subset has only five
+individuals; the replication archive turns it on for the full 21.
 
 ```{r hier-fit}
 fit_h <- bdeb_fit(mod_h,
-  chains            = 4,
-  iter_warmup       = 1000,
-  iter_sampling     = 2000,
-  adapt_delta       = 0.95,
-  max_treedepth     = 12,
-  threads_per_chain = 4,
-  seed              = 123
+  chains        = 2,
+  iter_warmup   = 300,
+  iter_sampling = 300,
+  refresh       = 100,
+  seed          = 123
 )
 ```
 
@@ -373,7 +398,7 @@ plot(fit_h, type = "posterior",
 ### Population-level results
 
 ```{r hier-pop}
-bdeb_summary(fit_h,
+summary(fit_h,
   pars = c("mu_log_p_Am", "sigma_log_p_Am",
            "p_M", "kappa", "v", "E_G", "sigma_L"),
   prob = 0.95)
@@ -388,15 +413,16 @@ partial pooling — a principled compromise between complete pooling
 independently).
 
 ```{r hier-shrinkage, fig.cap="Individual-level $\\{p_{Am}\\}$ estimates (points: posterior means; bars: 90% CI) compared to the population mean (dashed red line).  Shrinkage toward the mean is visible for individuals with noisier data."}
-ind_summary <- bdeb_summary(fit_h,
-  pars = paste0("p_Am_ind[", 1:21, "]"),
+n_ind <- dat_all$n_ind
+ind_summary <- summary(fit_h,
+  pars = paste0("p_Am_ind[", seq_len(n_ind), "]"),
   prob = 0.90)
 
-pop_summary <- bdeb_summary(fit_h, pars = "mu_log_p_Am")
+pop_summary <- summary(fit_h, pars = "mu_log_p_Am")
 pop_mean_pAm <- exp(as.data.frame(pop_summary)$mean)
 
 ind_df <- as.data.frame(ind_summary)
-ind_df$individual <- 1:21
+ind_df$individual <- seq_len(n_ind)
 
 ggplot(ind_df, aes(x = individual, y = mean)) +
   geom_pointrange(aes(ymin = `5%`, ymax = `95%`),
@@ -415,14 +441,14 @@ distribution — useful for predicting the performance of an unobserved
 individual from the same population:
 
 ```{r hier-new}
-bdeb_summary(fit_h, pars = "p_Am_new", prob = 0.95)
+summary(fit_h, pars = "p_Am_new", prob = 0.95)
 ```
 
 ### Individual vs hierarchical: comparison
 
 ```{r compare}
-s_ind  <- bdeb_summary(fit1, pars = c("p_Am", "p_M", "kappa"), prob = 0.90)
-s_hier <- bdeb_summary(fit_h, pars = c("p_M", "kappa"), prob = 0.90)
+s_ind  <- summary(fit1, pars = c("p_Am", "p_M", "kappa"), prob = 0.90)
+s_hier <- summary(fit_h, pars = c("p_M", "kappa"), prob = 0.90)
 
 cat("=== Individual model (id = 5, n = 1) ===\n")
 print(as.data.frame(s_ind), digits = 3, row.names = FALSE)
@@ -531,25 +557,28 @@ mod_tox
 
 ## Fit
 
+For this **demo only**, we fit the DEBtox model with variational
+inference (ADVI), which yields an approximation of the posterior in
+seconds rather than minutes.  The replication archive uses full HMC
+(NUTS) with `chains = 4, iter = 1000 + 1000` and is the
+publication-grade method.
+
 ```{r debtox-fit}
-fit_tox <- bdeb_fit(mod_tox,
-  chains            = 4,
-  iter_warmup       = 1000,
-  iter_sampling     = 2000,
-  adapt_delta       = 0.95,
-  max_treedepth     = 12,
-  threads_per_chain = 2,
-  seed              = 77
-)
+fit_tox <- bdeb_fit(mod_tox, algorithm = "variational",
+                    seed = 77, refresh = 0)
 ```
 
 ## Diagnostics
 
-```{r debtox-diag}
-bdeb_diagnose(fit_tox)
-```
+For the variational fit used in this vignette, MCMC-specific diagnostics
+($\hat{R}$, divergent transitions, treedepth, ESS) are not defined.  In
+the replication archive, where the same model is fitted with full HMC,
+`bdeb_diagnose(fit_tox)` and the trace plot below are the appropriate
+checks.
 
-```{r debtox-trace-tox, fig.cap="Trace plots for the three toxicological parameters.  Good mixing is essential for reliable EC$_{50}$ and NEC estimates."}
+```{r debtox-trace-tox, eval = FALSE, fig.cap="Trace plots for the three toxicological parameters.  Good mixing is essential for reliable EC$_{50}$ and NEC estimates."}
+# Re-fit with algorithm = "sampling" for these diagnostics; see
+# the replication archive for the publication-grade analysis.
 plot(fit_tox, type = "trace", pars = c("k_d", "z_w", "b_w"))
 ```
 
@@ -557,7 +586,8 @@ plot(fit_tox, type = "trace", pars = c("k_d", "z_w", "b_w"))
 plot(fit_tox, type = "posterior", pars = c("k_d", "z_w", "b_w"))
 ```
 
-```{r debtox-pairs, fig.cap="Posterior pairs for toxicological parameters.  A correlation between $z_w$ and $b_w$ is expected since both determine the shape of the dose-response curve."}
+```{r debtox-pairs, eval = HAS_CMDSTAN && requireNamespace("gridExtra", quietly = TRUE), fig.cap="Posterior pairs for toxicological parameters.  A correlation between $z_w$ and $b_w$ is expected since both determine the shape of the dose-response curve."}
+# `bayesplot::mcmc_pairs` requires gridExtra (a Suggests of bayesplot).
 plot(fit_tox, type = "pairs", pars = c("z_w", "b_w", "k_d"))
 ```
 
@@ -565,7 +595,7 @@ plot(fit_tox, type = "pairs", pars = c("z_w", "b_w", "k_d"))
 ## Parameter estimates
 
 ```{r debtox-summary}
-bdeb_summary(fit_tox,
+summary(fit_tox,
   pars = c("p_Am", "p_M", "kappa", "v", "E_G",
            "k_d", "z_w", "b_w", "sigma_L"),
   prob = 0.95)
@@ -602,8 +632,8 @@ legend("topright", "Posterior median",
 
 ## Dose-response curve
 
-```{r debtox-dr, fig.cap="Dose-response curve with posterior uncertainty bands (blue lines: individual posterior draws).  The dashed horizontal line marks 50% effect; vertical dashed lines mark the NEC (green) and EC$_{50}$ (red)."}
-plot_dose_response(fit_tox, n_draws = 200)
+```{r debtox-dr, fig.cap="Dose-response curve with posterior uncertainty bands (blue lines: individual posterior draws).  The dashed horizontal line marks 50% effect; vertical dashed lines mark the NEC (green) and EC$_{50}$ (red).  The vignette uses lite settings; replication archive uses 200 draws."}
+plot_dose_response(fit_tox, n_draws = 30, n_conc = 25)
 ```
 
 
@@ -618,14 +648,14 @@ mod_tox2 <- bdeb_tox(dat_tox, stress = "assimilation",
     z_w = prior_lognormal(mu = 3.0, sigma = 0.3),  # tighter
     b_w = prior_lognormal(mu = -5.0, sigma = 2.0)
   ))
-fit_tox2 <- bdeb_fit(mod_tox2, chains = 4, adapt_delta = 0.95,
-                     threads_per_chain = 2, seed = 78)
+fit_tox2 <- bdeb_fit(mod_tox2, algorithm = "variational",
+                     seed = 78, refresh = 0)
 
 cat("=== Original: z_w ~ LogNormal(2.5, 1.0) ===\n")
-bdeb_summary(fit_tox,  pars = c("z_w", "b_w"), prob = 0.95)
+summary(fit_tox,  pars = c("z_w", "b_w"), prob = 0.95)
 
 cat("\n=== Tighter:  z_w ~ LogNormal(3.0, 0.3) ===\n")
-bdeb_summary(fit_tox2, pars = c("z_w", "b_w"), prob = 0.95)
+summary(fit_tox2, pars = c("z_w", "b_w"), prob = 0.95)
 ```
 
 If the posteriors agree despite different priors, the **data are
@@ -715,12 +745,14 @@ mod_robust <- bdeb_model(dat1, type = "individual",
 # Multiplicative error (constant CV)
 mod_logn <- bdeb_model(dat1, type = "individual",
   observation = list(growth = obs_lognormal()))
+```
 
-# For reproduction: Poisson instead of NegBin
-# (appropriate when overdispersion is negligible)
-mod_pois <- bdeb_model(dat_gr, type = "growth_repro",
-  observation = list(growth = obs_normal(),
-                     reproduction = obs_poisson()))
+```r
+# For reproduction with Poisson likelihood (when overdispersion is
+# negligible) -- requires growth + reproduction data:
+# mod_pois <- bdeb_model(dat_gr, type = "growth_repro",
+#   observation = list(growth      = obs_normal(),
+#                      reproduction = obs_poisson()))
 ```
 
 Available observation families:

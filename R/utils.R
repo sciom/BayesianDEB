@@ -81,8 +81,29 @@ arrhenius <- function(temp, T_ref = 293.15, T_A = 8000) {
 #' Organisation*. 3rd edition. Cambridge University Press, Ch. 2.
 #' \doi{10.1017/CBO9780511805400}
 #' @export
+#' @examples
+#' # Energy fluxes for a 1 cm^3 organism with typical Eisenia parameters
+#' deb_fluxes(E = 1, V = 1, f = 1, p_Am = 5, p_M = 0.5,
+#'   kappa = 0.75, v = 0.2, E_G = 4400)
 deb_fluxes <- function(E, V, f, p_Am, p_M, kappa, v, E_G,
                        k_J = 0, E_Hp = 0) {
+	for (nm in c("E", "V", "f", "p_Am", "p_M", "kappa", "v", "E_G",
+	             "k_J", "E_Hp")) {
+		x <- get(nm)
+		if (!is.numeric(x) || length(x) != 1L || !is.finite(x)) {
+			cli::cli_abort("{.arg {nm}} must be a finite numeric scalar.")
+		}
+	}
+	if (E < 0 || V < 0 || p_Am < 0 || p_M < 0 || v < 0 || E_G < 0 ||
+	    k_J < 0 || E_Hp < 0) {
+		cli::cli_abort("Energy fluxes require non-negative arguments.")
+	}
+	if (f < 0 || f > 1) {
+		cli::cli_abort("{.arg f} must lie in [0, 1].")
+	}
+	if (kappa <= 0 || kappa >= 1) {
+		cli::cli_abort("{.arg kappa} must lie in (0, 1).")
+	}
 	L <- V^(1 / 3)
 	E_m <- p_Am / v  # maximum reserve density [E_m] = {p_Am}/v
 

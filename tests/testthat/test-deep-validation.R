@@ -501,7 +501,7 @@ test_that("full pipeline: individual mock -> diagnose -> summary -> derived -> p
   expect_type(diag, "list")
 
   # Summary
-  s <- suppressWarnings(bdeb_summary(fit, pars = c("p_Am", "kappa")))
+  s <- summary(fit, pars = c("p_Am", "kappa"))
   expect_equal(nrow(s), 2)
 
   # Derived

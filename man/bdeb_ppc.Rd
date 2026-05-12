@@ -46,6 +46,15 @@ via \code{R_rep}.}
 }
 }
 
+\examples{
+\dontrun{
+data(eisenia_growth)
+dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
+fit <- bdeb_fit(bdeb_model(dat, type = "individual"))
+ppc <- bdeb_ppc(fit, type = "growth")
+plot(ppc)
+}
+}
 \references{
 Gelman, A., Carlin, J.B., Stern, H.S., Dunson, D.B., Vehtari, A.
 and Rubin, D.B. (2013). \emph{Bayesian Data Analysis}. 3rd edition.

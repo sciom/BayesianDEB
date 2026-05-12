@@ -86,7 +86,7 @@ transformed parameters {
     vector[2] x0 = [E0 * V0, V0]';
 
     x_sol = ode_bdf_tol(deb_growth_ode, x0, 0.0, t_obs,
-                        1e-6, 1e-6, 10000,
+                        1e-5, 1e-8, 1000000,
                         p_Am * c_T, p_M * c_T, kappa,
                         v * c_T, E_G, f_food);
   }

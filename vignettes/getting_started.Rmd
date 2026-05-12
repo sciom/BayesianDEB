@@ -8,11 +8,17 @@ vignette: >
 ---
 
 ```{r setup, include = FALSE}
+HAS_CMDSTAN <- requireNamespace("cmdstanr", quietly = TRUE) &&
+  isTRUE(nzchar(tryCatch(cmdstanr::cmdstan_path(),
+                         error = function(e) "")))
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>",
-  eval = FALSE
+  comment  = "#>",
+  fig.width  = 6,
+  fig.height = 4,
+  eval = HAS_CMDSTAN
 )
+library(BayesianDEB)
 ```
 
 ## Overview
@@ -33,7 +39,7 @@ The package implements four model types:
 
 ## Installation
 
-```{r install}
+```{r install, eval = FALSE}
 # Install cmdstanr (required backend)
 install.packages("cmdstanr",
   repos = c("https://stan-dev.r-universe.dev", getOption("repos")))
@@ -43,12 +49,18 @@ cmdstanr::install_cmdstan()
 # remotes::install_github("sciom/BayesianDEB")
 ```
 
+The chunks below are executed only when `cmdstanr` and a working
+CmdStan installation are available — otherwise they are skipped.
+To keep build time within JSS limits we use 2 chains and 300 + 300
+iterations, which is sufficient for illustration but **not** for
+publication-grade inference.  Re-run with `chains = 4`,
+`iter_warmup = iter_sampling = 1000` for production fits.
+
 ## Example: Individual Growth Model
 
 ### 1. Prepare Data
 
 ```{r data}
-library(BayesianDEB)
 data(eisenia_growth)
 
 # Use first individual
@@ -78,7 +90,9 @@ Unspecified priors are filled from `prior_default("individual")`.
 ### 3. Fit Model
 
 ```{r fit}
-fit <- bdeb_fit(mod, chains = 4, iter_sampling = 1000, seed = 123)
+fit <- bdeb_fit(mod,
+                chains = 2, iter_warmup = 300, iter_sampling = 300,
+                seed = 123, refresh = 100)
 fit
 ```
 
@@ -87,6 +101,10 @@ fit
 ```{r diagnose}
 bdeb_diagnose(fit)
 plot(fit, type = "trace")
+```
+
+```{r diagnose-pairs, eval = HAS_CMDSTAN && requireNamespace("gridExtra", quietly = TRUE)}
+# `bayesplot::mcmc_pairs` requires gridExtra (a Suggests of bayesplot).
 plot(fit, type = "pairs", pars = c("p_Am", "p_M", "kappa"))
 ```
 
@@ -111,21 +129,28 @@ plot(fit, type = "trajectory", n_draws = 200)
 
 ## Example: Hierarchical Model (Multiple Individuals)
 
+For illustration we use a 5-individual subset; the full multi-individual
+analysis with all 21 individuals is in the replication archive.
+
 ```{r hierarchical}
-dat_all <- bdeb_data(growth = eisenia_growth, f_food = 1.0)
+dat_all <- bdeb_data(
+  growth = eisenia_growth[eisenia_growth$id %in% 1:5, ],
+  f_food = 1.0
+)
 
 mod_hier <- bdeb_model(dat_all, type = "hierarchical")
 
-fit_hier <- bdeb_fit(mod_hier, chains = 4, adapt_delta = 0.9,
-                     threads_per_chain = 4)  # within-chain parallelism
+fit_hier <- bdeb_fit(mod_hier,
+                     chains = 2, iter_warmup = 300, iter_sampling = 300,
+                     seed = 123, refresh = 100)
 
 bdeb_diagnose(fit_hier)
-bdeb_summary(fit_hier, pars = c("mu_log_p_Am", "sigma_log_p_Am", "p_M", "kappa"))
+summary(fit_hier, pars = c("mu_log_p_Am", "sigma_log_p_Am", "p_M", "kappa"))
 ```
 
 ## Example: DEBtox Model
 
-```{r debtox}
+```{r debtox-data}
 data(debtox_growth)
 
 # Concentration mapping
@@ -141,13 +166,24 @@ dat_tox <- bdeb_data(
 )
 
 mod_tox <- bdeb_tox(dat_tox, stress = "assimilation")
-fit_tox <- bdeb_fit(mod_tox, chains = 4, adapt_delta = 0.95)
+```
 
-# EC50 and NEC
+For this **demo only**, we use **variational inference (ADVI)** which
+gives an approximation of the posterior in seconds rather than minutes.
+The replication archive uses full HMC (NUTS) which is the
+publication-grade method.
+
+```{r debtox-fit}
+fit_tox <- bdeb_fit(mod_tox, algorithm = "variational",
+                    seed = 123, refresh = 0)
+```
+
+```{r debtox-ec50}
 bdeb_ec50(fit_tox)
+```
 
-# Dose-response plot
-plot_dose_response(fit_tox)
+```{r debtox-plot}
+plot_dose_response(fit_tox, n_draws = 20, n_conc = 25, dt = 1.0)
 ```
 
 ## Prior Specification

@@ -20,3 +20,9 @@ Named numeric vector of point estimates.
 Returns posterior medians of all model parameters as a named numeric
 vector, consistent with the S3 \code{\link[=coef]{coef()}} convention.
 }
+\examples{
+\dontrun{
+fit <- bdeb_fit(mod)
+coef(fit)
+}
+}

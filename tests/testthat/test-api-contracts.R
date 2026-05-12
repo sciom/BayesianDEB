@@ -202,14 +202,14 @@ test_that("bdeb_ec50 on non-debtox model errors", {
 })
 
 
-# --- bdeb_diagnose, bdeb_summary, bdeb_derived: class contracts ---
+# --- bdeb_diagnose, summary, bdeb_derived: class contracts ---
 
 test_that("bdeb_diagnose rejects wrong class", {
   expect_error(bdeb_diagnose(list()), "bdeb_fit")
 })
 
-test_that("bdeb_summary rejects wrong class", {
-  expect_error(bdeb_summary(list()), "bdeb_fit")
+test_that("summary.bdeb_fit rejects wrong class on direct dispatch", {
+  expect_error(summary.bdeb_fit(list()), "bdeb_fit")
 })
 
 test_that("bdeb_derived rejects wrong class", {

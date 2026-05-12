@@ -207,3 +207,43 @@ test_that("bdeb_predict includes time vector", {
   expect_false(is.null(pred$t))
   expect_true(length(pred$t) > 0)
 })
+
+test_that("print.bdeb_prediction is invisible and labels metadata", {
+  fit <- mock_bdeb_fit(n_draws = 50)
+  pred <- bdeb_predict(fit, n_draws = 15)
+  expect_invisible(print(pred))
+  out <- testthat::capture_messages(print(pred))
+  joined <- paste(out, collapse = "")
+  expect_match(joined, "BDEB Prediction")
+  expect_match(joined, "individual")
+})
+
+test_that("summary.bdeb_prediction returns time/lower/median/upper", {
+  fit <- mock_bdeb_fit(n_draws = 50)
+  pred <- bdeb_predict(fit, n_draws = 30)
+  s <- summary(pred, prob = 0.80)
+  expect_s3_class(s, "summary.bdeb_prediction")
+  expect_s3_class(s, "data.frame")
+  expect_named(s, c("time", "lower", "median", "upper"))
+  expect_equal(nrow(s), length(pred$t))
+  expect_equal(attr(s, "prob"), 0.80)
+  expect_true(all(s$lower <= s$median))
+  expect_true(all(s$median <= s$upper))
+})
+
+test_that("summary.bdeb_prediction validates prob", {
+  fit <- mock_bdeb_fit(n_draws = 30)
+  pred <- bdeb_predict(fit, n_draws = 10)
+  expect_error(summary(pred, prob = 0),    "prob")
+  expect_error(summary(pred, prob = 1),    "prob")
+  expect_error(summary(pred, prob = c(0.5, 0.9)), "prob")
+})
+
+test_that("print.summary.bdeb_prediction works on long and short tables", {
+  fit <- mock_bdeb_fit(n_draws = 50)
+  pred <- bdeb_predict(fit,
+    newdata = list(t_predict = seq(0, 100, length.out = 25)),
+    n_draws = 10)
+  out <- testthat::capture_messages(print(summary(pred)))
+  expect_match(paste(out, collapse = ""), "BDEB Prediction summary")
+})

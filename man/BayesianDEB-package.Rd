@@ -74,7 +74,7 @@ Kooijman (2010, Table 1.1).
 The package uses two distinct numerical engines:
 \describe{
 \item{Stan inference (exact)}{\code{bdeb_fit()}, \code{bdeb_diagnose()},
-\code{bdeb_summary()}, \code{bdeb_ec50()}, \code{bdeb_loo()}, \code{bdeb_ppc()}
+\code{summary()} on a \code{bdeb_fit}, \code{bdeb_ec50()}, \code{bdeb_loo()}, \code{bdeb_ppc()}
 for individual/growth_repro.  These use Stan's BDF stiff ODE
 solver with adaptive step size and tolerances \eqn{10^{-6}}.
 Posteriors, derived quantities, and log-likelihoods from this
@@ -94,12 +94,15 @@ results, use the Stan-based functions.}
 
 \describe{
 \item{Stable}{\code{bdeb_data()}, \code{bdeb_model()}, \code{bdeb_fit()},
-\code{bdeb_diagnose()}, \code{bdeb_summary()}, \code{bdeb_derived()},
+\code{bdeb_diagnose()}, \code{bdeb_derived()},
 \code{bdeb_ppc()}, \code{bdeb_predict()}, \code{bdeb_loo()}, \code{bdeb_ec50()},
 \code{bdeb_tox()}, \code{bdeb_prior_predictive()}, \code{plot_dose_response()},
-\code{coef()}, all prior and observation model constructors,
-\code{arrhenius()}, \code{deb_fluxes()}, \code{repro_to_intervals()},
-\code{bdeb_session_info()}.}
+\code{summary()}, \code{coef()}, \code{confint()}, \code{fitted()}, \code{residuals()},
+\code{nobs()}, \code{vcov()}, \code{logLik()}, all prior and observation model
+constructors, \code{arrhenius()}, \code{deb_fluxes()},
+\code{repro_to_intervals()}, \code{bdeb_session_info()}.}
+\item{Deprecated}{\code{bdeb_summary()} (use \code{summary()} on a
+\code{bdeb_fit} object instead).}
 \item{Stable models}{\code{"individual"}, \code{"growth_repro"},
 \code{"hierarchical"}.}
 \item{Beta models}{\code{"debtox"} (group-level, 1 ODE per concentration;
