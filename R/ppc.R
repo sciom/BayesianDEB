@@ -38,12 +38,17 @@
 #' Chapman & Hall/CRC. (Chapter 6: Model checking.)
 #' @export
 #' @examples
-#' \dontrun{
-#' data(eisenia_growth)
-#' dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
-#' fit <- bdeb_fit(bdeb_model(dat, type = "individual"))
-#' ppc <- bdeb_ppc(fit, type = "growth")
-#' plot(ppc)
+#' \donttest{
+#' if (requireNamespace("cmdstanr", quietly = TRUE) &&
+#'     nzchar(tryCatch(cmdstanr::cmdstan_path(), error = function(e) ""))) {
+#'   data(eisenia_growth)
+#'   dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
+#'   fit <- bdeb_fit(bdeb_model(dat, type = "individual"),
+#'                   chains = 2, iter_warmup = 200, iter_sampling = 200,
+#'                   refresh = 0)
+#'   ppc <- bdeb_ppc(fit, type = "growth")
+#'   plot(ppc)
+#' }
 #' }
 bdeb_ppc <- function(fit, type = c("growth", "reproduction", "all")) {
 	if (!inherits(fit, "bdeb_fit")) {
@@ -311,12 +316,17 @@ print.bdeb_ppc <- function(x, ...) {
 #'   `L_hat` (matrix: draws x time points), `n_draws`, `model_type`.
 #' @export
 #' @examples
-#' \dontrun{
-#' data(eisenia_growth)
-#' dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
-#' fit <- bdeb_fit(bdeb_model(dat, type = "individual"))
-#' pred <- predict(fit, n_draws = 200)
-#' summary(pred); plot(pred)
+#' \donttest{
+#' if (requireNamespace("cmdstanr", quietly = TRUE) &&
+#'     nzchar(tryCatch(cmdstanr::cmdstan_path(), error = function(e) ""))) {
+#'   data(eisenia_growth)
+#'   dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
+#'   fit <- bdeb_fit(bdeb_model(dat, type = "individual"),
+#'                   chains = 2, iter_warmup = 200, iter_sampling = 200,
+#'                   refresh = 0)
+#'   pred <- predict(fit, n_draws = 200)
+#'   summary(pred); plot(pred)
+#' }
 #' }
 predict.bdeb_fit <- function(object, newdata = NULL, n_draws = 200,
                              dt = 0.5, seed = NULL, ...) {
@@ -461,9 +471,16 @@ bdeb_predict <- function(fit, newdata = NULL, n_draws = 200, dt = 0.5,
 #' @return The input object, invisibly.
 #' @export
 #' @examples
-#' \dontrun{
-#' fit <- bdeb_fit(mod)
-#' print(predict(fit))
+#' \donttest{
+#' if (requireNamespace("cmdstanr", quietly = TRUE) &&
+#'     nzchar(tryCatch(cmdstanr::cmdstan_path(), error = function(e) ""))) {
+#'   data(eisenia_growth)
+#'   dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
+#'   fit <- bdeb_fit(bdeb_model(dat, type = "individual"),
+#'                   chains = 2, iter_warmup = 200, iter_sampling = 200,
+#'                   refresh = 0)
+#'   print(predict(fit))
+#' }
 #' }
 print.bdeb_prediction <- function(x, ...) {
 	cli::cli_h2("BDEB Prediction")
@@ -490,9 +507,16 @@ print.bdeb_prediction <- function(x, ...) {
 #'   Carries class `summary.bdeb_prediction` and attribute `prob`.
 #' @export
 #' @examples
-#' \dontrun{
-#' fit <- bdeb_fit(mod)
-#' summary(predict(fit), prob = 0.95)
+#' \donttest{
+#' if (requireNamespace("cmdstanr", quietly = TRUE) &&
+#'     nzchar(tryCatch(cmdstanr::cmdstan_path(), error = function(e) ""))) {
+#'   data(eisenia_growth)
+#'   dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
+#'   fit <- bdeb_fit(bdeb_model(dat, type = "individual"),
+#'                   chains = 2, iter_warmup = 200, iter_sampling = 200,
+#'                   refresh = 0)
+#'   summary(predict(fit), prob = 0.95)
+#' }
 #' }
 summary.bdeb_prediction <- function(object, prob = 0.90, ...) {
 	if (!is.numeric(prob) || length(prob) != 1L || prob <= 0 || prob >= 1) {
@@ -541,9 +565,16 @@ print.summary.bdeb_prediction <- function(x, n = 10, ...) {
 #' @return A [ggplot2::ggplot] object.
 #' @export
 #' @examples
-#' \dontrun{
-#' fit <- bdeb_fit(mod)
-#' plot(predict(fit), n_draws = 50)
+#' \donttest{
+#' if (requireNamespace("cmdstanr", quietly = TRUE) &&
+#'     nzchar(tryCatch(cmdstanr::cmdstan_path(), error = function(e) ""))) {
+#'   data(eisenia_growth)
+#'   dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
+#'   fit <- bdeb_fit(bdeb_model(dat, type = "individual"),
+#'                   chains = 2, iter_warmup = 200, iter_sampling = 200,
+#'                   refresh = 0)
+#'   plot(predict(fit), n_draws = 50)
+#' }
 #' }
 plot.bdeb_prediction <- function(x, n_draws = 100, ...) {
 	n_total <- nrow(x$L_hat)

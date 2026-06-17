@@ -20,8 +20,15 @@ observations that contributed to the likelihood.  Matches
 \code{\link[stats:nobs]{stats::nobs()}} in spirit.
 }
 \examples{
-\dontrun{
-fit <- bdeb_fit(mod)
-nobs(fit)
+\donttest{
+if (requireNamespace("cmdstanr", quietly = TRUE) &&
+    nzchar(tryCatch(cmdstanr::cmdstan_path(), error = function(e) ""))) {
+  data(eisenia_growth)
+  dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
+  fit <- bdeb_fit(bdeb_model(dat, type = "individual"),
+                  chains = 2, iter_warmup = 200, iter_sampling = 200,
+                  refresh = 0)
+  nobs(fit)
+}
 }
 }

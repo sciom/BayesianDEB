@@ -4,9 +4,21 @@
 
 Local: Ubuntu 22.04.5 LTS, R 4.5.2, CmdStan 2.36.0.
 
-## Resubmission
+## Submission of 0.2.0
 
-This is a resubmission of version 0.1.3 addressing reviewer feedback.
+This release brings the CRAN version in line with the version submitted
+to the Journal of Statistical Software (JSS requires that the published
+package and the manuscript's package version match; CRAN currently holds
+0.1.4).  Version 0.2.0 adds a full S3 class system (print/summary/plot
+for every exported class), additional `lm`-style methods on `bdeb_fit`
+(`confint`, `fitted`, `residuals`, `nobs`, `vcov`, `logLik`), LOO/WAIC
+comparison, and an expanded test suite.  See `NEWS.md` for details.
+The `bdeb_diagnose()` example was moved from `\dontrun{}` to a
+cmdstanr-gated `\donttest{}` block so that `example("bdeb_diagnose")`
+runs when a toolchain is present, mirroring `bdeb_fit()`.
+
+## History (0.1.3 -> 0.1.4)
+
 The following issues were fixed in 0.1.4:
 
 1. **No identifier named `T` or `F`.** The argument `T` in `arrhenius()`

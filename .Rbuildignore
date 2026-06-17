@@ -21,6 +21,7 @@
 ^doc$
 ^Meta$
 ^BayesianDEB_.*\.tar\.gz$
+^BayesianDEB_replication\.zip$
 ^MANUSCRIPT_JSS$
 ^MANUSCRIPT_JSS/
 ^replication$

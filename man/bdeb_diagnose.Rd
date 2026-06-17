@@ -47,14 +47,23 @@ the print method is invoked automatically; assign the result
 (\code{d <- bdeb_diagnose(fit)}) to suppress output.
 }
 \examples{
-\dontrun{
-data(eisenia_growth)
-dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
-fit <- bdeb_fit(bdeb_model(dat, type = "individual"),
-                chains = 2, iter_warmup = 200, iter_sampling = 200)
-d <- bdeb_diagnose(fit)
-summary(d)
-plot(d, type = "rhat")
+# Requires the CmdStan toolchain (Suggests: cmdstanr); gated on its
+# availability and wrapped in \donttest{} so example("bdeb_diagnose")
+# runs it when a toolchain is present, mirroring bdeb_fit().
+\donttest{
+if (requireNamespace("cmdstanr", quietly = TRUE) &&
+    nzchar(tryCatch(cmdstanr::cmdstan_path(),
+                    error = function(e) ""))) {
+  data(eisenia_growth)
+  dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
+  fit <- bdeb_fit(bdeb_model(dat, type = "individual"),
+                  chains = 2, iter_warmup = 200, iter_sampling = 200,
+                  refresh = 0)
+  d <- bdeb_diagnose(fit)
+  print(d)
+  summary(d)
+  plot(d, type = "rhat")
+}
 }
 }
 \references{

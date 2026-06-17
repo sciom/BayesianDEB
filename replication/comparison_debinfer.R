@@ -127,15 +127,22 @@ sigma_de <- debinfer_par(name = "sigma_L", var.type = "obs",
   hypers = list(mean = 0, sd = 0.05),
   prop.var = 0.005, samp.type = "rw")
 
-E0_de    <- debinfer_par(name = "E0", var.type = "init",
+# Init-state parameters must be named to match the ODE state vector
+# (deb_ode reads state["E"], state["V"]).
+E_de     <- debinfer_par(name = "E", var.type = "init",
   fixed = TRUE, value = 1.0)
 
-V0_de    <- debinfer_par(name = "V0", var.type = "init",
+V_de     <- debinfer_par(name = "V", var.type = "init",
   fixed = TRUE, value = 0.1^3)
 
 ## --- Prepare data for deBInfer ---
 
 obs_data <- data.frame(time = df1$time, length = df1$length)
+
+# de_mcmc() requires a debinfer_parlist (from setup_debinfer), not a
+# plain list.
+mcmc_pars <- setup_debinfer(p_Am_de, p_M_de, kappa_de,
+                            v_de, E_G_de, sigma_de, E_de, V_de)
 
 ## --- Run deBInfer MCMC ---
 
@@ -144,9 +151,7 @@ t_debinfer <- system.time({
     de_mcmc(N = 20000, data = obs_data,
       de.model = deb_ode,
       obs.model = deb_obs,
-      all.params = list(p_Am_de, p_M_de, kappa_de,
-                        v_de, E_G_de, sigma_de,
-                        E0_de, V0_de),
+      all.params = mcmc_pars,
       Tmax = max(df1$time),
       data.times = df1$time,
       cnt = 500,

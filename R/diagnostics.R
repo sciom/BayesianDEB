@@ -47,14 +47,23 @@
 #'   [plot.bdeb_diagnostics()]
 #' @export
 #' @examples
-#' \dontrun{
-#' data(eisenia_growth)
-#' dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
-#' fit <- bdeb_fit(bdeb_model(dat, type = "individual"),
-#'                 chains = 2, iter_warmup = 200, iter_sampling = 200)
-#' d <- bdeb_diagnose(fit)
-#' summary(d)
-#' plot(d, type = "rhat")
+#' # Requires the CmdStan toolchain (Suggests: cmdstanr); gated on its
+#' # availability and wrapped in \donttest{} so example("bdeb_diagnose")
+#' # runs it when a toolchain is present, mirroring bdeb_fit().
+#' \donttest{
+#' if (requireNamespace("cmdstanr", quietly = TRUE) &&
+#'     nzchar(tryCatch(cmdstanr::cmdstan_path(),
+#'                     error = function(e) ""))) {
+#'   data(eisenia_growth)
+#'   dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
+#'   fit <- bdeb_fit(bdeb_model(dat, type = "individual"),
+#'                   chains = 2, iter_warmup = 200, iter_sampling = 200,
+#'                   refresh = 0)
+#'   d <- bdeb_diagnose(fit)
+#'   print(d)
+#'   summary(d)
+#'   plot(d, type = "rhat")
+#' }
 #' }
 bdeb_diagnose <- function(fit, pars = NULL) {
 	if (!inherits(fit, "bdeb_fit")) {
@@ -106,20 +115,32 @@ bdeb_diagnose <- function(fit, pars = NULL) {
 #' Print a BDEB Diagnostics Report
 #'
 #' Default printing for [bdeb_diagnose()] output.  Displays divergence /
-#' treedepth / E-BFMI alerts, R-hat and ESS warnings, and the full
-#' parameter summary table.  Output uses [cli] alerts and is therefore
-#' silenceable via [cli::cli_inform()] sinks.
+#' treedepth / E-BFMI alerts, R-hat and ESS warnings, and a compact
+#' parameter summary table.  To keep the on-screen output short, the
+#' per-time-point latent states (`x_sol[i,j]`, `L_hat[i]`, ...) are hidden
+#' by default; the scalar model parameters are always shown.  Output uses
+#' [cli] alerts and is therefore silenceable via [cli::cli_inform()] sinks.
 #'
 #' @param x A `bdeb_diagnostics` object.
+#' @param full Logical; if `TRUE`, also print the latent-state rows that
+#'   are hidden by default.  The complete table is always available via
+#'   `summary(x)$table`.
 #' @param ... Unused.
 #' @return The input object, invisibly.
 #' @export
 #' @examples
-#' \dontrun{
-#' fit <- bdeb_fit(mod)
-#' print(bdeb_diagnose(fit))
+#' \donttest{
+#' if (requireNamespace("cmdstanr", quietly = TRUE) &&
+#'     nzchar(tryCatch(cmdstanr::cmdstan_path(), error = function(e) ""))) {
+#'   data(eisenia_growth)
+#'   dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
+#'   fit <- bdeb_fit(bdeb_model(dat, type = "individual"),
+#'                   chains = 2, iter_warmup = 200, iter_sampling = 200,
+#'                   refresh = 0)
+#'   print(bdeb_diagnose(fit))
 #' }
-print.bdeb_diagnostics <- function(x, ...) {
+#' }
+print.bdeb_diagnostics <- function(x, full = FALSE, ...) {
 	cli::cli_h2("BDEB Diagnostics ({x$model_type})")
 
 	if (x$n_divergent > 0) {
@@ -159,10 +180,24 @@ print.bdeb_diagnostics <- function(x, ...) {
 		cli::cli_alert_success("Bulk ESS adequate (>400) for all parameters.")
 	}
 
+	# Keep the on-screen table short: by default show only the scalar
+	# model parameters and hide the per-time-point latent states
+	# (x_sol[i,j], L_hat[i], ...), which can run to dozens of rows.
+	tbl <- as.data.frame(x$summary)
+	is_latent <- grepl("\\[", tbl$variable)
+	n_hidden  <- sum(is_latent)
+	show_tbl  <- if (full || n_hidden == 0L) tbl else tbl[!is_latent, , drop = FALSE]
+
 	tbl_lines <- utils::capture.output(
-		print(as.data.frame(x$summary), digits = 3, row.names = FALSE)
+		print(show_tbl, digits = 3, row.names = FALSE)
 	)
 	cli::cli_verbatim(tbl_lines)
+
+	if (!full && n_hidden > 0L) {
+		cli::cli_alert_info(
+			"{n_hidden} latent-state row{?s} hidden; use {.code print(x, full = TRUE)} \\
+			 or {.code summary(x)$table} to see all.")
+	}
 
 	invisible(x)
 }
@@ -178,9 +213,16 @@ print.bdeb_diagnostics <- function(x, ...) {
 #' @return An object of class `summary.bdeb_diagnostics` (a list).
 #' @export
 #' @examples
-#' \dontrun{
-#' fit <- bdeb_fit(mod)
-#' summary(bdeb_diagnose(fit))
+#' \donttest{
+#' if (requireNamespace("cmdstanr", quietly = TRUE) &&
+#'     nzchar(tryCatch(cmdstanr::cmdstan_path(), error = function(e) ""))) {
+#'   data(eisenia_growth)
+#'   dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
+#'   fit <- bdeb_fit(bdeb_model(dat, type = "individual"),
+#'                   chains = 2, iter_warmup = 200, iter_sampling = 200,
+#'                   refresh = 0)
+#'   summary(bdeb_diagnose(fit))
+#' }
 #' }
 summary.bdeb_diagnostics <- function(object, ...) {
 	bad_rhat <- object$summary$variable[
@@ -222,19 +264,46 @@ print.summary.bdeb_diagnostics <- function(x, ...) {
 #' [bdeb_diagnose()] object.  A dashed red reference line is drawn at the
 #' Vehtari et al. (2021) threshold (R-hat = 1.01, ESS-bulk = 400).
 #'
+#' To keep the plot short and readable, the per-time-point latent states
+#' (`x_sol[i,j]`, `L_hat[i]`, ...) are hidden by default and only the
+#' scalar model parameters are shown, mirroring [print.bdeb_diagnostics()];
+#' set `full = TRUE` to plot every monitored quantity.
+#'
 #' @param x A `bdeb_diagnostics` object.
 #' @param type One of `"rhat"` (default) or `"ess"`.
+#' @param full Logical; if `TRUE`, also plot the latent-state rows that
+#'   are hidden by default.
 #' @param ... Unused.
 #' @return A [ggplot2::ggplot] object.
 #' @export
 #' @examples
-#' \dontrun{
-#' fit <- bdeb_fit(mod)
-#' plot(bdeb_diagnose(fit), type = "ess")
+#' \donttest{
+#' if (requireNamespace("cmdstanr", quietly = TRUE) &&
+#'     nzchar(tryCatch(cmdstanr::cmdstan_path(), error = function(e) ""))) {
+#'   data(eisenia_growth)
+#'   dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
+#'   fit <- bdeb_fit(bdeb_model(dat, type = "individual"),
+#'                   chains = 2, iter_warmup = 200, iter_sampling = 200,
+#'                   refresh = 0)
+#'   plot(bdeb_diagnose(fit), type = "ess")
 #' }
-plot.bdeb_diagnostics <- function(x, type = c("rhat", "ess"), ...) {
+#' }
+plot.bdeb_diagnostics <- function(x, type = c("rhat", "ess"), full = FALSE, ...) {
 	type <- match.arg(type)
 	df <- as.data.frame(x$summary)
+
+	# Keep the plot short: by default drop the per-time-point latent
+	# states (x_sol[i,j], L_hat[i], ...) and show only scalar model
+	# parameters, mirroring print.bdeb_diagnostics().
+	is_latent <- grepl("\\[", df$variable)
+	n_hidden  <- sum(is_latent)
+	if (!full && n_hidden > 0L) {
+		df <- df[!is_latent, , drop = FALSE]
+	}
+	hidden_note <- if (!full && n_hidden > 0L) {
+		sprintf("  (%d latent-state row%s hidden; full = TRUE to show all)",
+		        n_hidden, if (n_hidden == 1L) "" else "s")
+	} else ""
 
 	if (type == "rhat") {
 		ggplot2::ggplot(
@@ -248,7 +317,8 @@ plot.bdeb_diagnostics <- function(x, type = c("rhat", "ess"), ...) {
 			ggplot2::labs(
 				x = expression(hat(R)), y = NULL,
 				title = "Convergence: split-Rhat",
-				subtitle = "Dashed line at 1.01 (Vehtari et al., 2021)"
+				subtitle = paste0("Dashed line at 1.01 (Vehtari et al., 2021)",
+				                  hidden_note)
 			) +
 			ggplot2::theme_minimal()
 	} else {
@@ -263,7 +333,7 @@ plot.bdeb_diagnostics <- function(x, type = c("rhat", "ess"), ...) {
 			ggplot2::labs(
 				x = "ESS-bulk", y = NULL,
 				title = "Effective sample size (bulk)",
-				subtitle = "Dashed line at 400"
+				subtitle = paste0("Dashed line at 400", hidden_note)
 			) +
 			ggplot2::theme_minimal()
 	}
@@ -286,9 +356,16 @@ plot.bdeb_diagnostics <- function(x, type = c("rhat", "ess"), ...) {
 #' @keywords internal
 #' @export
 #' @examples
-#' \dontrun{
-#' fit <- bdeb_fit(mod)
-#' bdeb_summary(fit)  # equivalent to summary(fit); deprecated
+#' \donttest{
+#' if (requireNamespace("cmdstanr", quietly = TRUE) &&
+#'     nzchar(tryCatch(cmdstanr::cmdstan_path(), error = function(e) ""))) {
+#'   data(eisenia_growth)
+#'   dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
+#'   fit <- bdeb_fit(bdeb_model(dat, type = "individual"),
+#'                   chains = 2, iter_warmup = 200, iter_sampling = 200,
+#'                   refresh = 0)
+#'   bdeb_summary(fit)  # equivalent to summary(fit); deprecated
+#' }
 #' }
 bdeb_summary <- function(fit, pars = NULL, prob = 0.90, ...) {
 	if (!inherits(fit, "bdeb_fit")) {
@@ -343,11 +420,16 @@ bdeb_summary <- function(fit, pars = NULL, prob = 0.90, ...) {
 #' \doi{10.1007/s11222-016-9696-4}
 #' @export
 #' @examples
-#' \dontrun{
-#' data(eisenia_growth)
-#' dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
-#' fit <- bdeb_fit(bdeb_model(dat, type = "individual"))
-#' bdeb_loo(fit)
+#' \donttest{
+#' if (requireNamespace("cmdstanr", quietly = TRUE) &&
+#'     nzchar(tryCatch(cmdstanr::cmdstan_path(), error = function(e) ""))) {
+#'   data(eisenia_growth)
+#'   dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
+#'   fit <- bdeb_fit(bdeb_model(dat, type = "individual"),
+#'                   chains = 2, iter_warmup = 200, iter_sampling = 200,
+#'                   refresh = 0)
+#'   bdeb_loo(fit)
+#' }
 #' }
 bdeb_loo <- function(fit, endpoint = c("all", "growth", "reproduction"), ...) {
 	if (!inherits(fit, "bdeb_fit")) {
@@ -480,11 +562,16 @@ bdeb_loo <- function(fit, endpoint = c("all", "growth", "reproduction"), ...) {
 #' Biology*, 14(5), e1006100. \doi{10.1371/journal.pcbi.1006100}
 #' @export
 #' @examples
-#' \dontrun{
-#' data(eisenia_growth)
-#' dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
-#' fit <- bdeb_fit(bdeb_model(dat, type = "individual"))
-#' bdeb_derived(fit, quantities = c("L_inf", "k_M"))
+#' \donttest{
+#' if (requireNamespace("cmdstanr", quietly = TRUE) &&
+#'     nzchar(tryCatch(cmdstanr::cmdstan_path(), error = function(e) ""))) {
+#'   data(eisenia_growth)
+#'   dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
+#'   fit <- bdeb_fit(bdeb_model(dat, type = "individual"),
+#'                   chains = 2, iter_warmup = 200, iter_sampling = 200,
+#'                   refresh = 0)
+#'   bdeb_derived(fit, quantities = c("L_inf", "k_M"))
+#' }
 #' }
 bdeb_derived <- function(object, ...) {
 	UseMethod("bdeb_derived")

@@ -30,8 +30,15 @@ Returns a tidy summary table of posterior draws for model parameters
 \code{\link[stats:summary.lm]{stats::summary.lm()}} for frequentist fits.
 }
 \examples{
-\dontrun{
-fit <- bdeb_fit(mod)
-summary(fit, pars = c("p_Am", "kappa"), prob = 0.95)
+\donttest{
+if (requireNamespace("cmdstanr", quietly = TRUE) &&
+    nzchar(tryCatch(cmdstanr::cmdstan_path(), error = function(e) ""))) {
+  data(eisenia_growth)
+  dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
+  fit <- bdeb_fit(bdeb_model(dat, type = "individual"),
+                  chains = 2, iter_warmup = 200, iter_sampling = 200,
+                  refresh = 0)
+  summary(fit, pars = c("p_Am", "kappa"), prob = 0.95)
+}
 }
 }

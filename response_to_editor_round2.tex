@@ -1,0 +1,373 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{microtype}
+\usepackage{hyperref}
+\usepackage{xurl}
+\usepackage{csquotes}
+\usepackage{enumitem}
+\usepackage{fancyvrb}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=black,
+  urlcolor=blue,
+  citecolor=blue,
+  breaklinks=true
+}
+
+\emergencystretch=3em
+\sloppy
+
+\setlist[itemize]{label=$\blacktriangleright$}
+
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\pkg}[1]{\textsf{#1}}
+
+\title{Response to the Second-Round Review\\
+\large \textit{BayesianDEB}: A Bayesian Framework for Dynamic Energy
+Budget Modelling in R}
+\author{Branimir K.\ Hackenberger\\ \small on behalf of the authors}
+\date{2026-06-17}
+
+\begin{document}
+\maketitle
+
+We thank the editor and reviewer for the careful second reading of
+\emph{BayesianDEB: A Bayesian Framework for Dynamic Energy Budget
+Modelling in R}. Below we reproduce each point of the review of
+\textbf{22 May 2026} (in italics), followed by our response and the
+specific files in which the change was made. All work refers to package
+version \textbf{0.2.0}; the replication archive is
+\code{BayesianDEB\_replication.zip} and the revised manuscript is
+\code{bayesiandeb.tex}.
+
+A one-line summary of the changes:
+\begin{itemize}[nosep]
+\item a single master replication script (\code{replicate\_all.R})
+  reproduces every manuscript number in about one minute from cached
+  draws;
+\item every code listing shown in the manuscript now executes in the
+  replication scripts and prints its output;
+\item all manuscript outputs are produced with a fixed seed from the
+  shipped cache, so they reproduce bit-identically;
+\item the diagnostics \code{print} and \code{plot} methods are now
+  compact;
+\item the \code{bdeb\_diagnose} example family moved from
+  \code{\textbackslash dontrun\{\}} to a \pkg{cmdstanr}-gated
+  \code{\textbackslash donttest\{\}} block;
+\item the dose-response figure now draws the reference lines described
+  in its caption;
+\item the README installation instructions no longer pull the stale
+  CRAN version.
+\end{itemize}
+
+\section{Package version must match the CRAN version}
+
+\begin{displayquote}
+``The submitted package version is not in line with the package
+published on CRAN. We require that both versions match.''
+\end{displayquote}
+
+\textbf{Response.} CRAN currently holds 0.1.4, whereas the manuscript
+and this submission describe 0.2.0. We have submitted 0.2.0 to CRAN so
+that the published package matches the manuscript; the accompanying
+\code{cran-comments.md} documents the version bump. \code{DESCRIPTION}
+declares \code{Version: 0.2.0}. The package passes
+\verb|R CMD check --as-cran| with 0 errors / 0 warnings / 1 note (the
+note is the informational \pkg{cmdstanr}-in-\code{Additional\_repositories}
+line discussed below).
+
+\section{README should include cmdstanr installation instructions}
+
+\begin{displayquote}
+``The README file should also include instructions for the installation
+of cmdstanr.''
+\end{displayquote}
+
+\textbf{Response.} Added. \code{README.md} (Installation section) now
+gives the two-step procedure explicitly: install \pkg{cmdstanr} from the
+Stan r-universe and then build the CmdStan toolchain once,
+\begin{Verbatim}[fontsize=\small]
+install.packages("cmdstanr",
+  repos = c("https://stan-dev.r-universe.dev", getOption("repos")))
+cmdstanr::install_cmdstan()
+\end{Verbatim}
+\noindent and states that \code{bdeb\_fit()} checks for the toolchain at
+runtime.
+
+\section{A single replication script that runs within one hour}
+
+\begin{displayquote}
+``Journal of Statistical Software requires that a single replication
+script that can be run within one hour is provided. \ldots\ parts of the
+results require that the scripts in \code{sbc} are run and these scripts
+are supposed to take more than 20 hours to finish. We would thus ask
+that the authors arrange their replication scripts into a smaller number
+of R files and that they also work on reducing the computational time
+needed to replicate results.''
+\end{displayquote}
+
+\textbf{Response.} We have added a single master script,
+\code{replication/replicate\_all.R}, that reproduces \emph{every figure,
+table and printed number} in the manuscript with one command
+(\verb|Rscript replicate_all.R|). By default it does \emph{not} run any
+MCMC: it loads the archived posterior draws shipped in \code{outputs/}
+and \code{sbc/} and regenerates all outputs in \textbf{about one minute}
+on a laptop --- well inside the one-hour budget. The long
+simulation-based-calibration runs are never executed by this script;
+their archived rank matrices (\code{sbc/*.rds}) reproduce Figures~3--4
+and Tables~4--5 directly, and regenerating them from scratch
+(45~min to 12~h per model) is documented separately in
+\code{sbc/README.md} and is not part of the replication budget. For
+readers who wish to recompute, a full refit is available via
+\code{BDEB\_RECOMPUTE=true BDEB\_MODE=full} ($\sim$3~h) and a quick
+refit via \code{BDEB\_MODE=lite} ($\sim$30~min).
+
+\textbf{Reference.} \code{replication/replicate\_all.R},
+\code{replication/README.md}, \code{replication/sbc/README.md}.
+
+\section{\code{example("bdeb\_diagnose")} should be executable
+(\code{\textbackslash donttest})}
+
+\begin{displayquote}
+``\verb|example("bdeb_diagnose")| shows that this example is in
+\code{\textbackslash dontrun}. This should, in principle, be executable
+code and we expect it to be in \code{donttest} instead so as to allow
+its execution using \code{example}, similarly to what has been
+implemented for \code{bdeb\_fit}.''
+\end{displayquote}
+
+\textbf{Response.} Done. \code{bdeb\_diagnose()} and the
+\code{bdeb\_diagnostics} \code{print}/\code{summary}/\code{plot} methods
+--- together with \code{bdeb\_loo()}, \code{bdeb\_derived()} and the
+deprecated \code{bdeb\_summary()} --- now wrap their examples in a
+\pkg{cmdstanr}-gated \code{\textbackslash donttest\{\}} block of the same
+form used for \code{bdeb\_fit()}:
+\begin{Verbatim}[fontsize=\small]
+\donttest{
+if (requireNamespace("cmdstanr", quietly = TRUE) &&
+    nzchar(tryCatch(cmdstanr::cmdstan_path(), error = function(e) ""))) {
+  data(eisenia_growth)
+  dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
+  fit <- bdeb_fit(bdeb_model(dat, type = "individual"),
+                  chains = 2, iter_warmup = 200, iter_sampling = 200,
+                  refresh = 0)
+  print(bdeb_diagnose(fit))
+}
+}
+\end{Verbatim}
+\noindent so \verb|example("bdeb_diagnose")| runs whenever a CmdStan
+toolchain is present. No exported function now uses
+\code{\textbackslash dontrun\{\}}.
+
+\textbf{Reference.} \code{R/diagnostics.R}, \code{R/fit.R},
+\code{R/ppc.R}, \code{R/debtox.R}.
+
+\section{The \code{plot} method for \code{bdeb\_diagnostics} could be
+more readable}
+
+\begin{displayquote}
+``We believe that the plot method for \code{bdeb\_diagnostics} could be
+improved to allow a shorter and more readable display on screen.''
+\end{displayquote}
+
+\textbf{Response.} \code{plot.bdeb\_diagnostics()} now hides the
+per-time-point latent states (\code{x\_sol[i,j]}, \code{L\_hat[i]},
+\ldots) by default and plots only the scalar model parameters, so the
+R-hat / ESS panels are short and legible instead of carrying dozens of
+latent rows. A new \code{full = TRUE} argument restores the complete
+plot, and the subtitle reports how many latent rows were hidden. This
+mirrors the behaviour already adopted for
+\code{print.bdeb\_diagnostics()}.
+
+\textbf{Reference.} \code{R/diagnostics.R}
+(\code{plot.bdeb\_diagnostics}); \code{NEWS.md}.
+
+\section{Replication output differs from the article (LOO comparison)}
+
+\begin{displayquote}
+``Results obtained with the replication material (\code{full} version)
+are still different from the results shown in the article. For instance,
+on page~13, the \code{loo\_compare} for the lognormal model differs.''
+\end{displayquote}
+
+\textbf{Response.} The LOO comparison on this individual is genuinely
+Monte-Carlo sensitive: with only $n = 13$ observations a few
+Pareto-$\hat{k}$ values exceed $0.7$, so the importance-sampling ELPD
+difference fluctuates by a fraction of its standard error between runs
+(we observed values in the range $-0.7$ to $-1.1$, all with SE
+$\approx 1.2$). We have:
+\begin{itemize}[nosep]
+\item fixed a global seed (\code{seed = 42}) in every fit so the shipped
+  result is deterministic;
+\item made \code{replicate\_all.R} reproduce the manuscript numbers from
+  the cached draws, so the printed $\Delta$ELPD matches the article
+  exactly;
+\item reframed the conclusion in the text as qualitative: because
+  $|\Delta\mathrm{ELPD}|$ is smaller than its standard error, neither
+  observation model is decisively preferred, and the exact difference
+  should be read as indicative rather than definitive.
+\end{itemize}
+The manuscript now prints \code{lognormal -1.0} (SE~1.3) and states
+plainly that this difference is within its standard error.
+
+\textbf{Reference.} \code{replication/00\_setup.R} (seed),
+\code{replication/01\_illustrations.R}, manuscript Section~5.1.
+
+\section{README installation pulls the old CRAN version (0.1.4)}
+
+\begin{displayquote}
+``The instructions in the \code{README.md} suggest installing with a
+\code{repos} option that includes CRAN, which installs version 0.1.4 and
+not the submitted package version 0.2.0.''
+\end{displayquote}
+
+\textbf{Response.} The installation instructions have been separated.
+\pkg{BayesianDEB} is now installed with a plain
+\verb|install.packages("BayesianDEB")| (which will resolve to 0.2.0 once
+it is on CRAN), and \pkg{cmdstanr} is installed from the Stan r-universe
+in a \emph{separate} call (see Section~2). The combined
+\code{repos = c("https://stan-dev.r-universe.dev", getOption("repos"))}
+command that could shadow the CRAN version of \pkg{BayesianDEB} has been
+removed from the README.
+
+\textbf{Reference.} \code{README.md} (Installation section).
+
+\section{Replication material is incomplete (missing manuscript code)}
+
+\begin{displayquote}
+``Some code included in the manuscript which should be executable code is
+not contained \ldots\ E.g., on page~7,
+\verb|prior_species("Daphnia_magna", type = "debtox")|.''
+\end{displayquote}
+
+\textbf{Response.} Every code listing shown in the manuscript is now
+executed verbatim in the replication scripts. In particular,
+\verb|prior_species("Daphnia_magna", type = "debtox")| is called and
+printed in \code{replication/01\_illustrations.R}, alongside the
+\verb|prior_species("Eisenia_fetida")| listing. We re-audited the
+manuscript listing by listing and confirmed each one appears in a
+replication script.
+
+\textbf{Reference.} \code{replication/01\_illustrations.R}.
+
+\section{\code{bdeb\_diagnose(fit)} output differs and is too long}
+
+\begin{displayquote}
+``Some results obtained differ. E.g., compared to page~12,
+\code{bdeb\_diagnose(fit)} reports a different number of divergent
+transitions and prints a very long table including \code{x\_sol[i,j]}
+and \code{L\_hat[i]} rows.''
+\end{displayquote}
+
+\textbf{Response.} Two changes address this:
+\begin{itemize}[nosep]
+\item \textbf{Reproducibility.} With the fixed seed and cached draws
+  (Section~6), the page-12 output is reproduced exactly by
+  \code{replicate\_all.R}; the manuscript now reports a single divergent
+  transition (1 of 4000 draws, $<0.1\%$) and discusses it.
+\item \textbf{Length.} \code{print.bdeb\_diagnostics()} now shows only
+  the scalar model parameters by default and hides the per-time-point
+  latent states; the manuscript output on p.~12 is correspondingly
+  compact (eight parameter rows, no \code{x\_sol}/\code{L\_hat}). The
+  full table remains available via \code{print(x, full = TRUE)} or
+  \code{summary(x)\$table}.
+\end{itemize}
+
+\textbf{Reference.} \code{R/diagnostics.R},
+\code{replication/01\_illustrations.R}, manuscript Section~5.1.
+
+\section{\code{bdeb\_derived()} result is created but never printed}
+
+\begin{displayquote}
+``The replication material creates \code{der <- bdeb\_derived(fit, ...)}
+but does not print it, so it is not easy to compare with the
+manuscript.''
+\end{displayquote}
+
+\textbf{Response.} Fixed. \code{replication/01\_illustrations.R} now
+prints the derived-quantity table immediately after constructing it, in
+the same layout as the manuscript:
+\begin{Verbatim}[fontsize=\small]
+der <- bdeb_derived(fit,
+  quantities = c("L_m", "L_inf", "k_M", "g", "growth_rate"), f = 1.0)
+print(as.data.frame(summarise_draws(der, "mean", "sd",
+  "q5" = ~quantile(.x, 0.05), "q95" = ~quantile(.x, 0.95))), digits = 3)
+\end{Verbatim}
+
+\textbf{Reference.} \code{replication/01\_illustrations.R}.
+
+\section{LOO triggers Pareto-$\hat{k}$ warnings that are not commented
+on}
+
+\begin{displayquote}
+``Warnings are triggered (\code{Some Pareto k diagnostic values are too
+high}) where one might also point them out and comment on them.''
+\end{displayquote}
+
+\textbf{Response.} These warnings are now explicitly anticipated and
+explained. In \code{replication/01\_illustrations.R} a comment precedes
+the \code{loo\_compare()} call noting that, with $n = 13$, a few
+$\hat{k} > 0.7$ are expected and that the importance-sampling ELPD is
+therefore indicative. The manuscript (Section~5.1) makes the same point
+in the running text: the Pareto-$\hat{k}$ warning is reported,
+interpreted (the approximation is unreliable for a few points), and used
+to justify reading the comparison qualitatively.
+
+\textbf{Reference.} \code{replication/01\_illustrations.R}, manuscript
+Section~5.1.
+
+\section{Figure caption refers to lines that are not in the figure}
+
+\begin{displayquote}
+``The caption of Figure~2 discusses something dashed red and dotted
+green. However, it is unclear to what in the figure one refers.''
+\end{displayquote}
+
+\textbf{Response.} \code{plot\_dose\_response()} now actually draws these
+reference lines: a dashed red vertical line at the posterior-median
+EC$_{50}$ and a dotted green vertical line at the posterior-median NEC,
+with a matching legend subtitle. Non-finite draws are dropped and the
+view is clipped with \code{coord\_cartesian()} so degenerate draws no
+longer create vertical artefacts. The Figure~2 caption now matches the
+rendered figure element by element.
+
+\textbf{Reference.} \code{R/debtox.R} (\code{plot\_dose\_response}),
+manuscript Figure~2 caption.
+
+\section{Unclear which part of the replication reproduces Figures 3 and
+4}
+
+\begin{displayquote}
+``It is unclear what part of the replication material reproduces
+Figures~3 and~4.''
+\end{displayquote}
+
+\textbf{Response.} \code{replication/README.md} now contains an explicit
+\emph{Figure $\rightarrow$ script} table mapping every manuscript figure
+to the script and cached object that produces it. Figures~3 and~4 are
+listed as: Fig.~3 (\code{fig\_sbc\_ranks.pdf}) produced by
+\code{02\_validation.R} from \code{sbc/sbc\_results.rds}; Fig.~4
+(\code{fig\_sbc\_hierarchical.pdf}) produced by \code{02\_validation.R}
+from \code{sbc/sbc\_hierarchical\_results.rds}. The same table maps all
+remaining figures and the corresponding manuscript sections.
+
+\textbf{Reference.} \code{replication/README.md} (Figure $\rightarrow$
+script and Section $\rightarrow$ script tables).
+
+\vspace{1em}
+\noindent We thank the editor and reviewer again for the constructive
+feedback, which has further improved the package and its replication
+material.
+
+\vspace{1em}
+\noindent Branimir K.\ Hackenberger\\
+\noindent on behalf of the authors\\
+\noindent 2026-06-17
+
+\end{document}

@@ -4,12 +4,15 @@
 \alias{plot.bdeb_diagnostics}
 \title{Plot Convergence Diagnostics}
 \usage{
-\method{plot}{bdeb_diagnostics}(x, type = c("rhat", "ess"), ...)
+\method{plot}{bdeb_diagnostics}(x, type = c("rhat", "ess"), full = FALSE, ...)
 }
 \arguments{
 \item{x}{A \code{bdeb_diagnostics} object.}
 
 \item{type}{One of \code{"rhat"} (default) or \code{"ess"}.}
+
+\item{full}{Logical; if \code{TRUE}, also plot the latent-state rows that
+are hidden by default.}
 
 \item{...}{Unused.}
 }
@@ -21,9 +24,22 @@ Visualises the per-parameter R-hat or ESS-bulk values from a
 \code{\link[=bdeb_diagnose]{bdeb_diagnose()}} object.  A dashed red reference line is drawn at the
 Vehtari et al. (2021) threshold (R-hat = 1.01, ESS-bulk = 400).
 }
+\details{
+To keep the plot short and readable, the per-time-point latent states
+(\code{x_sol[i,j]}, \code{L_hat[i]}, ...) are hidden by default and only the
+scalar model parameters are shown, mirroring \code{\link[=print.bdeb_diagnostics]{print.bdeb_diagnostics()}};
+set \code{full = TRUE} to plot every monitored quantity.
+}
 \examples{
-\dontrun{
-fit <- bdeb_fit(mod)
-plot(bdeb_diagnose(fit), type = "ess")
+\donttest{
+if (requireNamespace("cmdstanr", quietly = TRUE) &&
+    nzchar(tryCatch(cmdstanr::cmdstan_path(), error = function(e) ""))) {
+  data(eisenia_growth)
+  dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
+  fit <- bdeb_fit(bdeb_model(dat, type = "individual"),
+                  chains = 2, iter_warmup = 200, iter_sampling = 200,
+                  refresh = 0)
+  plot(bdeb_diagnose(fit), type = "ess")
+}
 }
 }

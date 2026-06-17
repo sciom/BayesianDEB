@@ -27,33 +27,69 @@ source(file.path(.script_dir, "00_setup.R"))
 
 cli::cli_h1("Section 6.1: Simulation-based calibration")
 
-cli::cli_alert_info("SBC runs are long ({.val 45 min} -- {.val 12 h} per model).")
-cli::cli_alert_info("Auxiliary scripts in {.path sbc/} regenerate the RDS files below; this script loads them.")
+# The SBC runs themselves are long (45 min -- 12 h per model) and are
+# NOT executed here: the archived rank matrices in sbc/*.rds are loaded
+# and Tables 4-5 (Figures 3-4) are regenerated from them in seconds.
+# To regenerate the rds from scratch, run the sbc/sbc_*.R scripts (see
+# sbc/README.md); they are not part of the < 1 h replication budget.
+cli::cli_alert_info("Loading archived SBC rank matrices from {.path sbc/}.")
 
-sbc_paths <- list(
-	individual    = file.path(SBC_DIR, "sbc_results.rds"),
-	hierarchical  = file.path(SBC_DIR, "sbc_hierarchical_results.rds")
-)
+# Helper: rank-histogram figure for a parameter x replication matrix.
+sbc_rank_figure <- function(ranks, labels, n_bins, file,
+                            ncol = 3, width = 7, height = 4.5) {
+	pars <- intersect(names(labels), colnames(ranks))
+	expected <- nrow(ranks) / n_bins
+	long <- do.call(rbind, lapply(pars, function(p)
+		data.frame(parameter = labels[[p]], rank = ranks[, p],
+		           stringsAsFactors = FALSE)))
+	long$parameter <- factor(long$parameter, levels = unname(unlist(labels)))
+	p_sbc <- ggplot(long, aes(x = rank)) +
+		geom_histogram(bins = n_bins, fill = "steelblue", colour = "white",
+		               linewidth = 0.3, alpha = 0.85) +
+		geom_hline(yintercept = expected, linetype = "dashed",
+		           colour = "firebrick", linewidth = 0.5) +
+		facet_wrap(~ parameter, ncol = ncol, labeller = label_parsed,
+		           scales = "fixed") +
+		theme_bw(base_size = 10) +
+		theme(strip.text = element_text(size = 11)) +
+		labs(x = "Rank", y = "Count")
+	save_fig(p_sbc, file, width = width, height = height)
+}
 
-for (name in names(sbc_paths)) {
-	p <- sbc_paths[[name]]
-	if (!file.exists(p)) {
-		cli::cli_alert_warning(
-			"{.file {basename(p)}} not found -- run sbc/sbc_{name}.R first."
-		)
-		next
-	}
-	res <- readRDS(p)
-	cat(sprintf("\n--- SBC %s ---\n", name))
-	if (!is.null(res$n_total)) {
-		cat(sprintf("  Replications:   %d\n", res$n_total))
-		cat(sprintf("  Valid:          %d\n", res$n_valid %||% NA))
-	}
-	if (!is.null(res$summary)) {
-		print(res$summary)
-	} else {
-		cli::cli_alert_info("RDS keys: {names(res)}")
-	}
+# --- Individual-model SBC (Table 4, Figure 3 = fig:sbc) ---
+sbc_ind_path <- file.path(SBC_DIR, "sbc_results.rds")
+if (file.exists(sbc_ind_path)) {
+	sbc_ind <- readRDS(sbc_ind_path)
+	cat(sprintf("\n--- SBC individual (%d valid / %d attempts, L = %d) ---\n",
+	            sbc_ind$config$N_valid, sbc_ind$config$N_SBC,
+	            sbc_ind$config$L_THIN))
+	cat("Table 4: chi^2 uniformity test + coverage\n")
+	print(sbc_ind$sbc_table, digits = 3, row.names = FALSE)
+	sbc_rank_figure(
+		sbc_ind$ranks,
+		labels = list(p_Am = "p[Am]", p_M = "p[M]", kappa = "kappa",
+		              v = "v", E_G = "E[G]", sigma_L = "sigma[L]"),
+		n_bins = 20, file = "fig_sbc_ranks.pdf")
+} else {
+	cli::cli_alert_warning("{.file sbc_results.rds} missing -- run sbc/sbc_individual.R.")
+}
+
+# --- Hierarchical-model SBC (Table 5, Figure 4 = fig:sbc_hier) ---
+sbc_hier_path <- file.path(SBC_DIR, "sbc_hierarchical_results.rds")
+if (file.exists(sbc_hier_path)) {
+	sbc_hier <- readRDS(sbc_hier_path)
+	cat(sprintf("\n--- SBC hierarchical (%d valid / %d attempts) ---\n",
+	            sbc_hier$config$N_valid, sbc_hier$config$N_SBC))
+	cat("Table 5: chi^2 uniformity test + coverage\n")
+	print(sbc_hier$sbc_table, digits = 3, row.names = FALSE)
+	sbc_rank_figure(
+		sbc_hier$ranks,
+		labels = list(mu_log_p_Am = "mu[log~p[Am]]",
+		              sigma_log_p_Am = "sigma[log~p[Am]]",
+		              p_M = "p[M]", kappa = "kappa", sigma_L = "sigma[L]"),
+		n_bins = 10, file = "fig_sbc_hierarchical.pdf")
+} else {
+	cli::cli_alert_warning("{.file sbc_hierarchical_results.rds} missing -- run sbc/sbc_hierarchical.R.")
 }
 
 
@@ -127,45 +163,51 @@ t_configs <- if (BDEB_MODE == "full") {
 	)
 }
 
-# --- Fit each configuration ---
-results <- list()
-for (name in names(t_configs)) {
-	t_obs  <- t_configs[[name]]
-	L_true <- approx(sim$time, sim$L, xout = t_obs)$y
+# --- Fit each configuration (or load archived contraction results) ---
+results <- load_cache(file.path(OUTPUTS_DIR, "02_identifiability_results.rds"))
+if (!is.null(results)) {
+	cli::cli_alert_info(
+		"Loaded contraction results for N = {sapply(results, `[[`, 'n_obs')}.")
+} else {
+	results <- list()
+	for (name in names(t_configs)) {
+		t_obs  <- t_configs[[name]]
+		L_true <- approx(sim$time, sim$L, xout = t_obs)$y
 
-	set.seed(123)
-	L_obs <- rnorm(length(t_obs), L_true, TRUE_PARS$sigma_L)
+		set.seed(123)
+		L_obs <- rnorm(length(t_obs), L_true, TRUE_PARS$sigma_L)
 
-	df  <- data.frame(id = 1, time = t_obs, length = L_obs)
-	dat <- bdeb_data(growth = df, f_food = 1.0)
-	mod <- bdeb_model(dat, type = "individual", priors = fit_priors)
+		df  <- data.frame(id = 1, time = t_obs, length = L_obs)
+		dat <- bdeb_data(growth = df, f_food = 1.0)
+		mod <- bdeb_model(dat, type = "individual", priors = fit_priors)
 
-	fit <- bdeb_fit(mod,
-	                chains        = ITER_CFG$chains,
-	                iter_warmup   = ITER_CFG$warmup,
-	                iter_sampling = ITER_CFG$sampling,
-	                adapt_delta = 0.95, parallel_chains = ITER_CFG$chains,
-	                refresh = 0, seed = 42)
+		fit <- bdeb_fit(mod,
+		                chains        = ITER_CFG$chains,
+		                iter_warmup   = ITER_CFG$warmup,
+		                iter_sampling = ITER_CFG$sampling,
+		                adapt_delta = 0.95, parallel_chains = ITER_CFG$chains,
+		                refresh = 0, seed = 42)
 
-	draws <- as.data.frame(as_draws_matrix(fit$fit$draws()))
-	draws$L_inf <- draws$kappa * draws$p_Am / draws$p_M
-	draws$growth_rate <- with(draws, {
-		k_M <- p_M / E_G
-		g   <- E_G * v / (kappa * p_Am)
-		k_M * g / (3 * (1 + g))
-	})
+		draws <- as.data.frame(as_draws_matrix(fit$fit$draws()))
+		draws$L_inf <- draws$kappa * draws$p_Am / draws$p_M
+		draws$growth_rate <- with(draws, {
+			k_M <- p_M / E_G
+			g   <- E_G * v / (kappa * p_Am)
+			k_M * g / (3 * (1 + g))
+		})
 
-	post_width <- vapply(draws[, all_pars, drop = FALSE], function(x) {
-		unname(diff(quantile(x, c(0.05, 0.95))))
-	}, numeric(1))
-	contraction <- pmax(1 - post_width / prior_width, 0)
+		post_width <- vapply(draws[, all_pars, drop = FALSE], function(x) {
+			unname(diff(quantile(x, c(0.05, 0.95))))
+		}, numeric(1))
+		contraction <- pmax(1 - post_width / prior_width, 0)
 
-	results[[name]] <- list(
-		n_obs       = length(t_obs),
-		post_width  = post_width,
-		contraction = contraction
-	)
-	cli::cli_alert_success("Identifiability fit for N = {length(t_obs)}: done")
+		results[[name]] <- list(
+			n_obs       = length(t_obs),
+			post_width  = post_width,
+			contraction = contraction
+		)
+		cli::cli_alert_success("Identifiability fit for N = {length(t_obs)}: done")
+	}
 }
 
 # --- Contraction table ---
@@ -216,7 +258,9 @@ p_cont <- ggplot(cont_df, aes(x = n_obs, y = contraction,
 
 save_fig(p_cont, "fig_contraction.pdf", width = 7, height = 4)
 
-saveRDS(results,
-        file.path(OUTPUTS_DIR, "02_identifiability_results.rds"))
+if (BDEB_RECOMPUTE) {
+	saveRDS(results,
+	        file.path(OUTPUTS_DIR, "02_identifiability_results.rds"))
+}
 
 cli::cli_alert_success("Section 6 validation: done.")

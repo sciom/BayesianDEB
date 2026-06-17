@@ -8,43 +8,58 @@ This archive reproduces all numerical results, tables and figures in
 
 ## Quick start
 
-```bash
-# install the package (Suggests cmdstanr)
-R -q -e 'install.packages("BayesianDEB",
-                          repos = c("https://stan-dev.r-universe.dev",
-                                    getOption("repos")))'
-R -q -e 'cmdstanr::install_cmdstan()'
+A **single script** reproduces every figure, table and printed number in
+the manuscript:
 
-# lite mode (~30 min total on a 4-core machine)
+```bash
+# 1. Install BayesianDEB (>= 0.2.0)
+R -q -e 'install.packages("BayesianDEB")'
+
+# 2. Reproduce everything (a few minutes; no MCMC -- see below)
 cd replication
-Rscript 01_illustrations.R
-Rscript 02_validation.R
-Rscript 03_case_studies.R
+Rscript replicate_all.R
 ```
 
-To reproduce the **publication-grade** numbers in the manuscript, set
+By default `replicate_all.R` **loads the archived posterior draws** that
+are shipped in `outputs/` and `sbc/`, and regenerates all figures and
+tables from them.  No MCMC is run, so the whole manuscript is reproduced
+**in a few minutes** (about 1 min on a laptop), well inside the JSS
+one-hour budget, and the output is bit-identical to the manuscript on
+every platform (Hamiltonian Monte Carlo is not bit-reproducible across
+machines, so loading the archived draws is what guarantees identical
+numbers).
+
+To **refit every model from scratch** instead (requires a working
+CmdStan toolchain):
 
 ```bash
-export BDEB_MODE=full        # full mode: ~3 h on 8 cores
-Rscript 01_illustrations.R
-Rscript 02_validation.R
-Rscript 03_case_studies.R
+R -q -e 'cmdstanr::install_cmdstan()'          # one-time
+BDEB_RECOMPUTE=true BDEB_MODE=full Rscript replicate_all.R
 ```
 
-| `BDEB_MODE` | Chains | Warmup | Sampling | Approx. total runtime |
-|-------------|--------|--------|----------|-----------------------|
-| `lite` (default) | 2 | 300 | 300 | **~30 min** (4 cores) |
-| `full` | 4 | 1000 | 1000 | **~3 h** (8 cores) |
+| Invocation | What runs | Approx. runtime |
+|------------|-----------|-----------------|
+| `Rscript replicate_all.R` (default) | load archived draws, rebuild all figures/tables | **~1 min** |
+| `BDEB_RECOMPUTE=true BDEB_MODE=full ...` | refit all models (4 chains, 1000+1000) | **~3 h** (8 cores) |
+| `BDEB_RECOMPUTE=true BDEB_MODE=lite ...` | quick refit (2 chains, 300+300) | **~30 min** |
 
-**Note:** `lite` mode is intended only as a quick API/numerics
-sanity check.  R-hat / divergence diagnostics are expected to
-fail in `lite` for the larger models (hierarchical §5.3, full
-DEBtox §7.2); use `BDEB_MODE=full` for publication-grade results.
+When refitting, `BDEB_MODE=lite` is only a fast sampler smoke-test;
+R-hat / divergence diagnostics are expected to be poor for the larger
+models.  Use `BDEB_MODE=full` for publication-grade refits.
+
+The long simulation-based-calibration (SBC) runs are **never** executed
+by `replicate_all.R`.  Their archived rank matrices (`sbc/*.rds`)
+reproduce Figures 3-4 and Tables 4-5 in seconds; regenerating the rds
+from scratch (45 min -- 12 h per model) is documented in `sbc/README.md`
+and is *not* part of the replication budget.
 
 All output figures and tables are written to `replication/outputs/`.
-The reproducibility report (BayesianDEB / cmdstanr / CmdStan / R
-versions, Stan model hashes) is written to
-`replication/outputs/sessionInfo.txt`.
+The reproducibility report (package / cmdstanr / CmdStan / R versions)
+is written to `replication/outputs/sessionInfo.txt`.
+
+You can still run the three numbered scripts individually
+(`Rscript 01_illustrations.R`, etc.); each is cache-aware and honours
+the same `BDEB_RECOMPUTE` / `BDEB_MODE` variables.
 
 
 ## Mapping manuscript ↔ scripts
@@ -55,14 +70,31 @@ versions, Stan model hashes) is written to
 | §5.2 Growth + reproduction (F. candida) | `01_illustrations.R` (`Section 5.2`)   |
 | §5.3 Hierarchical model                 | `01_illustrations.R` (`Section 5.3`)   |
 | §5.4 DEBtox (eisenia_cd)                | `01_illustrations.R` (`Section 5.4`)   |
-| §6.1 Simulation-based calibration       | `02_validation.R` + `sbc/` (auxiliary) |
+| §6.1 Simulation-based calibration       | `02_validation.R` (loads `sbc/*.rds`)  |
 | §6.2 Identifiability / contraction      | `02_validation.R` (Table 5, fig)       |
 | §7.1 Real Eisenia data (Neuhauser 1980) | `03_case_studies.R` (`Section 7.1`)    |
-| §7.2 Real DEBtox (Van Gestel 1991)      | `03_case_studies.R` (full mode only)   |
+| §7.2 Real DEBtox (Van Gestel 1991)      | `03_case_studies.R` (from archived fit)|
 | §9   Comparison with deBInfer           | `comparison_debinfer.R`                |
 
-The page-7 listing `prior_species("Eisenia_fetida")` is included
-explicitly in `01_illustrations.R` (Section 5.1).
+### Figure → script
+
+| Figure | File | Produced by |
+|--------|------|-------------|
+| Fig. 1 | `fig_debtox_rawdata.pdf`      | `01_illustrations.R` (§5.4) |
+| Fig. 2 | `fig_debtox_doseresponse.pdf` | `01_illustrations.R` (§5.4, `plot_dose_response`) |
+| Fig. 3 | `fig_sbc_ranks.pdf`           | `02_validation.R` from `sbc/sbc_results.rds` |
+| Fig. 4 | `fig_sbc_hierarchical.pdf`    | `02_validation.R` from `sbc/sbc_hierarchical_results.rds` |
+| Fig. 5 | `fig_contraction.pdf`         | `02_validation.R` (§6.2) |
+| Fig. 6 | `fig_trajectory.pdf`          | `03_case_studies.R` (§7.1) |
+| Fig. 7 | `fig_ppc.pdf`                 | `03_case_studies.R` (§7.1) |
+| Fig. 8 | `fig_pairs.pdf`               | `03_case_studies.R` (§7.1, needs `gridExtra`) |
+| Fig. 9 | `fig_trace.pdf`               | `03_case_studies.R` (§7.1) |
+| Fig. 10| `fig_posterior.pdf`           | `03_case_studies.R` (§7.1) |
+| Fig. 11| `fig_prior_posterior.pdf`     | `03_case_studies.R` (§7.1) |
+
+The page-7 listings `prior_species("Eisenia_fetida")` and
+`prior_species("Daphnia_magna", type = "debtox")` are both executed
+explicitly in `01_illustrations.R` (Sections 5.1 and 5.4).
 
 
 ## Directory structure
@@ -70,21 +102,22 @@ explicitly in `01_illustrations.R` (Section 5.1).
 ```
 replication/
 ├── README.md                   ← this file
-├── 00_setup.R                  ← libraries, palette, BDEB_MODE
-├── 01_illustrations.R          ← Section 5
-├── 02_validation.R             ← Section 6
-├── 03_case_studies.R           ← Section 7
+├── replicate_all.R             ← SINGLE entry point (run this)
+├── 00_setup.R                  ← libraries, palette, BDEB_MODE/RECOMPUTE
+├── 01_illustrations.R          ← Section 5 (cache-aware)
+├── 02_validation.R             ← Section 6 (SBC figs/tables from cache)
+├── 03_case_studies.R           ← Section 7 (cache-aware)
 ├── comparison_debinfer.R       ← Section 9 (auxiliary)
 ├── data/
 │   └── curves.txt              ← EGrowth (Mathieu, 2018) — bundled
 ├── sbc/
 │   ├── README.md
-│   ├── sbc_individual.R        ← long-running SBC runners
+│   ├── sbc_individual.R        ← long-running SBC runners (optional)
 │   ├── sbc_hierarchical.R
-│   ├── sbc_growth_repro.R
-│   ├── sbc_debtox.R
-│   ├── sbc_results.rds         ← pre-computed (loaded by 02_validation.R)
-│   └── sbc_hierarchical_results.rds
+│   ├── sbc_growth_repro.R      ← exploratory, NOT used in manuscript
+│   ├── sbc_debtox.R            ← exploratory, NOT used in manuscript
+│   ├── sbc_results.rds         ← Fig 3 / Table 4 (loaded by 02)
+│   └── sbc_hierarchical_results.rds  ← Fig 4 / Table 5 (loaded by 02)
 └── outputs/                    ← generated PDFs, RDS, sessionInfo.txt
 ```
 

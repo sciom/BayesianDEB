@@ -59,12 +59,17 @@ so \code{n_draws * n_conc} total.  With default settings (100 draws,
 faster interactive use.
 }
 \examples{
-\dontrun{
-data(debtox_growth)
-dat <- bdeb_data(growth = debtox_growth,
-                 concentration = c("1" = 0, "11" = 20,
-                                  "21" = 80, "31" = 200))
-fit <- bdeb_fit(bdeb_tox(dat, stress = "assimilation"))
-plot_dose_response(fit, n_draws = 50)
+\donttest{
+if (requireNamespace("cmdstanr", quietly = TRUE) &&
+    nzchar(tryCatch(cmdstanr::cmdstan_path(), error = function(e) ""))) {
+  data(debtox_growth)
+  dat <- bdeb_data(growth = debtox_growth,
+                   concentration = c("1" = 0, "11" = 20,
+                                    "21" = 80, "31" = 200))
+  fit <- bdeb_fit(bdeb_tox(dat, stress = "assimilation"),
+                  chains = 2, iter_warmup = 200, iter_sampling = 200,
+                  init = 0.5, refresh = 0)
+  plot_dose_response(fit, n_draws = 50)
+}
 }
 }

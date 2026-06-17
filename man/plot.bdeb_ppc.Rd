@@ -20,8 +20,15 @@ A ggplot2 object.
 Plot Posterior Predictive Checks
 }
 \examples{
-\dontrun{
-fit <- bdeb_fit(mod)
-plot(bdeb_ppc(fit, type = "growth"))
+\donttest{
+if (requireNamespace("cmdstanr", quietly = TRUE) &&
+    nzchar(tryCatch(cmdstanr::cmdstan_path(), error = function(e) ""))) {
+  data(eisenia_growth)
+  dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
+  fit <- bdeb_fit(bdeb_model(dat, type = "individual"),
+                  chains = 2, iter_warmup = 200, iter_sampling = 200,
+                  refresh = 0)
+  plot(bdeb_ppc(fit, type = "growth"))
+}
 }
 }

@@ -19,6 +19,10 @@
 })()
 source(file.path(.script_dir, "00_setup.R"))
 
+# Archived real-data fits (loaded unless BDEB_RECOMPUTE=true).
+cache_real <- load_cache(file.path(OUTPUTS_DIR, "fit_real_neuhauser.rds"))
+cache_vg   <- load_cache(file.path(OUTPUTS_DIR, "fit_vangestel.rds"))
+
 
 # -------------------------------------------------------------
 # Load EGrowth curves (locally bundled — A5)
@@ -78,7 +82,7 @@ mod_real <- bdeb_model(dat_real, type = "individual",
 		sigma_L = prior_halfnormal(sigma = 0.05)),
 	temperature = list(T_obs = 298.15, T_ref = 293.15, T_A = 8000))
 
-fit_real <- bdeb_fit(mod_real,
+fit_real <- cache_real %||% bdeb_fit(mod_real,
                      chains        = ITER_CFG$chains,
                      iter_warmup   = ITER_CFG$warmup,
                      iter_sampling = ITER_CFG$sampling,
@@ -87,7 +91,7 @@ fit_real <- bdeb_fit(mod_real,
                      seed = 42, refresh = 0)
 
 cat("\n--- Section 7.1: Diagnostics ---\n")
-diag <- bdeb_diagnose(fit_real)
+print(bdeb_diagnose(fit_real))
 
 # Table 6: Real data posterior
 cat("\n--- Table 6: Real data posterior ---\n")
@@ -147,9 +151,11 @@ save_fig(p_pp, "fig_prior_posterior.pdf", width = 8, height = 5)
 # -------------------------------------------------------------
 # 7.2 Real-data DEBtox: Cd in E. andrei (Van Gestel 1991)
 # -------------------------------------------------------------
-# Optional in lite mode (slow); enabled in full mode.
+# Reproduced from the archived fit by default; refit only requested in
+# full mode (slow ODE-based TKTD model).
+run_vg <- !is.null(cache_vg) || (BDEB_RECOMPUTE && BDEB_MODE == "full")
 
-if (BDEB_MODE == "full") {
+if (run_vg) {
 	cli::cli_h1("Section 7.2: Real-data DEBtox (Van Gestel 1991)")
 
 	ids      <- c("gr0119", "gr0120", "gr0121", "gr0122", "gr0123")
@@ -172,7 +178,7 @@ if (BDEB_MODE == "full") {
 			z_w = prior_lognormal(mu = 3.5, sigma = 1.0),
 			b_w = prior_lognormal(mu = -4.0, sigma = 1.5)))
 
-	fit_vg <- bdeb_fit(mod_vg,
+	fit_vg <- cache_vg %||% bdeb_fit(mod_vg,
 	                   chains        = ITER_CFG$chains,
 	                   iter_warmup   = ITER_CFG$warmup,
 	                   iter_sampling = ITER_CFG$sampling,
@@ -184,11 +190,11 @@ if (BDEB_MODE == "full") {
 	cat("\n--- Section 7.2: Van Gestel DEBtox EC50 ---\n")
 	print(bdeb_ec50(fit_vg, prob = 0.90)$summary, digits = 3)
 
-	saveRDS(fit_vg, file.path(OUTPUTS_DIR, "fit_vangestel.rds"))
+	if (BDEB_RECOMPUTE) saveRDS(fit_vg, file.path(OUTPUTS_DIR, "fit_vangestel.rds"))
 } else {
 	cli::cli_alert_info(
-		"Section 7.2 (Van Gestel DEBtox) skipped in lite mode; ",
-		"set BDEB_MODE=full to include it."
+		"Section 7.2 (Van Gestel DEBtox) skipped: no archived fit and ",
+		"BDEB_MODE != full.  Set BDEB_MODE=full with BDEB_RECOMPUTE=true."
 	)
 }
 
@@ -197,7 +203,9 @@ if (BDEB_MODE == "full") {
 # Persist Eisenia real fit + reproducibility report
 # -------------------------------------------------------------
 
-saveRDS(fit_real, file.path(OUTPUTS_DIR, "fit_real_neuhauser.rds"))
+if (BDEB_RECOMPUTE) {
+	saveRDS(fit_real, file.path(OUTPUTS_DIR, "fit_real_neuhauser.rds"))
+}
 
 cat("\n--- Reproducibility report ---\n")
 bdeb_session_info(fit_real)

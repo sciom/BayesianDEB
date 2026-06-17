@@ -322,9 +322,16 @@ print.bdeb_fit <- function(x, ...) {
 #'   `rhat`, `ess_bulk`, and `ess_tail`.
 #' @export
 #' @examples
-#' \dontrun{
-#' fit <- bdeb_fit(mod)
-#' summary(fit, pars = c("p_Am", "kappa"), prob = 0.95)
+#' \donttest{
+#' if (requireNamespace("cmdstanr", quietly = TRUE) &&
+#'     nzchar(tryCatch(cmdstanr::cmdstan_path(), error = function(e) ""))) {
+#'   data(eisenia_growth)
+#'   dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
+#'   fit <- bdeb_fit(bdeb_model(dat, type = "individual"),
+#'                   chains = 2, iter_warmup = 200, iter_sampling = 200,
+#'                   refresh = 0)
+#'   summary(fit, pars = c("p_Am", "kappa"), prob = 0.95)
+#' }
 #' }
 summary.bdeb_fit <- function(object, pars = NULL, prob = 0.90, ...) {
 	if (!inherits(object, "bdeb_fit")) {
@@ -368,9 +375,16 @@ summary.bdeb_fit <- function(object, pars = NULL, prob = 0.90, ...) {
 #' @return Named numeric vector of point estimates.
 #' @export
 #' @examples
-#' \dontrun{
-#' fit <- bdeb_fit(mod)
-#' coef(fit)
+#' \donttest{
+#' if (requireNamespace("cmdstanr", quietly = TRUE) &&
+#'     nzchar(tryCatch(cmdstanr::cmdstan_path(), error = function(e) ""))) {
+#'   data(eisenia_growth)
+#'   dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
+#'   fit <- bdeb_fit(bdeb_model(dat, type = "individual"),
+#'                   chains = 2, iter_warmup = 200, iter_sampling = 200,
+#'                   refresh = 0)
+#'   coef(fit)
+#' }
 #' }
 coef.bdeb_fit <- function(object, type = c("median", "mean"), ...) {
 	type <- match.arg(type)
@@ -411,9 +425,16 @@ coef.bdeb_fit <- function(object, type = c("median", "mean"), ...) {
 #'   their percentile (e.g. `"2.5%"`, `"97.5%"` for `level = 0.95`).
 #' @export
 #' @examples
-#' \dontrun{
-#' fit <- bdeb_fit(mod)
-#' confint(fit, level = 0.90)
+#' \donttest{
+#' if (requireNamespace("cmdstanr", quietly = TRUE) &&
+#'     nzchar(tryCatch(cmdstanr::cmdstan_path(), error = function(e) ""))) {
+#'   data(eisenia_growth)
+#'   dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
+#'   fit <- bdeb_fit(bdeb_model(dat, type = "individual"),
+#'                   chains = 2, iter_warmup = 200, iter_sampling = 200,
+#'                   refresh = 0)
+#'   confint(fit, level = 0.90)
+#' }
 #' }
 confint.bdeb_fit <- function(object, parm = NULL, level = 0.95, ...) {
 	if (!inherits(object, "bdeb_fit")) {
@@ -458,9 +479,16 @@ confint.bdeb_fit <- function(object, parm = NULL, level = 0.95, ...) {
 #' @return Integer scalar: total number of observations.
 #' @export
 #' @examples
-#' \dontrun{
-#' fit <- bdeb_fit(mod)
-#' nobs(fit)
+#' \donttest{
+#' if (requireNamespace("cmdstanr", quietly = TRUE) &&
+#'     nzchar(tryCatch(cmdstanr::cmdstan_path(), error = function(e) ""))) {
+#'   data(eisenia_growth)
+#'   dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
+#'   fit <- bdeb_fit(bdeb_model(dat, type = "individual"),
+#'                   chains = 2, iter_warmup = 200, iter_sampling = 200,
+#'                   refresh = 0)
+#'   nobs(fit)
+#' }
 #' }
 nobs.bdeb_fit <- function(object, ...) {
 	if (!inherits(object, "bdeb_fit")) {
@@ -488,9 +516,16 @@ nobs.bdeb_fit <- function(object, ...) {
 #' @return Named numeric vector of fitted values, one per observation.
 #' @export
 #' @examples
-#' \dontrun{
-#' fit <- bdeb_fit(mod)
-#' fitted(fit)
+#' \donttest{
+#' if (requireNamespace("cmdstanr", quietly = TRUE) &&
+#'     nzchar(tryCatch(cmdstanr::cmdstan_path(), error = function(e) ""))) {
+#'   data(eisenia_growth)
+#'   dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
+#'   fit <- bdeb_fit(bdeb_model(dat, type = "individual"),
+#'                   chains = 2, iter_warmup = 200, iter_sampling = 200,
+#'                   refresh = 0)
+#'   fitted(fit)
+#' }
 #' }
 fitted.bdeb_fit <- function(object, type = c("median", "mean"), ...) {
 	if (!inherits(object, "bdeb_fit")) {
@@ -529,9 +564,16 @@ fitted.bdeb_fit <- function(object, type = c("median", "mean"), ...) {
 #' @return Named numeric vector of residuals.
 #' @export
 #' @examples
-#' \dontrun{
-#' fit <- bdeb_fit(mod)
-#' residuals(fit)
+#' \donttest{
+#' if (requireNamespace("cmdstanr", quietly = TRUE) &&
+#'     nzchar(tryCatch(cmdstanr::cmdstan_path(), error = function(e) ""))) {
+#'   data(eisenia_growth)
+#'   dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
+#'   fit <- bdeb_fit(bdeb_model(dat, type = "individual"),
+#'                   chains = 2, iter_warmup = 200, iter_sampling = 200,
+#'                   refresh = 0)
+#'   residuals(fit)
+#' }
 #' }
 residuals.bdeb_fit <- function(object, type = "response", ...) {
 	if (!inherits(object, "bdeb_fit")) {
@@ -562,9 +604,16 @@ residuals.bdeb_fit <- function(object, type = "response", ...) {
 #'   and columns.
 #' @export
 #' @examples
-#' \dontrun{
-#' fit <- bdeb_fit(mod)
-#' vcov(fit)
+#' \donttest{
+#' if (requireNamespace("cmdstanr", quietly = TRUE) &&
+#'     nzchar(tryCatch(cmdstanr::cmdstan_path(), error = function(e) ""))) {
+#'   data(eisenia_growth)
+#'   dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
+#'   fit <- bdeb_fit(bdeb_model(dat, type = "individual"),
+#'                   chains = 2, iter_warmup = 200, iter_sampling = 200,
+#'                   refresh = 0)
+#'   vcov(fit)
+#' }
 #' }
 vcov.bdeb_fit <- function(object, ...) {
 	if (!inherits(object, "bdeb_fit")) {
@@ -598,9 +647,16 @@ vcov.bdeb_fit <- function(object, ...) {
 #'   parameters) and `nobs` (number of observations).
 #' @export
 #' @examples
-#' \dontrun{
-#' fit <- bdeb_fit(mod)
-#' logLik(fit)
+#' \donttest{
+#' if (requireNamespace("cmdstanr", quietly = TRUE) &&
+#'     nzchar(tryCatch(cmdstanr::cmdstan_path(), error = function(e) ""))) {
+#'   data(eisenia_growth)
+#'   dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
+#'   fit <- bdeb_fit(bdeb_model(dat, type = "individual"),
+#'                   chains = 2, iter_warmup = 200, iter_sampling = 200,
+#'                   refresh = 0)
+#'   logLik(fit)
+#' }
 #' }
 logLik.bdeb_fit <- function(object, ...) {
 	if (!inherits(object, "bdeb_fit")) {

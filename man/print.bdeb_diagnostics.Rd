@@ -4,10 +4,14 @@
 \alias{print.bdeb_diagnostics}
 \title{Print a BDEB Diagnostics Report}
 \usage{
-\method{print}{bdeb_diagnostics}(x, ...)
+\method{print}{bdeb_diagnostics}(x, full = FALSE, ...)
 }
 \arguments{
 \item{x}{A \code{bdeb_diagnostics} object.}
+
+\item{full}{Logical; if \code{TRUE}, also print the latent-state rows that
+are hidden by default.  The complete table is always available via
+\code{summary(x)$table}.}
 
 \item{...}{Unused.}
 }
@@ -16,13 +20,22 @@ The input object, invisibly.
 }
 \description{
 Default printing for \code{\link[=bdeb_diagnose]{bdeb_diagnose()}} output.  Displays divergence /
-treedepth / E-BFMI alerts, R-hat and ESS warnings, and the full
-parameter summary table.  Output uses \link[cli:cli]{cli::cli} alerts and is therefore
-silenceable via \code{\link[cli:cli_abort]{cli::cli_inform()}} sinks.
+treedepth / E-BFMI alerts, R-hat and ESS warnings, and a compact
+parameter summary table.  To keep the on-screen output short, the
+per-time-point latent states (\code{x_sol[i,j]}, \code{L_hat[i]}, ...) are hidden
+by default; the scalar model parameters are always shown.  Output uses
+\link[cli:cli]{cli::cli} alerts and is therefore silenceable via \code{\link[cli:cli_abort]{cli::cli_inform()}} sinks.
 }
 \examples{
-\dontrun{
-fit <- bdeb_fit(mod)
-print(bdeb_diagnose(fit))
+\donttest{
+if (requireNamespace("cmdstanr", quietly = TRUE) &&
+    nzchar(tryCatch(cmdstanr::cmdstan_path(), error = function(e) ""))) {
+  data(eisenia_growth)
+  dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
+  fit <- bdeb_fit(bdeb_model(dat, type = "individual"),
+                  chains = 2, iter_warmup = 200, iter_sampling = 200,
+                  refresh = 0)
+  print(bdeb_diagnose(fit))
+}
 }
 }

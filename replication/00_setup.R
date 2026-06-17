@@ -50,11 +50,50 @@ ITER_CFG <- if (BDEB_MODE == "full") {
 cat(sprintf("BDEB_MODE = %s  (chains = %d, warmup = %d, sampling = %d)\n",
             BDEB_MODE, ITER_CFG$chains, ITER_CFG$warmup, ITER_CFG$sampling))
 
+# ----- Recompute vs. load archived draws ----------------------------
+# Default (BDEB_RECOMPUTE unset / "false"): the numbered scripts LOAD
+# the archived posterior draws shipped in outputs/ and sbc/, then
+# regenerate every figure, table and printed number from them.  This
+# reproduces the manuscript bit-for-bit in a few minutes, with no MCMC,
+# and is what `replicate_all.R` runs by default (< 1 h budget).
+# Set
+#   Sys.setenv(BDEB_RECOMPUTE = "true")   # or BDEB_RECOMPUTE=true in shell
+# to refit every model from scratch using the BDEB_MODE settings above
+# (hours of MCMC; HMC is not bit-deterministic across platforms, so
+# refitted numbers may differ from the archived ones at ~1e-2).
+
+BDEB_RECOMPUTE <- tolower(Sys.getenv("BDEB_RECOMPUTE", "false")) %in%
+	c("true", "1", "yes")
+cat(sprintf("BDEB_RECOMPUTE = %s  (%s)\n", BDEB_RECOMPUTE,
+            if (BDEB_RECOMPUTE) "refit all models from scratch"
+            else "load archived posterior draws"))
+
+# ----- Helper: load a cached object (NULL if recomputing/missing) ----
+
+`%||%` <- function(a, b) if (is.null(a)) b else a
+
+load_cache <- function(path) {
+	if (BDEB_RECOMPUTE) return(NULL)
+	if (!file.exists(path)) {
+		cli::cli_alert_warning(
+			"Cache {.file {basename(path)}} not found; refitting this model.")
+		return(NULL)
+	}
+	cli::cli_alert_info("Loading archived draws from {.file {basename(path)}}")
+	readRDS(path)
+}
+
 # ----- Paths --------------------------------------------------------
 
-REP_ROOT  <- if (interactive()) getwd() else dirname(sys.frame(1)$ofile)
+# Prefer the directory of the calling script (the numbered scripts and
+# replicate_all.R all set `.script_dir`); fall back to the working dir.
+REP_ROOT <- if (exists(".script_dir", inherits = TRUE) &&
+                is.character(.script_dir)) {
+	.script_dir
+} else {
+	getwd()
+}
 if (basename(REP_ROOT) != "replication") {
-	# Fallback when sourced from elsewhere
 	candidate <- file.path(getwd(), "replication")
 	if (dir.exists(candidate)) REP_ROOT <- candidate
 }

@@ -19,6 +19,13 @@
 })()
 source(file.path(.script_dir, "00_setup.R"))
 
+# Archived fits (loaded unless BDEB_RECOMPUTE=true); see 00_setup.R.
+# Note: the archived `fit_cd` is the converged cadmium DEBtox fit used for
+# Table 4 and Figure 2.  With BDEB_RECOMPUTE=true the eisenia_cd group-mean
+# data are refit here; `init = 0.5` is required for this stiff TKTD ODE to
+# converge (matching the manuscript code).
+cache01 <- load_cache(file.path(OUTPUTS_DIR, "01_illustrations_fits.rds"))
+
 
 # -------------------------------------------------------------
 # 5.1 Individual growth — simulated E. fetida
@@ -41,13 +48,13 @@ mod <- bdeb_model(dat, type = "individual",
 cat("\n--- prior_species('Eisenia_fetida') ---\n")
 print(prior_species("Eisenia_fetida"))
 
-fit <- bdeb_fit(mod,
+fit <- cache01$fit %||% bdeb_fit(mod,
                 chains        = ITER_CFG$chains,
                 iter_warmup   = ITER_CFG$warmup,
                 iter_sampling = ITER_CFG$sampling,
                 adapt_delta   = 0.9, seed = 42, refresh = 0)
 
-bdeb_diagnose(fit)
+print(bdeb_diagnose(fit))
 
 cat("\n--- Section 5.1: Derived quantities (Table 3) ---\n")
 der <- bdeb_derived(fit,
@@ -65,13 +72,17 @@ mod_ln <- bdeb_model(dat, type = "individual",
     kappa   = prior_beta(a = 3, b = 2),
     sigma_L = prior_halfnormal(sigma = 0.05)))
 
-fit_ln <- bdeb_fit(mod_ln,
+fit_ln <- cache01$fit_ln %||% bdeb_fit(mod_ln,
                    chains        = ITER_CFG$chains,
                    iter_warmup   = ITER_CFG$warmup,
                    iter_sampling = ITER_CFG$sampling,
                    adapt_delta   = 0.9, seed = 42, refresh = 0)
 
 cat("\n--- Section 5.1: LOO comparison ---\n")
+# Note: with only n = 13 observations, loo() emits a Pareto-k warning
+# (a few k > 0.7); the importance-sampling ELPD is therefore indicative.
+# The qualitative conclusion (models indistinguishable, |dELPD| < SE) is
+# robust across reruns -- see manuscript Section 5.1.
 print(loo::loo_compare(list(gaussian  = bdeb_loo(fit),
                             lognormal = bdeb_loo(fit_ln))))
 
@@ -109,14 +120,14 @@ mod_gr <- bdeb_model(dat_gr, type = "growth_repro",
   observation = list(growth = obs_normal(),
                      reproduction = obs_negbinom()))
 
-fit_gr <- bdeb_fit(mod_gr,
+fit_gr <- cache01$fit_gr %||% bdeb_fit(mod_gr,
                    chains        = ITER_CFG$chains,
                    iter_warmup   = ITER_CFG$warmup,
                    iter_sampling = ITER_CFG$sampling,
                    adapt_delta   = 0.9, seed = 42, refresh = 0)
 
 cat("\n--- Section 5.2: Diagnostics ---\n")
-bdeb_diagnose(fit_gr)
+print(bdeb_diagnose(fit_gr))
 
 cat("\n--- Section 5.2: Posterior summary ---\n")
 print(as.data.frame(summary(fit_gr,
@@ -137,7 +148,7 @@ mod_h <- bdeb_model(dat_all, type = "hierarchical",
     mu_log_p_Am    = prior_normal(mu = 1.5, sigma = 0.5),
     sigma_log_p_Am = prior_exponential(rate = 2)))
 
-fit_h <- bdeb_fit(mod_h,
+fit_h <- cache01$fit_h %||% bdeb_fit(mod_h,
                   chains        = ITER_CFG$chains,
                   iter_warmup   = max(ITER_CFG$warmup, 600L),
                   iter_sampling = ITER_CFG$sampling,
@@ -147,7 +158,7 @@ fit_h <- bdeb_fit(mod_h,
                   seed = 123, refresh = 0)
 
 cat("\n--- Section 5.3: Hierarchical diagnostics ---\n")
-bdeb_diagnose(fit_h)
+print(bdeb_diagnose(fit_h))
 
 
 # -------------------------------------------------------------
@@ -171,17 +182,24 @@ p_debtox_raw <- ggplot(eisenia_cd,
        colour = "Cd (mg/kg)")
 save_fig(p_debtox_raw, "fig_debtox_rawdata.pdf", width = 7, height = 4)
 
+# Code listing on manuscript p. 7: species-specific DEBtox priors.
+# Included here so every manuscript listing appears in the replication
+# (reviewer comment, 2026-05 round).
+cat("\n--- prior_species('Daphnia_magna', type = 'debtox') ---\n")
+print(prior_species("Daphnia_magna", type = "debtox"))
+
 mod_cd <- bdeb_tox(dat_cd, stress = "assimilation",
   priors = list(
     z_w = prior_lognormal(mu = 3.0, sigma = 1.0),
     b_w = prior_lognormal(mu = -4.0, sigma = 1.5)))
 
-fit_cd <- bdeb_fit(mod_cd,
+fit_cd <- cache01$fit_cd %||% bdeb_fit(mod_cd,
                    chains        = ITER_CFG$chains,
                    iter_warmup   = max(ITER_CFG$warmup, 600L),
                    iter_sampling = ITER_CFG$sampling,
                    adapt_delta   = if (BDEB_MODE == "full") 0.95 else 0.99,
                    max_treedepth = if (BDEB_MODE == "full") 10L else 8L,
+                   init = 0.5,   # essential for this stiff TKTD ODE to converge
                    seed = 42, refresh = 0)
 
 cat("\n--- Section 5.4: DEBtox posterior (Table 4) ---\n")
@@ -202,8 +220,12 @@ save_fig(p_dr, "fig_debtox_doseresponse.pdf", width = 6, height = 4)
 # Persist key fits for downstream scripts
 # -------------------------------------------------------------
 
-saveRDS(list(fit = fit, fit_ln = fit_ln, fit_gr = fit_gr,
-             fit_h = fit_h, fit_cd = fit_cd),
-        file.path(OUTPUTS_DIR, "01_illustrations_fits.rds"))
+# Persist only when refitting; the shipped archive is authoritative and
+# must not be overwritten by a cache-mode rerun.
+if (BDEB_RECOMPUTE) {
+	saveRDS(list(fit = fit, fit_ln = fit_ln, fit_gr = fit_gr,
+	             fit_h = fit_h, fit_cd = fit_cd),
+	        file.path(OUTPUTS_DIR, "01_illustrations_fits.rds"))
+}
 
 cli::cli_alert_success("Section 5 illustrations: done.")

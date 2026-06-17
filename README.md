@@ -89,19 +89,30 @@ visualisation.
 
 ## Installation
 
-BayesianDEB requires **cmdstanr** and a working **CmdStan** installation.
+`BayesianDEB` installs from CRAN like any other package:
 
 ```r
-# 1. Install cmdstanr from r-universe
+install.packages("BayesianDEB")
+```
+
+Fitting models additionally requires **cmdstanr** and a working
+**CmdStan** toolchain.  `cmdstanr` is not on CRAN, so install it from the
+Stan r-universe and build CmdStan once:
+
+```r
+# 1. Install cmdstanr from the Stan r-universe (not on CRAN)
 install.packages("cmdstanr",
   repos = c("https://stan-dev.r-universe.dev", getOption("repos")))
 
-# 2. Install CmdStan (one-time)
+# 2. Build CmdStan (one-time, ~10 min)
 cmdstanr::install_cmdstan()
+```
 
-# 3. Install BayesianDEB
-# install.packages("BayesianDEB")
-# or from source:
+The package loads, prints and runs all non-fitting functions without
+cmdstanr; `bdeb_fit()` checks for the toolchain at runtime and gives an
+informative error if it is missing.  For the development version:
+
+```r
 # remotes::install_github("sciom/BayesianDEB")
 ```
 

@@ -22,8 +22,15 @@ Reduces the matrix of posterior trajectory draws stored in a
 \code{bdeb_prediction} object to per-time-point credible intervals.
 }
 \examples{
-\dontrun{
-fit <- bdeb_fit(mod)
-summary(predict(fit), prob = 0.95)
+\donttest{
+if (requireNamespace("cmdstanr", quietly = TRUE) &&
+    nzchar(tryCatch(cmdstanr::cmdstan_path(), error = function(e) ""))) {
+  data(eisenia_growth)
+  dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
+  fit <- bdeb_fit(bdeb_model(dat, type = "individual"),
+                  chains = 2, iter_warmup = 200, iter_sampling = 200,
+                  refresh = 0)
+  summary(predict(fit), prob = 0.95)
+}
 }
 }

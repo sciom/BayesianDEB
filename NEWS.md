@@ -3,6 +3,26 @@
 JSS revision release.  Comprehensive S3 class system overhaul,
 expanded methods coverage, and reproducible replication package.
 
+## Second-round JSS revision
+
+* `print.bdeb_diagnostics()` now prints a compact table by default,
+  hiding the per-time-point latent states (`x_sol[i,j]`, `L_hat[i]`);
+  the new `full = TRUE` argument restores the complete table (also
+  available via `summary(x)$table`).
+* `plot.bdeb_diagnostics()` likewise hides the per-time-point latent
+  states by default for a shorter, more readable R-hat / ESS plot;
+  the new `full = TRUE` argument plots every monitored quantity. The
+  subtitle notes how many latent rows were hidden.
+* `bdeb_diagnose()` and the `bdeb_diagnostics` print/summary/plot
+  methods, plus `bdeb_loo()`, `bdeb_derived()` and `bdeb_summary()`,
+  moved their examples from `\dontrun{}` to a cmdstanr-gated
+  `\donttest{}` block, so `example()` runs them when a CmdStan
+  toolchain is available (mirroring `bdeb_fit()`).
+* `plot_dose_response()` now draws posterior-median EC50 (dashed red)
+  and NEC (dotted green) reference lines, drops non-finite draws, and
+  clips the view with `coord_cartesian()` so degenerate draws no longer
+  appear as vertical artefacts.
+
 ## Breaking changes
 * `bdeb_diagnose()` now returns a `bdeb_diagnostics` S3 object.
   All output goes through `print()`, `summary()`, and `plot()`

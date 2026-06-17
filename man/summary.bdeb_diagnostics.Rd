@@ -20,8 +20,15 @@ saturations, low-EBFMI chains, R-hat > 1.01, ESS-bulk < 400) suitable
 for a one-line health check or programmatic gating.
 }
 \examples{
-\dontrun{
-fit <- bdeb_fit(mod)
-summary(bdeb_diagnose(fit))
+\donttest{
+if (requireNamespace("cmdstanr", quietly = TRUE) &&
+    nzchar(tryCatch(cmdstanr::cmdstan_path(), error = function(e) ""))) {
+  data(eisenia_growth)
+  dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
+  fit <- bdeb_fit(bdeb_model(dat, type = "individual"),
+                  chains = 2, iter_warmup = 200, iter_sampling = 200,
+                  refresh = 0)
+  summary(bdeb_diagnose(fit))
+}
 }
 }

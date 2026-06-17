@@ -31,8 +31,15 @@ Requires the Stan model to store per-observation \code{log_lik} in
 likelihood inside \code{reduce_sum} and do not expose individual terms.
 }
 \examples{
-\dontrun{
-fit <- bdeb_fit(mod)
-logLik(fit)
+\donttest{
+if (requireNamespace("cmdstanr", quietly = TRUE) &&
+    nzchar(tryCatch(cmdstanr::cmdstan_path(), error = function(e) ""))) {
+  data(eisenia_growth)
+  dat <- bdeb_data(growth = eisenia_growth[eisenia_growth$id == 1, ])
+  fit <- bdeb_fit(bdeb_model(dat, type = "individual"),
+                  chains = 2, iter_warmup = 200, iter_sampling = 200,
+                  refresh = 0)
+  logLik(fit)
+}
 }
 }
