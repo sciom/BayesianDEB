@@ -42,7 +42,7 @@ We thank the editor and reviewer for the careful second reading of
 Modelling in R}. Below we reproduce each point of the review of
 \textbf{22 May 2026} (in italics), followed by our response and the
 specific files in which the change was made. All work refers to package
-version \textbf{0.2.0}; the replication archive is
+version \textbf{0.2.1}; the replication archive is
 \code{BayesianDEB\_replication.zip} and the revised manuscript is
 \code{bayesiandeb.tex}.
 
@@ -74,10 +74,10 @@ published on CRAN. We require that both versions match.''
 \end{displayquote}
 
 \textbf{Response.} CRAN currently holds 0.1.4, whereas the manuscript
-and this submission describe 0.2.0. We have submitted 0.2.0 to CRAN so
+and this submission describe 0.2.1. We have submitted 0.2.1 to CRAN so
 that the published package matches the manuscript; the accompanying
 \code{cran-comments.md} documents the version bump. \code{DESCRIPTION}
-declares \code{Version: 0.2.0}. The package passes
+declares \code{Version: 0.2.1}. The package passes
 \verb|R CMD check --as-cran| with 0 errors / 0 warnings / 1 note (the
 note is the informational \pkg{cmdstanr}-in-\code{Additional\_repositories}
 line discussed below).
@@ -229,7 +229,7 @@ not the submitted package version 0.2.0.''
 
 \textbf{Response.} The installation instructions have been separated.
 \pkg{BayesianDEB} is now installed with a plain
-\verb|install.packages("BayesianDEB")| (which will resolve to 0.2.0 once
+\verb|install.packages("BayesianDEB")| (which will resolve to 0.2.1 once
 it is on CRAN), and \pkg{cmdstanr} is installed from the Stan r-universe
 in a \emph{separate} call (see Section~2). The combined
 \code{repos = c("https://stan-dev.r-universe.dev", getOption("repos"))}

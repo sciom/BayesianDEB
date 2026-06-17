@@ -1,9 +1,8 @@
-# BayesianDEB 0.2.0
+# BayesianDEB 0.2.1
 
-JSS revision release.  Comprehensive S3 class system overhaul,
-expanded methods coverage, and reproducible replication package.
-
-## Second-round JSS revision
+Second-round JSS revision: diagnostics display polish, fully runnable
+(toolchain-gated) examples, and replication / manuscript reproducibility
+fixes.
 
 * `print.bdeb_diagnostics()` now prints a compact table by default,
   hiding the per-time-point latent states (`x_sol[i,j]`, `L_hat[i]`);
@@ -22,6 +21,16 @@ expanded methods coverage, and reproducible replication package.
   and NEC (dotted green) reference lines, drops non-finite draws, and
   clips the view with `coord_cartesian()` so degenerate draws no longer
   appear as vertical artefacts.
+* Replication material: a single-command `replicate_all.R` reproduces
+  every manuscript figure, table and printed number in ~1 min from
+  cached draws; every manuscript code listing is now executed and
+  printed; outputs use a fixed seed for bit-identical reproduction; and
+  the README maps every figure to the script that produces it.
+
+# BayesianDEB 0.2.0
+
+JSS revision release.  Comprehensive S3 class system overhaul,
+expanded methods coverage, and reproducible replication package.
 
 ## Breaking changes
 * `bdeb_diagnose()` now returns a `bdeb_diagnostics` S3 object.

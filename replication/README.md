@@ -12,7 +12,7 @@ A **single script** reproduces every figure, table and printed number in
 the manuscript:
 
 ```bash
-# 1. Install BayesianDEB (>= 0.2.0)
+# 1. Install BayesianDEB (>= 0.2.1)
 R -q -e 'install.packages("BayesianDEB")'
 
 # 2. Reproduce everything (a few minutes; no MCMC -- see below)
@@ -153,7 +153,7 @@ written to `outputs/sessionInfo.txt` after the last `full` run.
 At submission time:
 
 * R 4.5.x
-* BayesianDEB 0.2.0
+* BayesianDEB 0.2.1
 * cmdstanr 0.8.x with CmdStan 2.36.x
 * OS: Ubuntu 22.04 (x86_64)
 * 8-core CPU, 32 GB RAM

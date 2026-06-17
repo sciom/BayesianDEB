@@ -4,18 +4,21 @@
 
 Local: Ubuntu 22.04.5 LTS, R 4.5.2, CmdStan 2.36.0.
 
-## Submission of 0.2.0
+## Submission of 0.2.1
 
 This release brings the CRAN version in line with the version submitted
 to the Journal of Statistical Software (JSS requires that the published
 package and the manuscript's package version match; CRAN currently holds
-0.1.4).  Version 0.2.0 adds a full S3 class system (print/summary/plot
+0.1.4).  Version 0.2.0 added a full S3 class system (print/summary/plot
 for every exported class), additional `lm`-style methods on `bdeb_fit`
 (`confint`, `fitted`, `residuals`, `nobs`, `vcov`, `logLik`), LOO/WAIC
-comparison, and an expanded test suite.  See `NEWS.md` for details.
-The `bdeb_diagnose()` example was moved from `\dontrun{}` to a
-cmdstanr-gated `\donttest{}` block so that `example("bdeb_diagnose")`
-runs when a toolchain is present, mirroring `bdeb_fit()`.
+comparison, and an expanded test suite.  Version 0.2.1 (this submission)
+adds the second-round JSS revision: all exported examples are now
+cmdstanr-gated `\donttest{}` blocks (no `\dontrun{}` remains), the
+`bdeb_diagnostics` print and plot methods hide per-time-point latent
+states by default for a compact display, and the replication material
+ships a single `replicate_all.R` reproducing every manuscript result in
+about one minute.  See `NEWS.md` for details.
 
 ## History (0.1.3 -> 0.1.4)
 

@@ -1,0 +1,45 @@
+{
+  "title": "BayesianDEB: A Bayesian Framework for Dynamic Energy Budget Modelling in R",
+  "description": "An R package for Bayesian inference of Dynamic Energy Budget (DEB) models with Stan (via cmdstanr), including individual, growth-reproduction, hierarchical, and DEBtox/TKTD model types, posterior predictive checks, convergence diagnostics, LOO/WAIC comparison, and EC50/NEC inference.",
+  "upload_type": "software",
+  "version": "0.2.1",
+  "language": "eng",
+  "license": "MIT",
+  "access_right": "open",
+  "creators": [
+    {
+      "name": "Hackenberger, Branimir K.",
+      "affiliation": "Department of Biology, Josip Juraj Strossmayer University of Osijek, Croatia; SCIOM d.o.o., Osijek, Croatia"
+    },
+    {
+      "name": "Djerdj, Tamara",
+      "affiliation": "Department of Biology, Josip Juraj Strossmayer University of Osijek, Croatia"
+    },
+    {
+      "name": "Hackenberger, Domagoj K.",
+      "affiliation": "Ruđer Bošković Institute, Zagreb, Croatia"
+    }
+  ],
+  "keywords": [
+    "dynamic energy budget",
+    "DEB theory",
+    "Bayesian inference",
+    "Stan",
+    "ecotoxicology",
+    "DEBtox",
+    "TKTD",
+    "R package"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/sciom/BayesianDEB",
+      "relation": "isSupplementTo",
+      "scheme": "url"
+    },
+    {
+      "identifier": "https://CRAN.R-project.org/package=BayesianDEB",
+      "relation": "isIdenticalTo",
+      "scheme": "url"
+    }
+  ]
+}

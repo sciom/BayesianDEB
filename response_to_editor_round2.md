@@ -4,7 +4,7 @@ We thank the editor and reviewer for the careful second reading of
 *BayesianDEB: A Bayesian Framework for Dynamic Energy Budget Modelling
 in R*.  Below we reproduce each point of the review of **22 May 2026**
 (in *italics*), followed by our response and the specific files in which
-the change was made.  All work refers to package version **0.2.0**; the
+the change was made.  All work refers to package version **0.2.1**; the
 replication archive is `BayesianDEB_replication.zip` and the revised
 manuscript is `bayesiandeb.tex`.
 
@@ -32,9 +32,9 @@ A one-line summary of the changes:
 > published on CRAN. We require that both versions match.*
 
 CRAN currently holds 0.1.4, whereas the manuscript and this submission
-describe 0.2.0.  We have submitted 0.2.0 to CRAN so that the published
+describe 0.2.1.  We have submitted 0.2.1 to CRAN so that the published
 package matches the manuscript; the accompanying `cran-comments.md`
-documents the version bump.  `DESCRIPTION` declares `Version: 0.2.0`.
+documents the version bump.  `DESCRIPTION` declares `Version: 0.2.1`.
 The package passes `R CMD check --as-cran` with 0 errors / 0 warnings /
 1 note (the note is the informational `cmdstanr`-in-
 `Additional_repositories` line discussed below).
@@ -182,7 +182,7 @@ manuscript Section 5.1.
 
 The installation instructions have been separated.  `BayesianDEB` is now
 installed with a plain `install.packages("BayesianDEB")` (which will
-resolve to 0.2.0 once it is on CRAN), and `cmdstanr` is installed from
+resolve to 0.2.1 once it is on CRAN), and `cmdstanr` is installed from
 the Stan r-universe in a **separate** call (see point 2).  The combined
 `repos = c("https://stan-dev.r-universe.dev", getOption("repos"))`
 command that could shadow the CRAN version of `BayesianDEB` has been
