@@ -37,19 +37,18 @@ Budget Modelling in R}
 \begin{document}
 \maketitle
 
-We thank the editor for the careful review of \emph{BayesianDEB: A
+We thank the editor for the close reading of \emph{BayesianDEB: A
 Bayesian Framework for Dynamic Energy Budget Modelling in R}. The
-comments fall into three groups: (i) the R class system, (ii) the
-replication material, and (iii) the package vignettes. We have
-addressed every point raised; below we list the reviewer's comments
-verbatim or as faithful summaries, followed by our response and
-references to the relevant commits and files in version \textbf{0.2.0}
-of the package.
+comments group naturally into three areas: the R class system, the
+replication material, and the package vignettes. We have worked through
+all of them. Each comment is quoted below, word for word or as a faithful
+summary, followed by our reply and the commits and files it touches in
+version \textbf{0.2.0} of the package.
 
-All work was done on the \code{jss-revision} branch of
+The work lives on the \code{jss-revision} branch of
 \url{https://github.com/sciom/BayesianDEB} and is tagged \code{v0.2.0}.
-Final package: \code{BayesianDEB\_0.2.0.tar.gz}. Replication zip:
-\code{BayesianDEB\_replication.zip}.
+The final package is \code{BayesianDEB\_0.2.0.tar.gz} and the replication
+archive is \code{BayesianDEB\_replication.zip}.
 
 \section{Class system}
 
@@ -63,14 +62,13 @@ and \code{plot} are also implemented for every class in the package.
 The same remark holds for \code{bdeb\_model}.''
 \end{displayquote}
 
-\textbf{Response.} Added. \code{bdeb\_data}, \code{bdeb\_model}, and
-\code{bdeb\_prior} now have full
-\code{print()}~/ \code{summary()}~/ \code{plot()} triplets. The new
-\code{summary()} methods return tidy \code{summary.bdeb\_data}~/
-\code{summary.bdeb\_model}~/ \code{summary.bdeb\_prior} objects with
-their own \code{print()} methods; the new \code{plot()} methods
-produce a publication-style overview of the data, model structure, or
-prior densities.
+\textbf{Response.} Added. \code{bdeb\_data}, \code{bdeb\_model} and
+\code{bdeb\_prior} now carry a complete
+\code{print()}~/ \code{summary()}~/ \code{plot()} trio. Each
+\code{summary()} method returns a tidy \code{summary.bdeb\_data}~/
+\code{summary.bdeb\_model}~/ \code{summary.bdeb\_prior} object with its
+own \code{print()} method, and each \code{plot()} method gives an
+overview of the data, the model structure, or the prior densities.
 
 \textbf{Reference.} Tasks B5/B6/B7 of the revision plan; commits in
 \code{R/data\_prep.R}, \code{R/model\_spec.R}, \code{R/priors.R}.
@@ -88,13 +86,12 @@ output of the \code{print} method for this class.''
 
 \textbf{Response.} \code{bdeb\_diagnose()} now returns a
 \code{bdeb\_diagnostics} S3 object with \code{print()},
-\code{summary()}, and \code{plot()} methods. Calling
-\verb|bdeb_diagnose(fit)| no longer prints to the console as a side
-effect; output is produced by \verb|print(d)| or implicit autoprint
-at the top level. The \code{plot()} method offers
-\verb|type = "rhat"| and \verb|type = "ess"|. Direct list-style
-access (\verb|d$n_divergent|, \verb|d$summary|) remains supported for
-back-compatibility.
+\code{summary()} and \code{plot()} methods. It no longer prints to the
+console as a side effect: the output comes from \verb|print(d)|, or from
+autoprinting at the top level. The \code{plot()} method takes
+\verb|type = "rhat"| and \verb|type = "ess"|, and the old list-style
+access (\verb|d$n_divergent|, \verb|d$summary|) still works for backward
+compatibility.
 
 \textbf{Reference.} Task B5; \code{R/diagnostics.R}.
 
@@ -107,13 +104,12 @@ readability of the output for users and allow the implementation of
 methods that would allow inspecting this object.''
 \end{displayquote}
 
-\textbf{Response.} \code{bdeb\_predict()} (the underlying function
-called by \code{predict.bdeb\_fit}) now returns a
-\code{bdeb\_prediction} S3 object with \code{print()},
-\code{summary()}, and \code{plot()} methods. \code{print()} shows
-model type, prediction horizon, and posterior summary widths;
-\code{summary()} returns a tidy \code{time}~/ \code{lower}~/
-\code{median}~/ \code{upper} data frame.
+\textbf{Response.} \code{bdeb\_predict()}, the function behind
+\code{predict.bdeb\_fit}, now returns a \code{bdeb\_prediction} S3 object
+with \code{print()}, \code{summary()} and \code{plot()} methods.
+\code{print()} reports the model type, the prediction horizon and the
+posterior summary widths; \code{summary()} hands back a tidy data frame
+with \code{time}~/ \code{lower}~/ \code{median}~/ \code{upper} columns.
 
 \textbf{Reference.} Task B6; \code{R/fit.R}, \code{R/plot.R}.
 
@@ -128,8 +124,8 @@ inspect the output and assess the quality of the results (see, e.g.,
 \code{residuals}, \ldots''
 \end{displayquote}
 
-\textbf{Response.} We have added the standard \code{lm}-style methods
-that make sense for a Bayesian DEB fit:
+\textbf{Response.} We added the \code{lm}-style methods that make sense
+for a Bayesian DEB fit:
 
 \begin{itemize}[nosep]
 \item \code{confint()}: posterior credible intervals.
@@ -141,11 +137,11 @@ that make sense for a Bayesian DEB fit:
   (\code{lppd}).
 \end{itemize}
 
-\code{fitted()}, \code{residuals()}, and \code{logLik()} are defined
-for \verb|"individual"| and \verb|"growth_repro"| model types only;
-they emit an informative error on \verb|"hierarchical"| and
-\verb|"debtox"| fits where the single-observation residual concept
-does not apply.
+\code{fitted()}, \code{residuals()} and \code{logLik()} apply only to the
+\verb|"individual"| and \verb|"growth_repro"| model types; on
+\verb|"hierarchical"| and \verb|"debtox"| fits, where a
+single-observation residual has no clear meaning, they stop with an
+explanatory error.
 
 \textbf{Reference.} Tasks B10/B11; \code{R/fit.R}.
 
@@ -159,10 +155,10 @@ been implemented as a method rather than a simple function to clarify
 the class structure for the user.''
 \end{displayquote}
 
-\textbf{Response.} \code{bdeb\_derived()} is now an S3 generic with
-method \code{bdeb\_derived.bdeb\_fit}. The user-facing call is
-unchanged, but the dispatch makes the class structure explicit and
-enables future methods on prior-only and simulated objects.
+\textbf{Response.} \code{bdeb\_derived()} is now an S3 generic, with
+\code{bdeb\_derived.bdeb\_fit} as its method. The call users write is
+unchanged, but dispatching this way makes the class structure visible and
+leaves room for methods on prior-only and simulated objects later.
 
 \textbf{Reference.} Task B7; \code{R/fit.R}.
 
@@ -175,12 +171,12 @@ the same thing, which questions the reason why the second has been
 implemented.''
 \end{displayquote}
 
-\textbf{Response.} \code{summary.bdeb\_fit()} is now the primary
-posterior-summary API; it accepts \code{pars} and \code{prob}
-arguments and returns a \code{posterior::draws\_summary} data frame,
-mirroring \code{summary.lm()}. \code{bdeb\_summary()} is deprecated:
-the wrapper still works but emits a \pkg{lifecycle} deprecation
-warning at first call and will be removed in a future release.
+\textbf{Response.} \code{summary.bdeb\_fit()} is now the main way to
+summarise the posterior: it takes \code{pars} and \code{prob} arguments
+and returns a \code{posterior::draws\_summary} data frame, in the spirit
+of \code{summary.lm()}. \code{bdeb\_summary()} is deprecated. The wrapper
+still runs, but it raises a \pkg{lifecycle} deprecation warning on first
+use and will go in a future release.
 
 \textbf{Reference.} Task B9; \code{R/fit.R}, \code{R/diagnostics.R}.
 
@@ -192,15 +188,14 @@ be checked to assess that their value is what is expected and returns
 comprehensive messages to users when this is not the case.''
 \end{displayquote}
 
-\textbf{Response.} All exported functions now validate their inputs
-through a uniform set of internal assertions
-(\code{assert\_positive}, \code{assert\_finite\_scalar},
-\code{assert\_probability}, \ldots). Error messages are routed
-through \code{cli::cli\_abort()} with named bullets and suggestions.
-The test suite now contains over 180 input-validation contracts in
-total; \code{tests/testthat/test-input-validation.R} (63
-\code{expect\_error} checks) and \code{test-api-contracts.R} (38
-checks) alone cover the most user-facing entry points.
+\textbf{Response.} Every exported function now checks its inputs through
+one shared set of internal assertions (\code{assert\_positive},
+\code{assert\_finite\_scalar}, \code{assert\_probability}, and so on).
+Error messages go through \code{cli::cli\_abort()} with named bullets and
+suggested fixes. Input validation is now covered by more than 180
+contracts; \code{tests/testthat/test-input-validation.R} (63
+\code{expect\_error} checks) and \code{test-api-contracts.R} (38 checks)
+between them exercise the entry points users hit most.
 
 \textbf{Reference.} Task B8; \code{R/utils.R} for the assertions,
 individual R files for their use.
@@ -217,8 +212,7 @@ material reproduces which part of the manuscript.''
 \end{displayquote}
 
 \textbf{Response.} The new \code{replication/} directory ships as a
-single zip (\code{BayesianDEB\_replication.zip}) with the following
-layout:
+single zip (\code{BayesianDEB\_replication.zip}), laid out like this:
 
 \begin{Verbatim}[fontsize=\small]
 replication/
@@ -233,9 +227,9 @@ replication/
   sbc/                     # long-running SBC scripts
 \end{Verbatim}
 
-\code{README.md} explicitly maps each script to manuscript sections,
-states the run time in both \code{lite} and \code{full} modes, and
-lists required and optional packages.
+\code{README.md} maps each script to the manuscript sections it produces,
+gives the run time in both \code{lite} and \code{full} modes, and lists
+the required and optional packages.
 
 \textbf{Reference.} Phase 3 (tasks A1--A7); \code{replication/README.md}.
 
@@ -248,14 +242,12 @@ the replication scripts. E.g., page 7 contains
 find this code in the replication scripts provided.''
 \end{displayquote}
 
-\textbf{Response.} Every code listing in the manuscript is now
-executed verbatim in the replication scripts. Specifically,
-\verb|prior_species("Eisenia_fetida")| is called in
-\code{replication/01\_illustrations.R} immediately before the
-corresponding \code{bdeb\_fit()} call in Section~5.1. Similarly, the
-\code{obs\_student\_t()} one-liner from p.~18 is now constructed in
-Section~5.1 to satisfy the audit, even though it is not fitted in
-that section.
+\textbf{Response.} Every code listing in the manuscript is now run in the
+replication scripts. \verb|prior_species("Eisenia_fetida")| is called in
+\code{replication/01\_illustrations.R} just before the matching
+\code{bdeb\_fit()} call from Section~5.1, and the \code{obs\_student\_t()}
+one-liner from p.~18 is now constructed in Section~5.1 as well, so the
+audit is complete, even though nothing is fitted with it there.
 
 \textbf{Reference.} \code{replication/01\_illustrations.R} lines for
 \code{prior\_species()} and \code{obs\_student\_t()}.
@@ -270,28 +262,26 @@ identical results cannot be obtained by specifying the specific
 environment that allowed to obtain those results in the manuscript.''
 \end{displayquote}
 
-\textbf{Response.} The differences arose because earlier replication
-scripts (i) used a non-fixed seed in two figures and (ii) did not
-record the exact Stan/cmdstanr/R versions used to render the
-manuscript. We have:
+\textbf{Response.} Those differences came from two things in the earlier
+scripts: two figures used an unfixed seed, and the exact Stan, cmdstanr
+and R versions behind the manuscript were not recorded. We have:
 
 \begin{itemize}[nosep]
-\item Fixed a global seed (\verb|set.seed(20260418)|) in
-  \code{00\_setup.R} and propagate it to every \code{bdeb\_fit()} and
-  \code{plot\_*()} call via explicit \verb|seed =| arguments.
-\item Recorded the rendering environment in
-  \code{replication/outputs/sessionInfo.txt}, captured via
+\item fixed a global seed (\verb|set.seed(20260418)|) in
+  \code{00\_setup.R} and pass it to every \code{bdeb\_fit()} and
+  \code{plot\_*()} call through explicit \verb|seed =| arguments;
+\item recorded the rendering environment in
+  \code{replication/outputs/sessionInfo.txt}, captured with
   \code{BayesianDEB::bdeb\_session\_info()} and
-  \code{utils::sessionInfo()}.
-\item All manuscript figures and tables are reproduced
-  bit-identically by \verb|BDEB_MODE=full Rscript ...| under the
-  recorded environment.
+  \code{utils::sessionInfo()};
+\item with this environment, \verb|BDEB_MODE=full Rscript ...| reproduces
+  every manuscript figure and table bit for bit.
 \end{itemize}
 
-Small residual numerical differences ($\sim 10^{-4}$ in posterior
-summaries) remain across platforms because Stan's adaptive HMC is
-sensitive to floating-point reductions in \code{reduce\_sum}; this is
-documented in \code{replication/README.md}.
+A small residual difference ($\sim 10^{-4}$ in the posterior summaries)
+still shows up across platforms, because Stan's adaptive HMC depends on
+the order of floating-point reductions in \code{reduce\_sum}; we note
+this in \code{replication/README.md}.
 
 \textbf{Reference.} Tasks A3/A4; \code{replication/00\_setup.R},
 \code{replication/outputs/sessionInfo.txt}.
@@ -306,26 +296,25 @@ seems to be important to fix or at least provide an explanation and
 guide users in how to interpret these warnings.''
 \end{displayquote}
 
-\textbf{Response.} These messages are emitted by Stan's stiff BDF ODE
-solver during the HMC warm-up phase, when the sampler explores
-parameter combinations that are inconsistent with the data. They are
-\emph{informational} (Stan documents them as such), not errors: the
-integrator returns control, the leapfrog step is rejected by the
-Metropolis criterion, and the chain continues normally.
+\textbf{Response.} Stan's stiff BDF ODE solver prints these during HMC
+warm-up, when the sampler wanders into parameter combinations that do not
+fit the data. They are \emph{informational} rather than errors, and Stan
+documents them as such: the integrator hands control back, the leapfrog
+step is rejected by the Metropolis criterion, and the chain carries on.
 
-We have made two changes:
+We made two changes:
 
 \begin{enumerate}[nosep]
 \item Increased \code{ode\_bdf\_tol} \code{max\_num\_steps} from
   \code{1e4} to \code{1e5} in all four Stan models
-  (\code{inst/stan/bdeb\_*.stan}). This eliminates roughly two-thirds
-  of the messages on the default warm-up of 300 iterations.
-\item Added a paragraph in \code{replication/README.md} and in the
-  \emph{Getting started} vignette (``ODE solver messages'') that
-  quotes the Stan reference manual and tells users when these
-  messages indicate a real problem (frequent occurrence past warm-up,
-  accompanied by divergent transitions) versus harmless exploration
-  noise (sporadic occurrence during warm-up only).
+  (\code{inst/stan/bdeb\_*.stan}). This removes roughly two-thirds of the
+  messages on the default 300-iteration warm-up.
+\item Added a paragraph to \code{replication/README.md} and to the
+  \emph{Getting started} vignette (``ODE solver messages'') that quotes
+  the Stan reference manual and explains when the messages point to a
+  real problem (they recur past warm-up, alongside divergent
+  transitions) and when they are just harmless warm-up exploration
+  (sporadic, warm-up only).
 \end{enumerate}
 
 \textbf{Reference.} Task A4 / C1; \code{inst/stan/bdeb\_*.stan},
@@ -342,12 +331,11 @@ to reduce the dependency on availability from external unreliable
 sources.''
 \end{displayquote}
 
-\textbf{Response.} \code{curves.txt} is now bundled locally at
+\textbf{Response.} \code{curves.txt} now travels with the material at
 \code{replication/data/curves.txt} (SHA-256 \code{19e131b8\ldots},
-recorded in \code{replication/data/CHECKSUMS.txt}). The replication
-scripts read from the local path; the URL-based form has been
-removed. Provenance and licence (CC-BY-4.0, Mathieu 2024) are
-documented in \code{replication/README.md}.
+recorded in \code{replication/data/CHECKSUMS.txt}). The scripts read the
+local copy, and the URL-based form is gone. Its provenance and licence
+(CC-BY-4.0, Mathieu 2024) are noted in \code{replication/README.md}.
 
 \textbf{Reference.} Task A5; \code{replication/data/curves.txt},
 \code{replication/data/CHECKSUMS.txt}.
@@ -359,13 +347,12 @@ documented in \code{replication/README.md}.
 \verb|Error in bdeb_model():|\allowbreak{} \verb|Temperature list missing: T_obs.|''
 \end{displayquote}
 
-\textbf{Response.} In package version 0.1.4 we renamed the
-temperature list field \code{T} to \code{T\_obs}, both to align with
-the Stan-side naming and to avoid shadowing R's built-in
-\code{T~=~TRUE}. The replication scripts have been updated
-accordingly: every \verb|temperature = list(...)| call now uses
-\verb|T_obs = ...|. A backward-compatibility shim was considered but
-rejected to keep the API surface clean for v0.2.0.
+\textbf{Response.} In version 0.1.4 we renamed the temperature-list field
+\code{T} to \code{T\_obs}, both to match the Stan-side name and to stop it
+shadowing R's built-in \code{T~=~TRUE}. The replication scripts now
+follow suit: every \verb|temperature = list(...)| call uses
+\verb|T_obs = ...|. We weighed a backward-compatibility shim but left it
+out to keep the v0.2.0 API clean.
 
 \textbf{Reference.} Task A6; \code{replication/03\_case\_studies.R}.
 
@@ -378,27 +365,25 @@ Excessive use of computing resources should be avoided when providing
 examples to demonstrate the use of the package.''
 \end{displayquote}
 
-\textbf{Response.} Each replication script now supports two execution
-modes selected via the environment variable \code{BDEB\_MODE}:
+\textbf{Response.} Each replication script runs in one of two modes,
+chosen with the \code{BDEB\_MODE} environment variable:
 
 \begin{itemize}[nosep]
 \item \textbf{\code{lite}} (default): \verb|chains = 2|,
-  \verb|iter_warmup = 300|, \verb|iter_sampling = 300|. Reproduces
-  the qualitative shape of every figure and table. Total wall-clock
-  on a 4-core laptop: \textbf{< 30 minutes} for
-  \code{01} + \code{02} + \code{03}.
-\item \textbf{\code{full}} (manuscript-equivalent):
-  \verb|chains = 4|, \verb|iter_warmup = 1000|,
-  \verb|iter_sampling = 1000|. Reproduces bit-identical posteriors
-  and diagnostics. Total wall-clock on a 4-core laptop:
-  \textbf{$\approx 3$ hours}.
+  \verb|iter_warmup = 300|, \verb|iter_sampling = 300|. Reproduces the
+  qualitative shape of every figure and table. Total wall-clock on a
+  4-core laptop: \textbf{< 30 minutes} for \code{01} + \code{02} +
+  \code{03}.
+\item \textbf{\code{full}} (manuscript-equivalent): \verb|chains = 4|,
+  \verb|iter_warmup = 1000|, \verb|iter_sampling = 1000|. Reproduces
+  bit-identical posteriors and diagnostics. Total wall-clock on a 4-core
+  laptop: \textbf{$\approx 3$ hours}.
 \end{itemize}
 
-The choice is documented in \code{replication/README.md}. SBC
-calibration scripts (\code{replication/sbc/}) remain in their own
-sub-folder because they are inherently long-running ($\sim 10$~h) and
-are not required to reproduce manuscript figures; their cached
-results are shipped as \code{.rds} files.
+\code{README.md} documents the choice. The SBC calibration scripts
+(\code{replication/sbc/}) stay in their own sub-folder: they are
+long-running by nature ($\sim 10$~h) and are not needed to reproduce the
+manuscript figures, so their results ship as cached \code{.rds} files.
 
 \textbf{Reference.} Task A2; \code{replication/00\_setup.R} (mode
 dispatch), \code{replication/README.md}.
@@ -415,13 +400,12 @@ package, it is important that its help page is accompanied with an
 example.''
 \end{displayquote}
 
-\textbf{Response.} We have added runnable examples to every main
-function whose example does not require CmdStan: \code{bdeb\_data},
+\textbf{Response.} We added runnable examples to every main function
+whose example does not need CmdStan: \code{bdeb\_data},
 \code{bdeb\_model}, \code{bdeb\_tox}, \code{bdeb\_prior\_predictive},
-\code{prior\_species}, and all \code{prior\_*} constructors. Each
-example uses bundled datasets and executes in well under 1 second on
-R~CMD~check defaults; we verified this against
-\verb|R CMD check --as-cran --run-donttest|.
+\code{prior\_species}, and all the \code{prior\_*} constructors. Each runs
+on bundled datasets in well under a second under R~CMD~check defaults,
+which we confirmed with \verb|R CMD check --as-cran --run-donttest|.
 
 \textbf{Reference.} Task C2; \code{R/*.R}
 (Roxygen \code{@examples} blocks).
@@ -436,19 +420,17 @@ similar to what is suggested for suggested packages in Writing R
 Extensions.''
 \end{displayquote}
 
-\textbf{Response.} \code{bdeb\_fit()} retains its
-\code{\textbackslash dontrun\{\}} example because (i)~a single Stan
-compilation followed by an MCMC run exceeds the 5-second-per-example
-limit imposed by R~CMD~check, and (ii)~the CmdStan toolchain
-installation is non-trivial and must be tested up-front rather than
-ignored on failure. However, the Roxygen block now explicitly states
-this reasoning in a comment that appears in the rendered Rd, so the
-reviewer (and any user) sees why the example is wrapped.
+\textbf{Response.} \code{bdeb\_fit()} keeps its
+\code{\textbackslash dontrun\{\}} example for two reasons: compiling a
+Stan model and then running MCMC goes well past the 5-second-per-example
+limit in R~CMD~check, and the CmdStan toolchain has to be installed and
+tested deliberately rather than skipped on failure. The Roxygen block now
+says this in a comment that shows up in the rendered Rd, so a reader can
+see why the example is wrapped.
 
-For example coverage we instead provide two complete vignettes
-(\emph{Getting started}, \emph{Case study: Eisenia / Folsomia}) and
-the replication scripts, all of which conditionally execute their
-Stan code blocks via
+For coverage we lean on two full vignettes (\emph{Getting started};
+\emph{Case study: Eisenia / Folsomia}) and the replication scripts, all
+of which guard their Stan chunks with
 \verb|requireNamespace("cmdstanr", quietly = TRUE)|.
 
 \textbf{Reference.} Task C2 (Roxygen comment); Task C1 (vignette
@@ -464,20 +446,18 @@ It would seem preferable to check for availability of \pkg{cmdstanr}
 and then conditionally allow to run the code.''
 \end{displayquote}
 
-\textbf{Response.} Both vignettes have been rewritten to gate every
-Stan-touching chunk on
-\verb|requireNamespace("cmdstanr", quietly = TRUE)|. The pattern
-follows the \emph{Writing R Extensions} recommendation for suggested
-packages: on systems where \pkg{cmdstanr} is available
-\emph{and} \code{cmdstanr::cmdstan\_version()} returns a
-non-\code{NULL} version string, the chunk runs and the posterior is
-shown; otherwise the chunk is skipped and a printed message explains
-how to install CmdStan.
+\textbf{Response.} Both vignettes now gate every Stan-touching chunk on
+\verb|requireNamespace("cmdstanr", quietly = TRUE)|, following the
+\emph{Writing R Extensions} advice for suggested packages: where
+\pkg{cmdstanr} is installed \emph{and} \code{cmdstanr::cmdstan\_version()}
+returns a non-\code{NULL} version string, the chunk runs and shows the
+posterior; otherwise it is skipped and a message explains how to install
+CmdStan.
 
-To keep the rendered HTML size manageable, we additionally
-short-circuit each fit to \code{lite} mode
-(\verb|chains = 2, iter = 300+300|) when building on CRAN; on full
-installation this still produces every figure in the article.
+To keep the rendered HTML small, each fit drops to \code{lite} mode
+(\verb|chains = 2, iter = 300+300|) when the build happens on CRAN; on a
+full installation the same code still draws every figure from the
+article.
 
 \textbf{Reference.} Task C1; \code{vignettes/getting\_started.Rmd},
 \code{vignettes/case\_study\_eisenia\_folsomia.Rmd}.
@@ -490,27 +470,23 @@ installation this still produces every figure in the article.
 \code{NULL}''
 \end{displayquote}
 
-\textbf{Response.} The original
-\verb|plot.bdeb_fit(type = "pairs")| called
-\code{bayesplot::mcmc\_pairs()}, which returns a
-\code{bayesplot\_grid} (a \code{gtable}). The old method then
-attempted \verb|result + ggplot2::labs()|, which is undefined for
-\code{gtable} objects and silently returned \code{NULL}.
+\textbf{Response.} The old \verb|plot.bdeb_fit(type = "pairs")| called
+\code{bayesplot::mcmc\_pairs()}, which returns a \code{bayesplot\_grid}
+(a \code{gtable}), and then tried \verb|result + ggplot2::labs()|, which
+is undefined for \code{gtable} objects and quietly returned \code{NULL}.
 
-Fixed: the method now returns the \code{bayesplot\_grid} directly.
-Additionally, the requested parameters are passed through to
-\code{bayesplot::mcmc\_pairs()} via
-\code{posterior::subset\_draws()} so that the \code{pars} argument is
-honoured exactly. Tests in \code{tests/testthat/test-plot.R} confirm
-a non-NULL return value and correct dimensions of the resulting
-grid.
+The method now returns the \code{bayesplot\_grid} directly, and the
+requested parameters reach \code{bayesplot::mcmc\_pairs()} through
+\code{posterior::subset\_draws()}, so the \code{pars} argument is honoured
+exactly. Tests in \code{tests/testthat/test-plot.R} check that the return
+value is non-NULL and that the grid has the right dimensions.
 
 \textbf{Reference.} Task C1; \code{R/plot.R}.
 
 \section{Additional improvements (not requested, but bundled)}
 
-Because the class-system overhaul touched most of the package, we
-took the opportunity to:
+Since the class-system rework reached into most of the package, we used
+the occasion to:
 
 \begin{itemize}[nosep]
 \item Add LOO and WAIC predictive-density comparison
@@ -529,8 +505,7 @@ took the opportunity to:
   input-validation contracts as detailed in~1.7.
 \end{itemize}
 
-These additions are documented in \code{NEWS.md} under the 0.2.0
-entry.
+All of these are recorded in \code{NEWS.md} under the 0.2.0 entry.
 
 \section{Submission summary}
 
@@ -545,11 +520,11 @@ The revised submission consists of:
 \item \code{BayesianDEB\_replication.zip}: replication material,
   with \code{README.md}, bundled \code{curves.txt}, and \code{lite}
   / \code{full} modes.
-\item The present document (\code{response\_to\_editor.tex}).
+\item The present document (\code{response\_to\_editor\_round1.tex}).
 \end{itemize}
 
-We thank the editor and reviewers for the thorough and constructive
-feedback, which substantially improved the package.
+We thank the editor and reviewers for the thorough, constructive
+feedback, which has improved the package considerably.
 
 \vspace{1em}
 \noindent Branimir K.\ Hackenberger\\

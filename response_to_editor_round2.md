@@ -1,26 +1,26 @@
 # Response to the Second-Round Review
 
-We thank the editor and reviewer for the careful second reading of
-*BayesianDEB: A Bayesian Framework for Dynamic Energy Budget Modelling
-in R*.  Below we reproduce each point of the review of **22 May 2026**
-(in *italics*), followed by our response and the specific files in which
-the change was made.  All work refers to package version **0.2.1**; the
+We are grateful to the editor and reviewer for reading *BayesianDEB: A
+Bayesian Framework for Dynamic Energy Budget Modelling in R* so closely a
+second time.  Each comment from the review of **22 May 2026** is quoted
+below (in *italics*), with our reply underneath and the files we touched
+to address it.  Everything here refers to package version **0.2.1**; the
 replication archive is `BayesianDEB_replication.zip` and the revised
 manuscript is `bayesiandeb.tex`.
 
-A one-line summary of the changes:
+In short:
 
-* a single master replication script (`replicate_all.R`) reproduces
-  every manuscript number in about one minute from cached draws;
-* every code listing shown in the manuscript now executes in the
-  replication scripts and prints its output;
-* all manuscript outputs are produced with a fixed seed from the shipped
-  cache, so they reproduce bit-identically;
+* a single master replication script (`replicate_all.R`) rebuilds every
+  manuscript number in about a minute from cached draws;
+* every code listing in the manuscript now runs, and prints its output,
+  in the replication scripts;
+* all manuscript outputs come from the shipped cache under a fixed seed,
+  so they reproduce bit for bit;
 * the diagnostics `print` and `plot` methods are now compact;
-* the `bdeb_diagnose` example family moved from `\dontrun{}` to a
+* the `bdeb_diagnose` examples have moved from `\dontrun{}` to a
   `cmdstanr`-gated `\donttest{}` block;
-* the dose-response figure now draws the reference lines described in
-  its caption;
+* the dose-response figure now draws the reference lines its caption
+  describes;
 * the README installation instructions no longer pull the stale CRAN
   version.
 
@@ -31,13 +31,13 @@ A one-line summary of the changes:
 > *The submitted package version is not in line with the package
 > published on CRAN. We require that both versions match.*
 
-CRAN currently holds 0.1.4, whereas the manuscript and this submission
-describe 0.2.1.  We have submitted 0.2.1 to CRAN so that the published
-package matches the manuscript; the accompanying `cran-comments.md`
-documents the version bump.  `DESCRIPTION` declares `Version: 0.2.1`.
-The package passes `R CMD check --as-cran` with 0 errors / 0 warnings /
-1 note (the note is the informational `cmdstanr`-in-
-`Additional_repositories` line discussed below).
+When the reviewer wrote, CRAN still held 0.1.4 while the manuscript and
+this submission describe 0.2.1.  That gap is now closed: 0.2.1 went up on
+CRAN on 2026-06-17, so the published package and the manuscript describe
+the same release.  The version bump is documented in `cran-comments.md`,
+and `DESCRIPTION` declares `Version: 0.2.1`.  `R CMD check --as-cran`
+reports 0 errors, 0 warnings and a single note (the informational
+`cmdstanr`-in-`Additional_repositories` line, discussed below).
 
 ---
 
@@ -46,9 +46,9 @@ The package passes `R CMD check --as-cran` with 0 errors / 0 warnings /
 > *The README file should also include instructions for the
 > installation of cmdstanr.*
 
-Added.  `README.md` (Installation section) now gives the two-step
-procedure explicitly: install `cmdstanr` from the Stan r-universe and
-then build the CmdStan toolchain once,
+Added.  The Installation section of `README.md` now spells out the two
+steps: first install `cmdstanr` from the Stan r-universe, then build the
+CmdStan toolchain once,
 
 ```r
 install.packages("cmdstanr",
@@ -56,7 +56,8 @@ install.packages("cmdstanr",
 cmdstanr::install_cmdstan()
 ```
 
-and states that `bdeb_fit()` checks for the toolchain at runtime.
+and the text notes that `bdeb_fit()` checks for the toolchain at run
+time.
 
 ---
 
@@ -70,24 +71,24 @@ and states that `bdeb_fit()` checks for the toolchain at runtime.
 > number of R files and that they also work on reducing the
 > computational time needed to replicate results.*
 
-We have added a single master script, `replication/replicate_all.R`,
-that reproduces **every figure, table and printed number** in the
-manuscript with one command:
+There is now a single master script, `replication/replicate_all.R`, that
+rebuilds every figure, table and printed number in the manuscript from
+one command:
 
 ```sh
 Rscript replicate_all.R
 ```
 
-By default it does **not** run any MCMC: it loads the archived posterior
-draws shipped in `outputs/` and `sbc/` and regenerates all outputs in
-**about one minute** on a laptop — well inside the one-hour budget.  The
-long simulation-based-calibration runs are never executed by this
-script; their archived rank matrices (`sbc/*.rds`) reproduce Figures 3-4
-and Tables 4-5 directly, and regenerating them from scratch (45 min to
-12 h per model) is documented separately in `sbc/README.md` and is not
-part of the replication budget.  For readers who wish to recompute, a
-full refit is available via `BDEB_RECOMPUTE=true BDEB_MODE=full`
-(~3 h) and a quick refit via `BDEB_MODE=lite` (~30 min).
+Out of the box it runs no MCMC at all: it reads the archived posterior
+draws in `outputs/` and `sbc/` and regenerates everything in roughly a
+minute on a laptop, comfortably under the one-hour limit.  The lengthy
+simulation-based-calibration runs stay out of this path.  Their rank
+matrices are shipped (`sbc/*.rds`) and reproduce Figures 3-4 and
+Tables 4-5 on their own; recomputing them from scratch takes anywhere
+from 45 min to 12 h per model and is described separately in
+`sbc/README.md`, outside the replication budget.  Anyone who does want to
+refit can set `BDEB_RECOMPUTE=true BDEB_MODE=full` for a complete run
+(~3 h) or `BDEB_MODE=lite` for a quick one (~30 min).
 
 **Reference.** `replication/replicate_all.R`, `replication/README.md`,
 `replication/sbc/README.md`.
@@ -101,11 +102,10 @@ full refit is available via `BDEB_RECOMPUTE=true BDEB_MODE=full`
 > in donttest instead so as to allow its execution using 'example',
 > similarly to what has been implemented for bdeb_fit.*
 
-Done.  `bdeb_diagnose()` and the `bdeb_diagnostics` `print`/`summary`/
-`plot` methods — together with `bdeb_loo()`, `bdeb_derived()` and the
-deprecated `bdeb_summary()` — now wrap their examples in a
-`cmdstanr`-gated `\donttest{}` block of the same form used for
-`bdeb_fit()`:
+Done.  The examples for `bdeb_diagnose()`, the `bdeb_diagnostics`
+`print`/`summary`/`plot` methods, `bdeb_loo()`, `bdeb_derived()` and the
+deprecated `bdeb_summary()` are now wrapped in the same `cmdstanr`-gated
+`\donttest{}` block we already use for `bdeb_fit()`:
 
 ```r
 \donttest{
@@ -122,7 +122,7 @@ if (requireNamespace("cmdstanr", quietly = TRUE) &&
 ```
 
 so `example("bdeb_diagnose")` runs whenever a CmdStan toolchain is
-present.  No exported function now uses `\dontrun{}`.
+available.  None of the exported functions rely on `\dontrun{}` any more.
 
 **Reference.** `R/diagnostics.R`, `R/fit.R`, `R/ppc.R`, `R/debtox.R`.
 
@@ -133,13 +133,13 @@ present.  No exported function now uses `\dontrun{}`.
 > *We believe that the plot method for 'bdeb_diagnostics' could be
 > improved to allow a shorter and more readable display on screen.*
 
-`plot.bdeb_diagnostics()` now hides the per-time-point latent states
-(`x_sol[i,j]`, `L_hat[i]`, ...) by default and plots only the scalar
-model parameters, so the R-hat / ESS panels are short and legible
-instead of carrying dozens of latent rows.  A new `full = TRUE`
-argument restores the complete plot, and the subtitle reports how many
-latent rows were hidden.  This mirrors the behaviour already adopted for
-`print.bdeb_diagnostics()`.
+`plot.bdeb_diagnostics()` no longer crowds the display with
+per-time-point latent states (`x_sol[i,j]`, `L_hat[i]`, and so on).  By
+default it shows only the scalar model parameters, so the R-hat and ESS
+panels stay short and easy to read rather than running to dozens of
+latent rows.  Passing `full = TRUE` brings back the complete plot, and
+the subtitle notes how many latent rows were left out.  This follows what
+`print.bdeb_diagnostics()` already does.
 
 **Reference.** `R/diagnostics.R` (`plot.bdeb_diagnostics`); `NEWS.md`.
 
@@ -151,23 +151,23 @@ latent rows were hidden.  This mirrors the behaviour already adopted for
 > still different from the results shown in the article. For instance,
 > on page 13, the loo_compare for the lognormal model differs.*
 
-The LOO comparison on this individual is genuinely Monte-Carlo
-sensitive: with only `n = 13` observations a few Pareto-`k̂` values
-exceed 0.7, so the importance-sampling ELPD difference fluctuates by a
-fraction of its standard error between runs (we observed values in the
-range -0.7 to -1.1, all with SE ~1.2).  We have:
+This comparison really is sensitive to Monte-Carlo noise on this
+individual.  With only `n = 13` observations, a handful of Pareto-`k̂`
+values climb above 0.7, so the importance-sampling ELPD difference moves
+by a fraction of its standard error from run to run; across our reruns it
+landed around -1 every time, always with SE ~1.3 and always within one
+standard error of zero.  We made three changes:
 
-* fixed a global seed (`seed = 42`) in every fit so the shipped result
+* fixed a global seed (`seed = 42`) in every fit, so the shipped result
   is deterministic;
-* made `replicate_all.R` reproduce the manuscript numbers from the
-  cached draws, so the printed `Δ`ELPD matches the article exactly;
-* reframed the conclusion in the text as qualitative: because
-  `|Δ`ELPD`|` is smaller than its standard error, neither observation
-  model is decisively preferred, and the exact difference should be read
-  as indicative rather than definitive.
+* had `replicate_all.R` reproduce the manuscript numbers from the cached
+  draws, so the printed `Δ`ELPD matches the article exactly;
+* rewrote the conclusion as a qualitative one: since `|Δ`ELPD`|` is
+  smaller than its standard error, neither observation model wins
+  clearly, and the precise difference is best read as indicative.
 
-The manuscript now prints `lognormal -1.0` (SE 1.3) and states plainly
-that this difference is within its standard error.
+The manuscript prints `lognormal -1.0` (SE 1.3) and says outright that
+the difference sits within its standard error.
 
 **Reference.** `replication/00_setup.R` (seed), `replication/01_illustrations.R`,
 manuscript Section 5.1.
@@ -180,13 +180,13 @@ manuscript Section 5.1.
 > option that includes CRAN, which installs version 0.1.4 and not the
 > submitted package version 0.2.0.*
 
-The installation instructions have been separated.  `BayesianDEB` is now
-installed with a plain `install.packages("BayesianDEB")` (which will
-resolve to 0.2.1 once it is on CRAN), and `cmdstanr` is installed from
-the Stan r-universe in a **separate** call (see point 2).  The combined
-`repos = c("https://stan-dev.r-universe.dev", getOption("repos"))`
-command that could shadow the CRAN version of `BayesianDEB` has been
-removed from the README.
+We have split the installation instructions.  `BayesianDEB` is now
+installed with a plain `install.packages("BayesianDEB")`, which now
+resolves to 0.2.1 from CRAN, while `cmdstanr` is installed separately
+from the Stan r-universe (see point 2).  The earlier combined
+`repos = c("https://stan-dev.r-universe.dev", getOption("repos"))` call,
+which could have masked the CRAN copy of `BayesianDEB`, is gone from the
+README.
 
 **Reference.** `README.md` (Installation section).
 
@@ -198,13 +198,12 @@ removed from the README.
 > is not contained ... E.g., on page 7, prior_species("Daphnia_magna",
 > type = "debtox").*
 
-Every code listing shown in the manuscript is now executed verbatim in
-the replication scripts.  In particular,
-`prior_species("Daphnia_magna", type = "debtox")` is called and printed
-in `replication/01_illustrations.R`, alongside the
-`prior_species("Eisenia_fetida")` listing.  We re-audited the manuscript
-listing by listing and confirmed each one appears in a replication
-script.
+Every code listing in the manuscript is now run in the replication
+scripts.  `prior_species("Daphnia_magna", type = "debtox")`, for example,
+is called and printed in `replication/01_illustrations.R` next to the
+`prior_species("Eisenia_fetida")` listing.  We went back through the
+manuscript one listing at a time and checked that each appears in a
+replication script.
 
 **Reference.** `replication/01_illustrations.R`.
 
@@ -216,17 +215,17 @@ script.
 > bdeb_diagnose(fit) reports a different number of divergent transitions
 > and prints a very long table including x_sol[i,j] and L_hat[i] rows.*
 
-Two changes address this:
+Two things address this:
 
 * **Reproducibility.** With the fixed seed and cached draws (point 6),
-  the page-12 output is reproduced exactly by `replicate_all.R`; the
-  manuscript now reports a single divergent transition (1 of 4000 draws,
-  < 0.1%) and discusses it.
-* **Length.** `print.bdeb_diagnostics()` now shows only the scalar model
-  parameters by default and hides the per-time-point latent states; the
-  manuscript output on p. 12 is correspondingly compact (eight parameter
-  rows, no `x_sol`/`L_hat`).  The full table remains available via
-  `print(x, full = TRUE)` or `summary(x)$table`.
+  `replicate_all.R` reproduces the page-12 output exactly; the manuscript
+  now reports a single divergent transition (1 of 4000 draws, < 0.1%) and
+  comments on it.
+* **Length.** `print.bdeb_diagnostics()` now defaults to the scalar model
+  parameters and hides the per-time-point latent states, so the p. 12
+  output is compact (eight parameter rows, no `x_sol`/`L_hat`).  The full
+  table remains available through `print(x, full = TRUE)` or
+  `summary(x)$table`.
 
 **Reference.** `R/diagnostics.R`, `replication/01_illustrations.R`,
 manuscript Section 5.1.
@@ -239,8 +238,7 @@ manuscript Section 5.1.
 > does not print it, so it is not easy to compare with the manuscript.*
 
 Fixed.  `replication/01_illustrations.R` now prints the derived-quantity
-table immediately after constructing it, in the same layout as the
-manuscript:
+table right after it is built, laid out as in the manuscript:
 
 ```r
 der <- bdeb_derived(fit,
@@ -258,13 +256,14 @@ print(as.data.frame(summarise_draws(der, "mean", "sd",
 > *Warnings are triggered (Some Pareto k diagnostic values are too
 > high) where one might also point them out and comment on them.*
 
-These warnings are now explicitly anticipated and explained.  In
-`replication/01_illustrations.R` a comment precedes the `loo_compare()`
-call noting that, with `n = 13`, a few `k̂ > 0.7` are expected and that
-the importance-sampling ELPD is therefore indicative.  The manuscript
-(Section 5.1) makes the same point in the running text: the Pareto-`k̂`
-warning is reported, interpreted (the approximation is unreliable for a
-few points), and used to justify reading the comparison qualitatively.
+These warnings are now flagged and explained rather than left to surprise
+the reader.  In `replication/01_illustrations.R` a comment ahead of the
+`loo_compare()` call points out that, at `n = 13`, a few `k̂ > 0.7` are
+to be expected and the importance-sampling ELPD is therefore only
+indicative.  The manuscript makes the same point in the text of
+Section 5.1: it reports the Pareto-`k̂` warning, explains what it means
+(the approximation is unreliable at a few points), and uses it to justify
+reading the comparison qualitatively.
 
 **Reference.** `replication/01_illustrations.R`, manuscript Section 5.1.
 
@@ -275,13 +274,12 @@ few points), and used to justify reading the comparison qualitatively.
 > *The caption of Figure 2 discusses something dashed red and dotted
 > green. However, it is unclear to what in the figure one refers.*
 
-`plot_dose_response()` now actually draws these reference lines: a
-dashed red vertical line at the posterior-median EC$_{50}$ and a dotted
-green vertical line at the posterior-median NEC, with a matching legend
-subtitle.  Non-finite draws are dropped and the view is clipped with
-`coord_cartesian()` so degenerate draws no longer create vertical
-artefacts.  The Figure 2 caption now matches the rendered figure
-element by element.
+`plot_dose_response()` now draws the lines the caption promises: a dashed
+red vertical line at the posterior-median EC$_{50}$ and a dotted green
+one at the posterior-median NEC, with a matching legend subtitle.
+Non-finite draws are discarded and the view is clipped with
+`coord_cartesian()`, so degenerate draws no longer leave vertical
+artefacts.  The Figure 2 caption and the rendered figure now agree.
 
 **Reference.** `R/debtox.R` (`plot_dose_response`), manuscript
 Figure 2 caption.
@@ -293,25 +291,25 @@ Figure 2 caption.
 > *It is unclear what part of the replication material reproduces
 > Figures 3 and 4.*
 
-`replication/README.md` now contains an explicit *Figure -> script*
-table mapping every manuscript figure to the script and cached object
-that produces it.  Figures 3 and 4 are listed as:
+`replication/README.md` now carries a *Figure -> script* table that ties
+each manuscript figure to the script and cached object behind it.  For
+the two in question:
 
 | Figure | File | Produced by |
 | --- | --- | --- |
 | Fig. 3 | `fig_sbc_ranks.pdf` | `02_validation.R` from `sbc/sbc_results.rds` |
 | Fig. 4 | `fig_sbc_hierarchical.pdf` | `02_validation.R` from `sbc/sbc_hierarchical_results.rds` |
 
-The same table maps all remaining figures and the corresponding
-manuscript sections.
+The same table covers the remaining figures and the matching manuscript
+sections.
 
 **Reference.** `replication/README.md` (Figure -> script and
 Section -> script tables).
 
 ---
 
-We thank the editor and reviewer again for the constructive feedback,
-which has further improved the package and its replication material.
+We thank the editor and reviewer once more for feedback that has made the
+package and its replication material better.
 
 Branimir K. Hackenberger
 on behalf of the authors
